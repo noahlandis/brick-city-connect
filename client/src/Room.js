@@ -21,50 +21,46 @@ function Room() {
             setPeerId(id);
         });
 
+        // Start local video stream immediately
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            .then((stream) => {
+                // Display your own video stream
+                if (localVideoRef.current) {
+                    localVideoRef.current.srcObject = stream;
+                }
+
+                // Store the stream in a ref for later use
+                peerRef.current.localStream = stream;
+            })
+            .catch(error => console.error('Error accessing media devices:', error));
+
         // Listen for the 'call' event when a remote peer calls
         peerRef.current.on('call', (call) => {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                .then((stream) => {
-                    // Answer the call and send your stream
-                    call.answer(stream);
-                    // Display your own video stream
-                    if (localVideoRef.current) {
-                        localVideoRef.current.srcObject = stream;
-                    }
+            // Answer the call with the existing stream
+            call.answer(peerRef.current.localStream);
 
-                    // Listen for the remote stream
-                    call.on('stream', (remoteStream) => {
-                        if (remoteVideoRef.current) {
-                            remoteVideoRef.current.srcObject = remoteStream;
-                        }
-                    });
-                })
-                .catch(error => console.error('Error accessing media devices:', error));
+            // Listen for the remote stream
+            call.on('stream', (remoteStream) => {
+                if (remoteVideoRef.current) {
+                    remoteVideoRef.current.srcObject = remoteStream;
+                }
+            });
         });
 
-        // Listen for the 'user-connected' event
+        // Listen for the 'user-connected' event, this gets triggered after the joinRoom function emits the 'join-room' event
         socket.on('user-connected', (userId) => {
             console.log('Remote user connected with ID:', userId);
             setRemotePeerId(userId);
 
-            // Initiate a call to the remote peer
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-                .then((stream) => {
-                    // Display your own video stream
-                    if (localVideoRef.current) {
-                        localVideoRef.current.srcObject = stream;
-                    }
+            // Initiate a call to the remote peer using the existing stream
+            const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-                    const call = peerRef.current.call(userId, stream);
-
-                    // Listen for the remote stream
-                    call.on('stream', (remoteStream) => {
-                        if (remoteVideoRef.current) {
-                            remoteVideoRef.current.srcObject = remoteStream;
-                        }
-                    });
-                })
-                .catch(error => console.error('Error accessing media devices:', error));
+            // Listen for the remote stream
+            call.on('stream', (remoteStream) => {
+                if (remoteVideoRef.current) {
+                    remoteVideoRef.current.srcObject = remoteStream;
+                }
+            });
         });
 
         return () => {
