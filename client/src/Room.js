@@ -34,6 +34,7 @@ function Room() {
 
     const joinRoom = () => {
         if (peerId) {
+            // we join the room with the room id and the peer id. For now, we are hardcoding the room id to 1
             socket.emit('join-room', '1', peerId);
             console.log('Joined room with peer ID:', peerId);
         } else {
