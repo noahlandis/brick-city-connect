@@ -12,7 +12,7 @@ function Room() {
     const remoteVideoRef = useRef(null);
 
     useEffect(() => {
-        // Initialize PeerJS
+        // Initialize PeerJS: basically, a peer-to-peer library that generates random IDs for each client
         peerRef.current = new Peer();
 
         // Get the peer ID from PeerJS
@@ -34,17 +34,13 @@ function Room() {
             })
             .catch(error => console.error('Error accessing media devices:', error));
 
-        // Listen for the 'call' event when a remote peer calls
+        // Whenever we are called, we pass our local stream to the other peer
         peerRef.current.on('call', (call) => {
-            // Answer the call with the existing stream
+            // Answer the call by passing our local stream to the other peer
             call.answer(peerRef.current.localStream);
 
-            // Listen for the remote stream
-            call.on('stream', (remoteStream) => {
-                if (remoteVideoRef.current) {
-                    remoteVideoRef.current.srcObject = remoteStream;
-                }
-            });
+            // Handle the remote stream: incoming call
+            handleRemoteStream(call);
         });
 
         // Listen for the 'user-connected' event, this gets triggered after the joinRoom function emits the 'join-room' event
@@ -52,15 +48,11 @@ function Room() {
             console.log('Remote user connected with ID:', userId);
             setRemotePeerId(userId);
 
-            // Initiate a call to the remote peer using the existing stream
+            // Initiate a call to the remote peer using our local
             const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-            // Listen for the remote stream
-            call.on('stream', (remoteStream) => {
-                if (remoteVideoRef.current) {
-                    remoteVideoRef.current.srcObject = remoteStream;
-                }
-            });
+            // Handle the remote stream: outgoing call
+            handleRemoteStream(call);
         });
 
         return () => {
@@ -70,6 +62,16 @@ function Room() {
             }
         };
     }, []);
+
+    // Function to handle the remote stream
+    const handleRemoteStream = (call) => {
+        // This code sets the local stream (passed from the other peer) as our remote stream. So their local stream -> our remote stream
+        call.on('stream', (remoteStream) => {
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = remoteStream;
+            }
+        });
+    };
 
     const joinRoom = () => {
         if (peerId) {
