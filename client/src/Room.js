@@ -4,6 +4,7 @@ import Peer from 'peerjs';
 
 const socket = io('http://localhost:3000');
 
+
 function Room() {
     const [peerId, setPeerId] = useState('');
     const peerRef = useRef(null);
@@ -12,13 +13,15 @@ function Room() {
         // Initialize PeerJS
         peerRef.current = new Peer();
 
+        // we get the peer id from peerjs
         peerRef.current.on('open', (id) => {
             console.log('My peer ID is: ' + id);
             setPeerId(id);
         });
 
+        // we listen for the user-connected event   
         socket.on('user-connected', (userId) => {
-            console.log('User connected with ID:', userId);
+            console.log('Remote user connected with ID:', userId);
         });
 
         return () => {
