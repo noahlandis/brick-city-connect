@@ -96,6 +96,13 @@ function Room() {
                 remoteVideoRef.current.srcObject = remoteStream;
             }
         });
+
+        call.on('close', () => {
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = null;
+            }
+            setRemotePeerId('');
+        });
     };
 
     const joinRoom = (id) => {
