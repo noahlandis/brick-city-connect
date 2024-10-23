@@ -11,6 +11,7 @@ function Room() {
     const peerRef = useRef(null);
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
+    const [remotePeerId, setRemotePeerId] = useState('');
 
     useEffect(() => {
         // Initialize PeerJS
@@ -41,21 +42,23 @@ function Room() {
             // Answer the call by passing our local stream to the other peer
             call.answer(peerRef.current.localStream);
 
-            // Handle the remote stream: incoming call, this happens when the user joins a room that already has a peer connected
+            // Handle the remote stream: incoming call, this happens when you join a room that a user is already in
             console.log('Incoming call from ' + call.peer);
             handleRemoteStream(call);
+            setRemotePeerId(call.peer);
         });
 
         // Listen for the 'user-connected' event, this gets triggered after the joinRoom function emits the 'join-room' event
         socket.on('user-connected', (userId) => {
             console.log('Remote user connected with ID:', userId);
+            setRemotePeerId(userId);
 
             // Ensure peerRef.current exists before making a call
             if (peerRef.current && peerRef.current.localStream) {
                 // Initiate a call to the remote peer using our local stream
                 const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-                // Handle the remote stream: outgoing call, this happens when the user joins the current user's room.
+                // Handle the remote stream: outgoing call, this happens when a user joins a room that you're already in
                 console.log('Outgoing call to ' + userId);
                 handleRemoteStream(call);
             } else {
@@ -68,6 +71,7 @@ function Room() {
             if (remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = null;
             }
+            setRemotePeerId('');
         });
 
         return () => {
@@ -125,6 +129,7 @@ function Room() {
                 <h2>Remote Video</h2>
                 <video ref={remoteVideoRef} autoPlay playsInline style={{ width: '300px', border: '2px solid black' }}></video>
             </div>
+            <div>You're chatting with {remotePeerId || 'no one at the moment'}</div>
         </div>
     );
 }
