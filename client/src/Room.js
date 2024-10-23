@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
+import { useNavigate } from 'react-router-dom';
 
 const socket = io('http://localhost:3000');
 
 function Room() {
+    const navigate = useNavigate();
     const [peerId, setPeerId] = useState('');
     const peerRef = useRef(null);
     const localVideoRef = useRef(null);
@@ -48,24 +50,42 @@ function Room() {
         socket.on('user-connected', (userId) => {
             console.log('Remote user connected with ID:', userId);
 
-            // Initiate a call to the remote peer using our local
-            const call = peerRef.current.call(userId, peerRef.current.localStream);
+            // Ensure peerRef.current exists before making a call
+            if (peerRef.current && peerRef.current.localStream) {
+                // Initiate a call to the remote peer using our local stream
+                const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-            // Handle the remote stream: outgoing call, this happens when the user joins the current user's room. The user already in the room will call the new
-            console.log('Outgoing call from ' + userId);
-            handleRemoteStream(call);
+                // Handle the remote stream: outgoing call, this happens when the user joins the current user's room.
+                console.log('Outgoing call to ' + userId);
+                handleRemoteStream(call);
+            } else {
+                console.error('PeerJS instance or local stream not available');
+            }
+        });
+
+        socket.on('user-disconnected', (userId) => {
+            console.log('Remote user disconnected with ID:', userId);
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = null;
+            }
         });
 
         return () => {
-            // Clean up PeerJS connection
+            // Clean up PeerJS connection and socket listeners
             if (peerRef.current) {
                 peerRef.current.destroy();
             }
+            socket.off('user-connected');
+            socket.off('user-disconnected');
         };
     }, []);
 
     // Function to handle the remote stream
     const handleRemoteStream = (call) => {
+        if (!call) {
+            console.error('Call object is undefined in handleRemoteStream');
+            return;
+        }
         // This code sets the local stream (passed from the other peer) as our remote stream. So their local stream -> our remote stream
         call.on('stream', (remoteStream) => {
             if (remoteVideoRef.current) {
@@ -84,10 +104,17 @@ function Room() {
         }
     };
 
+    const leaveRoom = (id) => {
+        navigate('/');
+        socket.emit('leave-room', '1', id);
+        console.log('Left room with peer ID:', id);
+    };
+
     return (
         <div>
             <h1>Video Chat Room</h1>
             <p>Your Peer ID: {peerId}</p>
+            <button onClick={() => leaveRoom(peerId)}>Leave Room</button>
 
             <div>
                 <h2>Local Video</h2>

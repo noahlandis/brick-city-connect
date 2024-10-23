@@ -27,6 +27,12 @@ io.on('connection', (socket) => {
         socket.to(roomId).emit('user-connected', userId);
     });
 
+    socket.on('leave-room', (roomId, userId) => {
+        socket.leave(roomId);
+        console.log('user left room', roomId, 'with peer ID:', userId);
+        socket.to(roomId).emit('user-disconnected', userId);
+    });
+
 });
 
 server.listen(3000, () => {
