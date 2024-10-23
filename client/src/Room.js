@@ -6,7 +6,6 @@ const socket = io('http://localhost:3000');
 
 function Room() {
     const [peerId, setPeerId] = useState('');
-    const [remotePeerId, setRemotePeerId] = useState('');
     const peerRef = useRef(null);
     const localVideoRef = useRef(null);
     const remoteVideoRef = useRef(null);
@@ -39,19 +38,20 @@ function Room() {
             // Answer the call by passing our local stream to the other peer
             call.answer(peerRef.current.localStream);
 
-            // Handle the remote stream: incoming call
+            // Handle the remote stream: incoming call, this happens when the user joins a room that already has a peer connected
+            console.log('Incoming call from ' + call.peer);
             handleRemoteStream(call);
         });
 
         // Listen for the 'user-connected' event, this gets triggered after the joinRoom function emits the 'join-room' event
         socket.on('user-connected', (userId) => {
             console.log('Remote user connected with ID:', userId);
-            setRemotePeerId(userId);
 
             // Initiate a call to the remote peer using our local
             const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-            // Handle the remote stream: outgoing call
+            // Handle the remote stream: outgoing call, this happens when the user joins the current user's room. The user already in the room will call the new user
+            console.log('Outgoing call from ' + userId);
             handleRemoteStream(call);
         });
 
