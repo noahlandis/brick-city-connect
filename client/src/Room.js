@@ -11,13 +11,14 @@ function Room() {
     const remoteVideoRef = useRef(null);
 
     useEffect(() => {
-        // Initialize PeerJS: basically, a peer-to-peer library that generates random IDs for each client
+        // Initialize PeerJS
         peerRef.current = new Peer();
 
-        // Get the peer ID from PeerJS
         peerRef.current.on('open', (id) => {
             console.log('My peer ID is: ' + id);
             setPeerId(id);
+            // Join the room immediately after getting the peer ID
+            joinRoom(id);
         });
 
         // Start local video stream immediately
@@ -50,7 +51,7 @@ function Room() {
             // Initiate a call to the remote peer using our local
             const call = peerRef.current.call(userId, peerRef.current.localStream);
 
-            // Handle the remote stream: outgoing call, this happens when the user joins the current user's room. The user already in the room will call the new user
+            // Handle the remote stream: outgoing call, this happens when the user joins the current user's room. The user already in the room will call the new
             console.log('Outgoing call from ' + userId);
             handleRemoteStream(call);
         });
@@ -73,11 +74,11 @@ function Room() {
         });
     };
 
-    const joinRoom = () => {
-        if (peerId) {
+    const joinRoom = (id) => {
+        if (id) {
             // Join the room with the room ID and peer ID. For now, hardcoding the room ID to '1'
-            socket.emit('join-room', '1', peerId);
-            console.log('Joined room with peer ID:', peerId);
+            socket.emit('join-room', '1', id);
+            console.log('Joined room with peer ID:', id);
         } else {
             console.log('Peer ID not yet available');
         }
@@ -85,9 +86,8 @@ function Room() {
 
     return (
         <div>
-            <h1>Room Component</h1>
+            <h1>Video Chat Room</h1>
             <p>Your Peer ID: {peerId}</p>
-            <button onClick={joinRoom}>Join Room</button>
 
             <div>
                 <h2>Local Video</h2>
