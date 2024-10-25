@@ -11,26 +11,51 @@ const io = new Server(server, {
 });
 
 
+let waitingUsers = [];
 
 // this runs every time a user connects to our webpage
 io.on('connection', (socket) => {
     console.log('a user connected');
 
     // this an event we emit from the front end, we join the room with the id that we get from the front end
-    socket.on('join-room', (roomId, userId) => {
+    socket.on('join-room', () => {
+      console.log(`User ${socket.id} with peer ID is looking for a partner.`);
 
-        // we join the room
-        socket.join(roomId);
-        console.log('user joined room', roomId, 'with peer ID:', userId);
 
-        // this tells the other user in the room that we joined
-        socket.to(roomId).emit('user-connected', userId);
+      if (waitingUsers.length > 0) {
+        const partnerSocketId = waitingUsers.shift();
+        const partnerSocket = io.sockets.sockets.get(partnerSocketId);
+
+        console.log(`User ${socket.id} has joined with ${partnerSocketId}.`);
+        socket.emit('user-connected', partnerSocketId);
+        
+        
+
+
+  
+      } else {
+        console.log(`User ${socket.id} is waiting.`);
+
+        waitingUsers.push(socket.id);
+      }
+
     });
 
-    socket.on('leave-room', (roomId, userId) => {
-        socket.leave(roomId);
-        console.log('user left room', roomId, 'with peer ID:', userId);
-        socket.to(roomId).emit('user-disconnected', userId);
+    socket.on('leave-room', (remoteUser) => {
+      socket.emit('user-disconnected', socket.id);
+
+      // If we have a remote user, it means we still have to add the partner back into the waiting list
+      if (remoteUser) {
+        console.log('remoteUser is still in the room:', remoteUser);
+
+        waitingUsers.push(remoteUser);
+      } else {
+        // we clear the waiting list since now there are no users left in the room
+        waitingUsers = [];
+      }
+      
+
+      
     });
 
 });

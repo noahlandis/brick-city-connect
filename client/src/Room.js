@@ -15,7 +15,10 @@ function Room() {
 
     useEffect(() => {
         // Initialize PeerJS
-        peerRef.current = new Peer();
+        console.log('my socket id is', socket.id);
+
+        // now we simplify by using the client ID as the peer ID
+        peerRef.current = new Peer(socket.id);
 
         peerRef.current.on('open', (id) => {
             console.log('My peer ID is: ' + id);
@@ -108,24 +111,26 @@ function Room() {
     const joinRoom = (id) => {
         if (id) {
             // Join the room with the room ID and peer ID. For now, hardcoding the room ID to '1'
-            socket.emit('join-room', '1', id);
-            console.log('Joined room with peer ID:', id);
+            socket.emit('join-room');
+            console.log('Joined room with peer ID:');
         } else {
             console.log('Peer ID not yet available');
         }
     };
 
-    const leaveRoom = (id) => {
+    const leaveRoom = (remotePeerId) => {
         navigate('/');
-        socket.emit('leave-room', '1', id);
-        console.log('Left room with peer ID:', id);
+    // we pass the remotePeer Id, because when we leave, we need to kick the other user back into the waiting list
+        
+        socket.emit('leave-room', remotePeerId);
+        console.log('remotePeerId left room:', remotePeerId);
     };
 
     return (
         <div>
             <h1>Video Chat Room</h1>
             <p>Your Peer ID: {peerId}</p>
-            <button onClick={() => leaveRoom(peerId)}>Leave Room</button>
+            <button onClick={() => leaveRoom(remotePeerId)}>Leave Room</button>
 
             <div>
                 <h2>Local Video</h2>
