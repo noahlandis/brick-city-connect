@@ -47,10 +47,20 @@ io.on('connection', (socket) => {
       // If we have a remote user, it means we still have to add the partner back into the waiting list
       if (remoteUser) {
         console.log('remoteUser is still in the room:', remoteUser);
-
-        waitingUsers.push(remoteUser);
+        // if there's a waiting user, we connect
+        if (waitingUsers.length > 0) {
+          
+          const partnerSocketId = waitingUsers.shift();
+          console.log('user already in the room, connecting...');
+          const partnerSocket = io.sockets.sockets.get(partnerSocketId);
+          partnerSocket.emit('user-connected', remoteUser);
+        }
+        else {
+          waitingUsers.push(remoteUser);
+        }
       } else {
         // we clear the waiting list since now there are no users left in the room
+        console.log('no users left in the room, clearing waiting list...');
         waitingUsers = [];
       }
       
