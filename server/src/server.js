@@ -10,27 +10,46 @@ const io = new Server(server, {
   },
 });
 
-
+let lobby = []
 
 // this runs every time a user connects to our webpage
 io.on('connection', (socket) => {
     console.log('a user connected');
 
-    // this an event we emit from the front end, we join the room with the id that we get from the front end
-    socket.on('join-room', (roomId, userId) => {
+    // Initial finding pair/Next button find pair
+    socket.on('find-pair', () => {
+      if(lobby.length > 0){
+        // Grab socket ID of waiting user
+        const lobbyUserSocketID = lobby.shift();
 
-        // we join the room
-        socket.join(roomId);
-        console.log('user joined room', roomId, 'with peer ID:', userId);
+        // Get the socket for the user in the lobby
+        const lobbyUserSocket = io.sockets.sockets.get(lobbyUserSocketID);
 
-        // this tells the other user in the room that we joined
-        socket.to(roomId).emit('user-connected', userId);
+        if(lobbyUserSocket){
+          console.log('Found pair, loading connection.')
+          socket.emit('pair-found', lobbyUserSocketID);
+          lobbyUserSocket.emit('pair-found', socket.id);
+        }
+      }else{
+        // Add user to lobby to wait for another user to pair
+        lobby.push(socket.id);
+        console.log('No pair found, waiting for more users.')
+      }
     });
 
-    socket.on('leave-room', (roomId, userId) => {
-        socket.leave(roomId);
-        console.log('user left room', roomId, 'with peer ID:', userId);
-        socket.to(roomId).emit('user-disconnected', userId);
+    socket.on('next-call', () => {
+      socket.emit('user-disconnected');
+    });
+
+     // Handle user unexpected disconnect
+    socket.on('disconnect', () => {
+      console.log(`User disconnected: ${socket.id}`);
+
+      // Remove the disconnected user from the waiting queue if they were there
+      lobby = lobby.filter((id) => id !== socket.id);
+
+      // Notify the partner that the user has disconnected
+      socket.broadcast.emit('user-disconnected', socket.id);
     });
 
 });
