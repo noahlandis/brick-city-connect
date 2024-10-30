@@ -52,20 +52,22 @@ io.on('connection', (socket) => {
       }
 
 
-      // shut the video stream off for both users
+      // shut the video stream off 
       socket.emit('user-disconnected', socket.id);
       const remoteSocket = io.sockets.sockets.get(remoteUser);
 
       // connect the remote user (user whose partner pressed next) to the next user in the waiting list
       const partnerSocketId = waitingUsers.shift();
+
+      // we add ourselves back to the waiting list since we pressed next
       waitingUsers.push(socket.id);
 
+      // connect the remote user to the next user in the waiting list
       const partnerSocket = io.sockets.sockets.get(partnerSocketId);
       remoteSocket.emit('user-connected', partnerSocketId);
       partnerSocket.emit('user-connected', remoteUser);
       
 
-      // we add that pressed 'next' to the waiting list
       
 
      
