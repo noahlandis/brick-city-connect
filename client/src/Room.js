@@ -126,11 +126,17 @@ function Room() {
         console.log('remotePeerId left room:', remotePeerId);
     };
 
+    const next = (remotePeerId) => {
+        socket.emit('next', remotePeerId);
+        console.log('remotePeerId left room:', remotePeerId);
+    }
+
     return (
         <div>
             <h1>Video Chat Room</h1>
             <p>Your Peer ID: {peerId}</p>
             <button onClick={() => leaveRoom(remotePeerId)}>Leave Room</button>
+            <button onClick={() => next(remotePeerId)}>Next</button>
 
             <div>
                 <h2>Local Video</h2>
