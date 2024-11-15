@@ -54,6 +54,7 @@ function Room() {
         // Listen for the 'user-connected' event, this gets triggered after the joinRoom function emits the 'join-room' event
         socket.on('user-connected', (userId) => {
             console.log('Remote user connected with ID:', userId);
+            console.log('Remote peer ID set to:', userId);
             setRemotePeerId(userId);
 
             // Ensure peerRef.current exists before making a call
@@ -74,6 +75,7 @@ function Room() {
             if (remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = null;
             }
+            console.log('Remote peer ID set to empty string');
             setRemotePeerId('');
         });
 
@@ -95,16 +97,18 @@ function Room() {
         }
         // This code sets the local stream (passed from the other peer) as our remote stream. So their local stream -> our remote stream
         call.on('stream', (remoteStream) => {
+            console.log('Remote stream received');
             if (remoteVideoRef.current) {
                 remoteVideoRef.current.srcObject = remoteStream;
             }
         });
 
         call.on('close', () => {
+            console.log('Call closed');
             if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = null;
+                remoteVideoRef.current.srcObject = null;     // setRemotePeerId('');
             }
-            setRemotePeerId('');
+            
         });
     };
 

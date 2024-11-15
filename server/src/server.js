@@ -76,7 +76,9 @@ io.on('connection', (socket) => {
 
     socket.on('leave-room', (remoteUser) => {
       console.log('this user left the room', socket.id);
-      socket.emit('user-disconnected', socket.id);
+      const remoteSocket = io.sockets.sockets.get(remoteUser);
+
+      remoteSocket.emit('user-disconnected', socket.id);
 
       // If we have a remote user, it means we still have to add the partner back into the waiting list
       if (remoteUser) {
