@@ -120,6 +120,7 @@ function Room() {
     // Close any existing call
     if (currentCall) {
       currentCall.close();
+      setCurrentCall(null);
     }
 
     setCurrentCall(call);
@@ -133,11 +134,15 @@ function Room() {
     });
 
     call.on('close', () => {
-      console.log('Call closed');
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = null;
+      // Only clear the UI if this is the current active call
+      if (call === currentCall) {
+        console.log('Current call closed');
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = null;
+        }
+        setRemotePeerId('');
+        setCurrentCall(null);
       }
-      setRemotePeerId('');
     });
   };
 
