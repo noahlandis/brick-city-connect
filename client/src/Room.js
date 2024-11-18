@@ -1,4 +1,3 @@
-// Room.js
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
@@ -7,11 +6,11 @@ import { useNavigate } from 'react-router-dom';
 function Room() {
   const navigate = useNavigate();
   const [peerId, setPeerId] = useState('');
-  const peerRef = useRef(null);
+  const peerRef = useRef({}); // Use an object to store both peer and localStream
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const [remotePeerId, setRemotePeerId] = useState('');
-  const socketRef = useRef(null); // Use a ref to store the socket instance
+  const socketRef = useRef(null);
   const [currentCall, setCurrentCall] = useState(null);
 
   useEffect(() => {
@@ -22,29 +21,6 @@ function Room() {
     socketRef.current.on('connect', () => {
       console.log('Socket connected with ID:', socketRef.current.id);
 
-      // Only initialize PeerJS after we're sure we have a socket ID
-      if (!socketRef.current.id) {
-        console.error('Socket ID not available');
-        return;
-      }
-
-      // Initialize PeerJS with the socket ID
-      peerRef.current = new Peer(socketRef.current.id, {
-        // Add debug option to help troubleshoot
-        debug: 2
-      });
-
-      peerRef.current.on('open', (id) => {
-        console.log('My peer ID is: ' + id);
-        setPeerId(id);
-        // Only join room after peer connection is fully established
-        joinRoom(id);
-      });
-
-      peerRef.current.on('error', (error) => {
-        console.error('PeerJS error:', error);
-      });
-
       // Start local video stream
       navigator.mediaDevices
         .getUserMedia({ video: true, audio: true })
@@ -54,35 +30,21 @@ function Room() {
             localVideoRef.current.srcObject = stream;
           }
 
-          // Store the stream in a ref for later use
-          peerRef.current.localStream = stream;
+          // Store the stream and initialize PeerJS
+          initializePeer(stream);
         })
         .catch((error) =>
           console.error('Error accessing media devices:', error)
         );
 
-      // Handle incoming calls
-      peerRef.current.on('call', (call) => {
-        // Answer the call by passing our local stream to the other peer
-        call.answer(peerRef.current.localStream);
-
-        // Handle the remote stream
-        console.log('Incoming call from ' + call.peer);
-        handleRemoteStream(call);
-        setRemotePeerId(call.peer);
-      });
-
-      // Set up Socket.IO event listeners after the socket is connected
-
-      // 'user-connected' event
+      // Set up Socket.IO event listeners
       socketRef.current.on('user-connected', (userId) => {
         console.log('Remote user connected with ID:', userId);
-        console.log('Remote peer ID set to:', userId);
         setRemotePeerId(userId);
 
-        if (peerRef.current && peerRef.current.localStream) {
+        if (peerRef.current.peer && peerRef.current.localStream) {
           // Initiate a call to the remote peer using our local stream
-          const call = peerRef.current.call(
+          const call = peerRef.current.peer.call(
             userId,
             peerRef.current.localStream
           );
@@ -95,7 +57,6 @@ function Room() {
         }
       });
 
-      // 'user-disconnected' event
       socketRef.current.on('user-disconnected', (userId) => {
         console.log('Remote user disconnected with ID:', userId);
         if (remoteVideoRef.current) {
@@ -103,7 +64,6 @@ function Room() {
         }
         console.log('Waiting for partner to reconnect...');
         setRemotePeerId('');
-        // Optionally display a message to the user
       });
     });
 
@@ -113,14 +73,51 @@ function Room() {
       if (currentCall) {
         currentCall.close();
       }
-      if (peerRef.current) {
-        peerRef.current.destroy();
+      if (peerRef.current.peer) {
+        peerRef.current.peer.destroy();
       }
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
     };
   }, []);
+
+  const initializePeer = (stream) => {
+    // Store the local stream
+    peerRef.current.localStream = stream;
+
+    // Initialize PeerJS with the socket ID
+    if (!socketRef.current.id) {
+      console.error('Socket ID not available');
+      return;
+    }
+
+    peerRef.current.peer = new Peer(socketRef.current.id, {
+      debug: 2,
+    });
+
+    peerRef.current.peer.on('open', (id) => {
+      console.log('My peer ID is: ' + id);
+      setPeerId(id);
+      // Join the room after peer connection is established
+      joinRoom(id);
+    });
+
+    peerRef.current.peer.on('error', (error) => {
+      console.error('PeerJS error:', error);
+    });
+
+    // Handle incoming calls
+    peerRef.current.peer.on('call', (call) => {
+      // Answer the call with the local stream
+      call.answer(peerRef.current.localStream);
+
+      // Handle the remote stream
+      console.log('Incoming call from ' + call.peer);
+      handleRemoteStream(call);
+      setRemotePeerId(call.peer);
+    });
+  };
 
   // Function to handle the remote stream
   const handleRemoteStream = (call) => {
