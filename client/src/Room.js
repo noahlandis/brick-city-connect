@@ -16,21 +16,33 @@ function Room() {
 
   useEffect(() => {
     // Initialize Socket.IO inside useEffect
-    socketRef.current = io('http://localhost:3000');
+    socketRef.current = io(process.env.REACT_APP_SERVER_URL);
 
     // Wait for the socket to connect
     socketRef.current.on('connect', () => {
       console.log('Socket connected with ID:', socketRef.current.id);
 
+      // Only initialize PeerJS after we're sure we have a socket ID
+      if (!socketRef.current.id) {
+        console.error('Socket ID not available');
+        return;
+      }
+
       // Initialize PeerJS with the socket ID
-      peerRef.current = new Peer(socketRef.current.id);
+      peerRef.current = new Peer(socketRef.current.id, {
+        // Add debug option to help troubleshoot
+        debug: 2
+      });
 
       peerRef.current.on('open', (id) => {
         console.log('My peer ID is: ' + id);
         setPeerId(id);
-
-        // Join the room after getting the peer ID
+        // Only join room after peer connection is fully established
         joinRoom(id);
+      });
+
+      peerRef.current.on('error', (error) => {
+        console.error('PeerJS error:', error);
       });
 
       // Start local video stream
