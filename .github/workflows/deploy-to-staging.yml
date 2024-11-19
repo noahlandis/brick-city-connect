@@ -23,6 +23,14 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > staging-bcc-key.pem
           chmod 600 staging-bcc-key.pem
 
+      # Step 3: Add Host Key to Known Hosts
+      - name: Add Host Key to Known Hosts
+        env:
+          SERVER_HOST: "staging.brickcityconnect.com"  # Replace with your server's domain or IP
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
       # Step 4: Build React Frontend
       - name: Build React Frontend
         working-directory: ./client
