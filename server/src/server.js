@@ -18,6 +18,7 @@ io.on('connection', (socket) => {
   console.log('A user connected:', socket.id);
 
   socket.on('join-room', () => {
+    console.log("automated deployment works!");
     console.log(`User ${socket.id} is looking for a partner.`);
 
     if (waitingUser) {
