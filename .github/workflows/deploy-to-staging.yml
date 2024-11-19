@@ -1,0 +1,63 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    name: Deploy Backend and Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up SSH Key
+      - name: Set up SSH Key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+        run: |
+          echo "$SSH_PRIVATE_KEY" > staging-bcc-key.pem
+          chmod 600 staging-bcc-key.pem
+
+      # Step 3: Build and Deploy React Frontend
+      - name: Build React Frontend
+        working-directory: ./client
+        run: |
+          npm install
+          npm run build
+      - name: Deploy React Frontend
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "3.12.34.236"
+          DEPLOY_PATH: "/home/ec2-user/rit-omegle/client/build"
+        run: |
+          rsync -avz -e "ssh -i staging-bcc-key.pem" ./client/build/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+      # Step 4: Deploy Node.js Backend
+      - name: Deploy Node.js Backend
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "3.12.34.236"
+          DEPLOY_PATH: "/home/ec2-user/rit-omegle/server"
+        run: |
+          rsync -avz -e "ssh -i staging-bcc-key.pem" ./server/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+      # Step 5: Install Backend Dependencies and Restart
+      - name: Install Backend Dependencies and Restart
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "3.12.34.236"
+        run: |
+          ssh -i staging-bcc-key.pem $SERVER_USER@$SERVER_HOST << 'EOF'
+          cd /home/ec2-user/rit-omegle/server
+          npm install
+          pm2 restart src/server.js
+          EOF
+
+      # Step 6: Cleanup
+      - name: Cleanup
+        run: rm -f staging-bcc-key.pem
