@@ -6,7 +6,7 @@ function Home() {
 
     return (
         <div>
-            <h1>Home</h1>
+            <h1>Home, automated deployment works!</h1>
             <button onClick={() => navigate('/room')}>
                 Start Chatting
             </button>
