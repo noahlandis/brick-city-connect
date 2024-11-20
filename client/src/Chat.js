@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 
-function Room() {
+function Chat() {
   const navigate = useNavigate();
   const [peerId, setPeerId] = useState('');
   const peerRef = useRef({}); // Use an object to store both peer and localStream
@@ -211,4 +211,4 @@ function Room() {
   );
 }
 
-export default Room;
+export default Chat;
