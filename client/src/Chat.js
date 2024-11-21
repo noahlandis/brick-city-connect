@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ function Chat() {
     startLocalStream();
 
     return () => {
-      // stop stream on cleanup
+      // Stop stream on cleanup
       stopLocalStream();
     };
   }, []);
@@ -23,10 +23,22 @@ function Chat() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         localVideoRef.current.srcObject = stream;
+
+        // Monitor video track
+        stream.getVideoTracks().forEach((track) => {
+          track.onended = handleTrackDisabled; // Handle camera turned off
+          track.onmute = handleTrackDisabled;  // Handle camera muted
+        });
+
+        // Monitor audio track
+        stream.getAudioTracks().forEach((track) => {
+          track.onended = handleTrackDisabled; // Handle mic turned off
+          track.onmute = handleTrackDisabled;  // Handle mic muted
+        });
       })
       .catch(error => {
         console.error('Error accessing media devices:', error);
-        navigate('/');
+        handleTrackDisabled();
       });
   }
 
@@ -37,6 +49,10 @@ function Chat() {
     }
   }
 
+  function handleTrackDisabled() {
+    console.log('Track disabled (camera/mic turned off or muted)');
+    navigate('/'); // Redirect to home
+  }
 
   return (
     <div>
