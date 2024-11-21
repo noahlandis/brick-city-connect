@@ -18,6 +18,19 @@ function Chat() {
     
     joinChat();
 
+    socketRef.current.on('match-found', (remoteUserId) => {
+      localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+    });
+
+    localUserRef.current.on('call', (call) => {
+      call.answer(localVideoRef.current.srcObject);
+
+      // after we answer the call, we get the remote stream
+      call.on('stream', (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+      });
+    });
+
 
     return () => {
       // Stop stream on cleanup

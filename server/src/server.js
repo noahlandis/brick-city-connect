@@ -13,20 +13,25 @@ const io = new Server(server, {
   upgrade: false
 });
 
-let waitingUser = null; 
+let waitingUser = null; // 
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (id) => {
+  socket.on('join-chat', (userID) => {
     if (waitingUser) {
-      console.log('match found since we have a user waiting');
-      socket.emit('match-found', id);
+      console.log('match found');
+      socket.emit('match-found', waitingUser.userID);
+      waitingUser.emit('match-found', userID);
       waitingUser = null;
     } else {
       console.log('user is waiting since we have nobody to match with');
-      waitingUser = socket.id;
+      console.log('the socket id is', socket.id);
+      socket.userID = userID;
+      waitingUser = socket;
     }
+    
   });
+
 });
 
 server.listen(3000, () => {
