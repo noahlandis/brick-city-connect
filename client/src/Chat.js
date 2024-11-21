@@ -5,19 +5,50 @@ import { useNavigate } from 'react-router-dom';
 
 function Chat() {
   const navigate = useNavigate();
-  const socket = io('http://localhost:3000');
-  const peer = new Peer();
   const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+
+
+  const localUserRef = useRef(null);
+  const socketRef = useRef(null);
 
   useEffect(() => {
     // Start local video stream immediately
     startLocalStream();
+    
+    joinChat();
+
 
     return () => {
       // Stop stream on cleanup
       stopLocalStream();
+
+      if (localUserRef.current) {
+        localUserRef.current.destroy();
+      }
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
     };
   }, []);
+
+
+  function joinChat() {
+    // initialize socket
+    socketRef.current = io('http://localhost:3000', {
+      transports: ['websocket'],
+      upgrade: false
+    });
+
+    // initialize peer
+    localUserRef.current = new Peer();
+
+    // once the peer is open, we join the chat
+    localUserRef.current.on('open', (localUserID) => {
+      socketRef.current.emit('join-chat', localUserID);
+    });
+
+  }
 
   function startLocalStream() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
@@ -58,6 +89,7 @@ function Chat() {
     <div>
       <h1>Chat</h1>
       <video ref={localVideoRef} autoPlay muted />
+      <video ref={remoteVideoRef} autoPlay />
     </div>
   );
 }

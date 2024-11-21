@@ -9,12 +9,24 @@ const io = new Server(server, {
   cors: {
     origin: '*', // Adjust if needed for security
   },
+  transports: ['websocket'],
+  upgrade: false
 });
 
 let waitingUser = null; 
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
+  socket.on('join-chat', (id) => {
+    if (waitingUser) {
+      console.log('match found since we have a user waiting');
+      socket.emit('match-found', id);
+      waitingUser = null;
+    } else {
+      console.log('user is waiting since we have nobody to match with');
+      waitingUser = socket.id;
+    }
+  });
 });
 
 server.listen(3000, () => {
