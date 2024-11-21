@@ -11,12 +11,32 @@ function Chat() {
 
   useEffect(() => {
     // Start local video stream immediately
+    startLocalStream();
+
+    return () => {
+      // stop stream on cleanup
+      stopLocalStream();
+    };
+  }, []);
+
+  function startLocalStream() {
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         localVideoRef.current.srcObject = stream;
       })
-      .catch(error => console.error('Error accessing media devices:', error));
-  }, []);
+      .catch(error => {
+        console.error('Error accessing media devices:', error);
+        navigate('/');
+      });
+  }
+
+  function stopLocalStream() {
+    if (localVideoRef.current && localVideoRef.current.srcObject) {
+      localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      localVideoRef.current.srcObject = null;
+    }
+  }
+
 
   return (
     <div>
