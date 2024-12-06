@@ -15,6 +15,10 @@ const io = new Server(server, {
 
 let waitingUser = null; 
 
+/**
+ * Attempts to match a user with the waiting user. If there is no waiting user, the passed in socket becomes the waiting user
+ * @param {*} socket - The socket (user) we are trying to match
+ */
 function attemptToMatchUser(socket) {
   if (waitingUser) { // since we have a waiting user, we can match them
     console.log('match found. Matching', socket.id, 'with', waitingUser.id);
@@ -29,6 +33,7 @@ function attemptToMatchUser(socket) {
     waitingUser = null;
   } else { // we couldn't find a match, so this user is now waiting
     console.log("couldn't find match: ", socket.id, " is now waiting");
+    socket.partnerSocket = null; // this line isn't needed for logic to work, but still good for state clarity. 
     waitingUser = socket;
   }
 
@@ -37,6 +42,7 @@ function attemptToMatchUser(socket) {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
+    // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     attemptToMatchUser(socket);
   });
