@@ -39,6 +39,8 @@ function Chat() {
       if (localUserRef.current) {
         localUserRef.current.destroy();
       }
+
+      // this ensures we tell the server that we've disconnected if we leave the page
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
