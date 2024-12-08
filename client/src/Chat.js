@@ -18,7 +18,7 @@ function Chat() {
     startLocalStream();
 
     return () => {
-      // Stop stream on cleanup
+      // Stop stream on cleanup, **check if this is needed before pushing to staging**
       stopLocalStream();
 
       if (localUserRef.current) {
