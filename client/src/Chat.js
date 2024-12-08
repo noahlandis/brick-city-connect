@@ -67,6 +67,7 @@ function Chat() {
       });
 
       call.on('close', function () {
+        // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
         if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
           remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
           remoteVideoRef.current.srcObject = null;
