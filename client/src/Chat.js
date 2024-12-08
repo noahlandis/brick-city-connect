@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
@@ -8,29 +8,14 @@ function Chat() {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
 
-
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
 
+  const [isStreamReady, setIsStreamReady] = useState(false);
+
   useEffect(() => {
-    // Start local video stream immediately
+    // Start local video stream and set up chat when ready
     startLocalStream();
-    
-    joinChat();
-
-    socketRef.current.on('match-found', (remoteUserId) => {
-      localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
-    });
-
-    localUserRef.current.on('call', (call) => {
-      call.answer(localVideoRef.current.srcObject);
-
-      // after we answer the call, we get the remote stream
-      call.on('stream', (remoteStream) => {
-        remoteVideoRef.current.srcObject = remoteStream;
-      });
-    });
-
 
     return () => {
       // Stop stream on cleanup
@@ -40,30 +25,54 @@ function Chat() {
         localUserRef.current.destroy();
       }
 
-      // this ensures we tell the server that we've disconnected if we leave the page
+      // This ensures we tell the server that we've disconnected if we leave the page
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
     };
   }, []);
 
+  useEffect(() => {
+    if (isStreamReady) {
+      joinChat();
+    }
+  }, [isStreamReady]);
 
   function joinChat() {
-    // initialize socket
+    // Initialize socket
     socketRef.current = io('http://localhost:3000', {
       transports: ['websocket'],
-      upgrade: false
+      upgrade: false,
     });
 
-    // initialize peer
+    // Initialize peer
     localUserRef.current = new Peer();
 
-    // once the peer is open, we join the chat
+    // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localUserID) => {
       console.log('local user id', localUserID);
       socketRef.current.emit('join-chat', localUserID);
     });
 
+    socketRef.current.on('match-found', (remoteUserId) => {
+      localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+    });
+
+    localUserRef.current.on('call', (call) => {
+      call.answer(localVideoRef.current.srcObject);
+
+      // After we answer the call, we get the remote stream
+      call.on('stream', (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+      });
+
+      call.on('close', function () {
+        if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+          remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+          remoteVideoRef.current.srcObject = null;
+        }
+      });
+    });
   }
 
   function startLocalStream() {
@@ -82,8 +91,10 @@ function Chat() {
           track.onended = handleTrackDisabled; // Handle mic turned off
           track.onmute = handleTrackDisabled;  // Handle mic muted
         });
+
+        setIsStreamReady(true); // Mark stream as ready
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error accessing media devices:', error);
         handleTrackDisabled();
       });
@@ -111,3 +122,5 @@ function Chat() {
 }
 
 export default Chat;
+
+
