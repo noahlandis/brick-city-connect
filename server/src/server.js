@@ -35,7 +35,6 @@ function attemptToMatchUser(socket) {
     socket.partnerSocket = null; // this line isn't needed for logic to work, but still good for state clarity. 
     waitingUser = socket;
   }
-
 }
 
 io.on('connection', (socket) => {
@@ -55,6 +54,23 @@ io.on('connection', (socket) => {
     else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
       attemptToMatchUser(socket.partnerSocket);
     }
+  });
+
+
+  socket.on('next', () => {
+
+    // If there's a waiting user (who isn't the one who pressed next), this means that the user who pressed next can become the waiting user, and the previous waiting user can connect with the user who was in the call with the user who pressed next
+    if (!waitingUser || socket === waitingUser) {
+      console.log("can't skip user, no users to match with");
+      return;
+    }
+
+    // this ensures we don't keep stale connections, and the user who pressed next isn't still getting the remote stream from the previous user
+    socket.emit('close-connection');
+
+    // because of the previous guard clause (!waitingUser), their partner is guaranteed to find a match.
+    attemptToMatchUser(socket.partnerSocket);
+    attemptToMatchUser(socket);
   });
 
 });

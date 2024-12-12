@@ -71,9 +71,15 @@ function Chat() {
 
   // handle call events
   function handleRemoteCall(call) {
-    // After we answer the call, we get the remote stream
+
+    // their local stream -> our remote stream
     call.on('stream', (remoteStream) => {
       remoteVideoRef.current.srcObject = remoteStream;
+    });
+
+    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
+    socketRef.current.on('close-connection', () => {
+      call.close();
     });
 
     call.on('close', function () {
@@ -128,6 +134,11 @@ function Chat() {
       <h1>Chat</h1>
       <video ref={localVideoRef} autoPlay muted />
       <video ref={remoteVideoRef} autoPlay />
+      <button onClick={() => {
+        socketRef.current.emit('next');
+      }}>
+        Next
+      </button>
     </div>
   );
 }
