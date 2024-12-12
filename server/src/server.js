@@ -26,7 +26,6 @@ function attemptToMatchUser(socket) {
     // we store a reference to the partner sockets for each user, so when a user leaves, we can tell their partner to find a new match
     socket.partnerSocket = waitingUser;
     waitingUser.partnerSocket = socket;
-    socket.emit('match-found', waitingUser.userID);
     waitingUser.emit('match-found', socket.userID);
 
     // since they were matched, there's no longer a waiting user

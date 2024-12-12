@@ -54,25 +54,35 @@ function Chat() {
       socketRef.current.emit('join-chat', localUserID);
     });
 
+    // initiate call
     socketRef.current.on('match-found', (remoteUserId) => {
-      localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+      console.log("call initiated");
+      const call = localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+      handleRemoteCall(call);
     });
 
+    // answer call
     localUserRef.current.on('call', (call) => {
+      console.log("call recieved");
       call.answer(localVideoRef.current.srcObject);
+      handleRemoteCall(call);
+    });
+  }
 
-      // After we answer the call, we get the remote stream
-      call.on('stream', (remoteStream) => {
-        remoteVideoRef.current.srcObject = remoteStream;
-      });
+  // handle call events
+  function handleRemoteCall(call) {
+    // After we answer the call, we get the remote stream
+    call.on('stream', (remoteStream) => {
+      remoteVideoRef.current.srcObject = remoteStream;
+    });
 
-      call.on('close', function () {
-        // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
-        if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
-          remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-          remoteVideoRef.current.srcObject = null;
-        }
-      });
+    call.on('close', function () {
+      console.log("closing call");
+      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
+      if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+        remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        remoteVideoRef.current.srcObject = null;
+      }
     });
   }
 
