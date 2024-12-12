@@ -21,6 +21,7 @@ function Chat() {
       // Stop stream on cleanup, **check if this is needed before pushing to staging**
       stopLocalStream();
 
+      // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
       if (localUserRef.current) {
         localUserRef.current.destroy();
       }
