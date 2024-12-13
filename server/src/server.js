@@ -13,7 +13,7 @@ const io = new Server(server, {
   upgrade: false
 });
 
-let nextQueue = [];
+let userWaitingToSkip = null;
 let waitingUser = null; 
 
 /**
@@ -44,25 +44,22 @@ io.on('connection', (socket) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     attemptToMatchUser(socket);
-    if (nextQueue.length > 0) {
-      console.log("a user is about to skip. There are ", nextQueue.length, " users who are waiting to skip");
-
-      userWaitingToSkip = nextQueue.shift();
-      console.log(userWaitingToSkip.id, " was waiting to skip. They should be the next waiting user");
+    if (userWaitingToSkip) {
+      console.log("theres a user who was waiting to skip");
+      // console.log(userWaitingToSkip.id, " was waiting to skip. They should be the next waiting user");
       userWaitingToSkip.emit('close-connection');
       attemptToMatchUser(userWaitingToSkip.partnerSocket);
       attemptToMatchUser(userWaitingToSkip);
-      console.log("a user skipped. There are ", nextQueue.length, " users who are waiting to next");
+      userWaitingToSkip = null;
     }
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
 
-    // if the socket was in the nextQueue, we need to remove it
-    nextQueue = nextQueue.filter(s => s !== socket);
-    console.log("now the nextQueue length is ", nextQueue.length);
-
+    if (socket === userWaitingToSkip) {
+      userWaitingToSkip = null;
+    }
 
     if (socket === waitingUser) { // if the user is the one waiting, we reset since the waiting user is the one who disconnected
       waitingUser = null;
@@ -81,22 +78,29 @@ io.on('connection', (socket) => {
       return;
     }
 
-    if (nextQueue.includes(socket)) {
-      console.log("socket already in queue, returning");
-      return;
-    }
-
     if (!waitingUser) {
       // userWaitingToSkip = nextQueue.shift();
-      // if (userWaitingToSkip && userWaitingToSkip.partnerSocket === socket) {
-      //   console.log("we are in a call with another user who wants to skip");
-      //   return;
-      // }
-      console.log("addding ", socket.id, "to next queue");
-      console.log("current queue length", nextQueue.length);
-      nextQueue.push(socket);
-      console.log("new queue length", nextQueue.length);
+      if (userWaitingToSkip == socket) {
+        console.log("no effect. user waiting to skip is already the socket");
+        return;
+      }
+      if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) {
+        console.log("we should try and match ", userWaitingToSkip.id, "and ", socket.id);
+        socket.emit('close-connection');
+        userWaitingToSkip.emit('close-connection');
 
+        attemptToMatchUser(socket.partnerSocket);
+        attemptToMatchUser(userWaitingToSkip.partnerSocket);
+        attemptToMatchUser(socket);
+
+        attemptToMatchUser(userWaitingToSkip);
+
+        userWaitingToSkip = null;
+        return;
+      }
+      
+      console.log("addding ", socket.id, "is now the userWaitingToSkip");
+      userWaitingToSkip = socket;
       return;
     }
 
