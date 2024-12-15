@@ -1,10 +1,10 @@
 // server.js
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
+import express from 'express';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 const app = express();
-const server = http.createServer(app);
+const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: '*', // Adjust if needed for security
