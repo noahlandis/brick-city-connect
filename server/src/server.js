@@ -13,8 +13,9 @@ const io = new Server(server, {
   upgrade: false
 });
 
-let userWaitingToSkip = null;
+
 let waitingUser = null; 
+let userWaitingToSkip = null; 
 
 /**
  * Attempts to match a user with the waiting user. 
@@ -97,6 +98,10 @@ io.on('connection', (socket) => {
     } 
     else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
       attemptToMatchUser(socket.partnerSocket);
+      if (userWaitingToSkip) {
+        closeConnectionAndRematch(userWaitingToSkip)
+        userWaitingToSkip = null;
+      }
     }
   });
 
