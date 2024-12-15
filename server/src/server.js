@@ -17,7 +17,8 @@ let userWaitingToSkip = null;
 let waitingUser = null; 
 
 /**
- * Attempts to match a user with the waiting user. If there is no waiting user, the passed in socket becomes the waiting user
+ * Attempts to match a user with the waiting user. 
+ * If there is no waiting user, the passed in socket becomes the waiting user
  * @param {*} socket - The socket (user) we are trying to match
  */
 function attemptToMatchUser(socket) {
@@ -39,7 +40,22 @@ function attemptToMatchUser(socket) {
 }
 
 /**
- * Attempts to rematch sockets. This is called to swap places with the waiting user (and match their partner with the previous waiting user), or to switch partners with another socket
+ * Attempts to rematch sockets. 
+ * 
+ * When one socket is passed as an argument, this will cause the socket to swap places with the waiting user. 
+ * The passed socket will become the waiting user, and the previous waiting user will match with the passed socket's partner.
+ * Example: 
+ * A-B connect (C is waiting) 
+ * closeConnectionAndRematch(A) 
+ * B-C connect (A is waiting)
+ * 
+ * When two sockets are passed as the arguments, they will exchange partners
+ * Example:
+ * A-B connect
+ * C-D connect
+ * closeConnectionAndRematch(A, C)
+ * A-C connect
+ * B-D connect
  * @param  {...any} sockets - The sockets we are trying to rematch
  */
 function closeConnectionAndRematch(...sockets) {
@@ -63,8 +79,9 @@ io.on('connection', (socket) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     attemptToMatchUser(socket);
+
+    // since we have a user who expressed intent to skip, we make them the waiting user and match their partner with the joining user
     if (userWaitingToSkip) {
-      console.log("Theres a user who was waiting to skip they should be ");
       closeConnectionAndRematch(userWaitingToSkip)
       userWaitingToSkip = null;
     }
@@ -85,22 +102,23 @@ io.on('connection', (socket) => {
 
 
   socket.on('next', () => {
-    // If there's a waiting user (who isn't the one who pressed next), this means that the user who pressed next can become the waiting user, and the previous waiting user can connect with the user who was in the call with the user who pressed next
+    // if the user is already the waiting user or the user waiting to skip, we dont want to do anything
     if (socket === waitingUser || userWaitingToSkip == socket) {
       console.log("can't skip user, no users to match with");
       return;
     }
 
     if (!waitingUser) {     
-      if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) {
+      if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) { // if we already have a user who expressed intent to skip (who is in another call than the user who pressed next), we exchange partners with that user
         console.log("we should try and match ", userWaitingToSkip.id, "and ", socket.id);
         closeConnectionAndRematch(socket, userWaitingToSkip);
         userWaitingToSkip = null;
-      } else {
-        console.log("addding ", socket.id, "is now the userWaitingToSkip");
+      } else { // since we only have one user who expressed intent to skip, we'll mark them as wanting to skip. This way, they can find a new partner when either a user in a different call wants to skip, or make them wait if a new user joins
+        console.log("adding ", socket.id, "is now the userWaitingToSkip");
         userWaitingToSkip = socket;
       }
     } else {
+      // since there is no waiting user, we just make the user who pressed next the waiting user
       closeConnectionAndRematch(socket);
     }
   });
