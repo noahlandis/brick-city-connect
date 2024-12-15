@@ -74,18 +74,28 @@ function closeConnectionAndRematch(...sockets) {
     sockets.forEach(s => attemptToMatchUser(s));
 }
 
+/**
+ * Attempts to find a new match for the passed socket.
+ * In the event of a new user joining, this will simply be the socket joining.
+ * If a socket leaves, their partner socket should be passed in so their partner can find a new match.
+ * 
+ * If there's a userWaitingToSkip, the passed socket will be guaranteed to find a new match and the userWaitingToSkip will become the waiting user.
+ * @param {*} socket - The socket to try and find a new match when the user leaves or joins.
+ */
+function handleUserLeaveAndJoin(socket) {
+  attemptToMatchUser(socket);
+  if (userWaitingToSkip) {
+      closeConnectionAndRematch(userWaitingToSkip)
+      userWaitingToSkip = null;
+  }
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
-    attemptToMatchUser(socket);
-
-    // since we have a user who expressed intent to skip, we make them the waiting user and match their partner with the joining user
-    if (userWaitingToSkip) {
-      closeConnectionAndRematch(userWaitingToSkip)
-      userWaitingToSkip = null;
-    }
+    handleUserLeaveAndJoin(socket);
   });
 
   socket.on('disconnect', () => {
@@ -97,11 +107,7 @@ io.on('connection', (socket) => {
       waitingUser = null;
     } 
     else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
-      attemptToMatchUser(socket.partnerSocket);
-      if (userWaitingToSkip) {
-        closeConnectionAndRematch(userWaitingToSkip)
-        userWaitingToSkip = null;
-      }
+      handleUserLeaveAndJoin(socket.partnerSocket);
     }
   });
 
