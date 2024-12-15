@@ -38,6 +38,25 @@ function attemptToMatchUser(socket) {
   }
 }
 
+/**
+ * Attempts to rematch sockets. This is called to swap places with the waiting user (and match their partner with the previous waiting user), or to switch partners with another socket
+ * @param  {...any} sockets - The sockets we are trying to rematch
+ */
+function closeConnectionAndRematch(...sockets) {
+    // we close the connections both to remove stail peerJS connections and to shut down the old remote stream
+    sockets.forEach(s => s.emit('close-connection'));
+  
+    // attempt to match partners
+    sockets.forEach(s => {
+      if (s.partnerSocket) {
+        attemptToMatchUser(s.partnerSocket);
+      }
+    });
+  
+    // attempt to match the sockets themselves
+    sockets.forEach(s => attemptToMatchUser(s));
+}
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
@@ -45,22 +64,17 @@ io.on('connection', (socket) => {
     socket.userID = userID;
     attemptToMatchUser(socket);
     if (userWaitingToSkip) {
-      console.log("theres a user who was waiting to skip");
-      // console.log(userWaitingToSkip.id, " was waiting to skip. They should be the next waiting user");
-      userWaitingToSkip.emit('close-connection');
-      attemptToMatchUser(userWaitingToSkip.partnerSocket);
-      attemptToMatchUser(userWaitingToSkip);
+      console.log("Theres a user who was waiting to skip they should be ");
+      closeConnectionAndRematch(userWaitingToSkip)
       userWaitingToSkip = null;
     }
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
     }
-
     if (socket === waitingUser) { // if the user is the one waiting, we reset since the waiting user is the one who disconnected
       waitingUser = null;
     } 
@@ -71,45 +85,24 @@ io.on('connection', (socket) => {
 
 
   socket.on('next', () => {
-
     // If there's a waiting user (who isn't the one who pressed next), this means that the user who pressed next can become the waiting user, and the previous waiting user can connect with the user who was in the call with the user who pressed next
-    if (socket === waitingUser) {
+    if (socket === waitingUser || userWaitingToSkip == socket) {
       console.log("can't skip user, no users to match with");
       return;
     }
 
-    if (!waitingUser) {
-      // userWaitingToSkip = nextQueue.shift();
-      if (userWaitingToSkip == socket) {
-        console.log("no effect. user waiting to skip is already the socket");
-        return;
-      }
+    if (!waitingUser) {     
       if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) {
         console.log("we should try and match ", userWaitingToSkip.id, "and ", socket.id);
-        socket.emit('close-connection');
-        userWaitingToSkip.emit('close-connection');
-
-        attemptToMatchUser(socket.partnerSocket);
-        attemptToMatchUser(userWaitingToSkip.partnerSocket);
-        attemptToMatchUser(socket);
-
-        attemptToMatchUser(userWaitingToSkip);
-
+        closeConnectionAndRematch(socket, userWaitingToSkip);
         userWaitingToSkip = null;
-        return;
+      } else {
+        console.log("addding ", socket.id, "is now the userWaitingToSkip");
+        userWaitingToSkip = socket;
       }
-      
-      console.log("addding ", socket.id, "is now the userWaitingToSkip");
-      userWaitingToSkip = socket;
-      return;
+    } else {
+      closeConnectionAndRematch(socket);
     }
-
-    // this ensures we don't keep stale connections, and the user who pressed next isn't still getting the remote stream from the previous user
-    socket.emit('close-connection');
-
-    // because of the previous guard clause (!waitingUser), their partner is guaranteed to find a match.
-    attemptToMatchUser(socket.partnerSocket);
-    attemptToMatchUser(socket);
   });
 
 });
