@@ -1,6 +1,4 @@
-const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, handleUserLeaveAndJoin } = require('../src/server');
-const { createServer } = require("node:http");
-const { Server } = require("socket.io");
+const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, io, handleUserLeaveAndJoin } = require('../src/server');
 const ioc = require("socket.io-client");
 
 describe("Utility Functions", () => {
@@ -19,10 +17,6 @@ describe("Utility Functions", () => {
         mockSocketB = createMockSocket();
         mockSocketC = createMockSocket();
         mockSocketD = createMockSocket();
-    });
-
-    afterAll(() => {
-        server.close();
     });
 
     describe("attemptToMatchUser", () => {
@@ -140,31 +134,42 @@ describe("Utility Functions", () => {
 
 describe("Socket Events", () => {
 
-    let io, serverSocket, clientSocket;
-  
-    beforeAll((done) => {
-      const httpServer = createServer();
-      io = new Server(httpServer);
-      httpServer.listen(() => {
-        const port = httpServer.address().port;
-        clientSocket = ioc(`http://localhost:${port}`);
-        io.on("connection", (socket) => {
-          serverSocket = socket;
-        });
-        clientSocket.on("connect", done);
-      });
-    });
-  
-    afterAll(() => {
-      io.close();
-      clientSocket.disconnect();
-    });   
+    let serverSocket;  
+    let clientSocket;
 
-    test("should work", (done) => {
-        clientSocket.on("hello", (arg) => {
-          expect(arg).toBe("world");
-          done();
+    beforeAll((done) => {
+        // Connect the client socket to the same server running in server.js
+        clientSocket = ioc('http://localhost:3000', {
+            reconnectionDelay: 0,
+            forceNew: true,
+            transports: ['websocket']
         });
-        serverSocket.emit("hello", "world");
+
+        // Wait for the server to establish a connection with our test client
+        io.once('connection', (socket) => {
+            serverSocket = socket;
+            done();
+        });
+    });
+
+    afterAll(() => {
+        clientSocket.disconnect();
+    });
+
+    describe("join-chat", () => {
+
+        test("join-chat should set socket's userID attribute", (done) => {
+            clientSocket.emit('join-chat', "foobar");
+            serverSocket.on('join-chat', (arg) => {
+                expect(arg).toBe("foobar");
+                expect(serverSocket.userID).toBe(arg);
+                done();
+            });
+        });
     });
 });  
+
+
+afterAll((done) => {
+    server.close(done);
+});

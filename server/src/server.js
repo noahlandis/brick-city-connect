@@ -148,5 +148,6 @@ module.exports = {
   attemptToMatchUser,
   closeConnectionAndRematch,
   handleUserLeaveAndJoin,
-  server
+  server,
+  io
 };
