@@ -1,13 +1,17 @@
 const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, handleUserLeaveAndJoin } = require('../src/server');
-
-function createMockSocket() {
-    return {
-        partnerSocket: null,
-        emit: jest.fn()
-    };
-}
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
+const ioc = require("socket.io-client");
 
 describe("Utility Functions", () => {
+
+    function createMockSocket() {
+        return {
+            partnerSocket: null,
+            emit: jest.fn()
+        };
+    }
+
     let mockSocketA, mockSocketB, mockSocketC, mockSocketD;
     
     beforeEach(() => {
@@ -15,6 +19,10 @@ describe("Utility Functions", () => {
         mockSocketB = createMockSocket();
         mockSocketC = createMockSocket();
         mockSocketD = createMockSocket();
+    });
+
+    afterAll(() => {
+        server.close();
     });
 
     describe("attemptToMatchUser", () => {
@@ -128,8 +136,35 @@ describe("Utility Functions", () => {
             expect(mockSocketC.partnerSocket).toBe(mockSocketB);
         });
     });
+});
 
-});
-afterAll(() => {
-    server.close();
-});
+describe("Socket Events", () => {
+
+    let io, serverSocket, clientSocket;
+  
+    beforeAll((done) => {
+      const httpServer = createServer();
+      io = new Server(httpServer);
+      httpServer.listen(() => {
+        const port = httpServer.address().port;
+        clientSocket = ioc(`http://localhost:${port}`);
+        io.on("connection", (socket) => {
+          serverSocket = socket;
+        });
+        clientSocket.on("connect", done);
+      });
+    });
+  
+    afterAll(() => {
+      io.close();
+      clientSocket.disconnect();
+    });   
+
+    test("should work", (done) => {
+        clientSocket.on("hello", (arg) => {
+          expect(arg).toBe("world");
+          done();
+        });
+        serverSocket.emit("hello", "world");
+    });
+});  
