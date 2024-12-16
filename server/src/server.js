@@ -146,5 +146,6 @@ module.exports = {
   getWaitingUser: () => waitingUser,
   getUserWaitingToSkip: () => userWaitingToSkip, 
   attemptToMatchUser,
+  closeConnectionAndRematch,
   server
 };
