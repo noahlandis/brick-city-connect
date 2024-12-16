@@ -1,4 +1,4 @@
-const { attemptToMatchUser, getWaitingUser, setWaitingUser, closeConnectionAndRematch, server } = require('../src/server');
+const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, handleUserLeaveAndJoin } = require('../src/server');
 
 describe("attemptToMatchUser", () => {
   let mockSocketA, mockSocketB;
@@ -99,7 +99,69 @@ describe("closeConnectionAndRematch", () => {
         expect(mockSocketB.partnerSocket).toBe(mockSocketD);
         expect(mockSocketD.partnerSocket).toBe(mockSocketB);
     });
-  });
+});
+
+
+describe("handleUserLeaveAndJoin", () => {
+    let mockSocketA, mockSocketB, mockSocketC, mockSocketD;
+  
+    beforeEach(() => {
+        mockSocketA = {
+            partnerSocket: null,
+            emit: jest.fn()
+        };
+        mockSocketB = {
+            partnerSocket: null,
+            emit: jest.fn()
+        };
+        mockSocketC = {
+            partnerSocket: null,
+            emit: jest.fn()
+        };
+        mockSocketD = {
+            partnerSocket: null,
+            emit: jest.fn()
+        }
+    });
+    
+    test("when there's an A-B connection and no userWaitingToSkip, C becomes the waitingUser after joining", () => {
+        // setup A-B connection with no userWaitingToSkip
+        mockSocketA.partnerSocket = mockSocketB;
+        mockSocketB.partnerSocket = mockSocketA;
+        setUserWaitingToSkip(null);
+        setWaitingUser(null);
+       
+        // execute
+        handleUserLeaveAndJoin(mockSocketC);
+
+        // ensure C is the waitingUser
+        expect(mockSocketC.partnerSocket).toBeNull();
+        expect(getWaitingUser()).toBe(mockSocketC);
+        // ensure A-B connection hasn't changed
+        expect(mockSocketA.partnerSocket).toBe(mockSocketB);
+        expect(mockSocketB.partnerSocket).toBe(mockSocketA);
+    });
+
+    test("when there's an A-B connection and A is the userWaitingToSkip, A becomes the waitingUser after C joins and B-C connection is formed", () => {
+        // setup A-B connection with A as the userWaitingToSkip
+        mockSocketA.partnerSocket = mockSocketB;
+        mockSocketB.partnerSocket = mockSocketA;
+        setUserWaitingToSkip(mockSocketA);
+        setWaitingUser(null);
+       
+        // execute
+        handleUserLeaveAndJoin(mockSocketC);
+
+        // ensure A is the waitingUser
+        expect(mockSocketA.partnerSocket).toBeNull();
+        expect(getWaitingUser()).toBe(mockSocketA);
+        //ensure the userWaitingToSkip was reset
+        expect(getUserWaitingToSkip()).toBeNull();
+        // ensure B and C form connection
+        expect(mockSocketB.partnerSocket).toBe(mockSocketC);
+        expect(mockSocketC.partnerSocket).toBe(mockSocketB);
+    });
+});
 
 afterAll(() => {
     server.close();
