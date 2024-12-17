@@ -226,6 +226,34 @@ describe("Socket Events", () => {
             expect(getWaitingUser()).toBe(mockSocketB);
         });
 
+        test("should make partnerSocket the waitingUser if disconnecting socket has a partnerSocket and there's no waitingUser", () => {
+            setWaitingUser(null);
+            setUserWaitingToSkip(null);
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+            serverSocket.disconnect();
+            expect(getWaitingUser()).toBe(mockSocketB);
+            expect(mockSocketB.partnerSocket).toBeNull();
+        });
+
+        
+        test("should connect partnerSocket with waitingUser if the disconnecting socket has a partnerSocket and there's a waitingUser", () => {
+            // ensure that C is waiting
+            setWaitingUser(mockSocketC);
+            setUserWaitingToSkip(null);
+
+            //ensure that serverSocket and B are connected
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+
+            // execute
+            serverSocket.disconnect();
+
+            // B and C should connect, waitingUser should be cleared
+            expect(getWaitingUser()).toBeNull();
+            expect(mockSocketB.partnerSocket).toBe(mockSocketC);
+            expect(mockSocketC.partnerSocket).toBe(mockSocketB);
+        });
     });
 });  
 
