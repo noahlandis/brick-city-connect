@@ -199,6 +199,22 @@ describe("Socket Events", () => {
             });
         });
     });
+
+    describe('disconnect', () => {
+
+        test("should clear userWaitingToSkip if the disconnecting socket was the userWaitingToSkip", () => {
+            setUserWaitingToSkip(serverSocket);
+            serverSocket.disconnect();
+            expect(getUserWaitingToSkip()).toBeNull();
+        });
+
+        test("should not clear userWaitingToSkip if the disconnecting socket wasn't the userWaitingToSkip", () => {
+            setUserWaitingToSkip(mockSocketB);
+            serverSocket.disconnect();
+            expect(getUserWaitingToSkip()).toBe(mockSocketB);
+        });
+
+    });
 });  
 
 
