@@ -1,22 +1,26 @@
 const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, io, handleUserLeaveAndJoin } = require('../src/server');
 const ioc = require("socket.io-client");
 
+
+function createMockSocket() {
+    return {
+        partnerSocket: null,
+        emit: jest.fn()
+    };
+}
+
+beforeEach(() => {
+    mockSocketB = createMockSocket();
+    mockSocketC = createMockSocket();
+    mockSocketD = createMockSocket();
+});
+
 describe("Utility Functions", () => {
 
-    function createMockSocket() {
-        return {
-            partnerSocket: null,
-            emit: jest.fn()
-        };
-    }
-
-    let mockSocketA, mockSocketB, mockSocketC, mockSocketD;
+    let mockSocketA;
     
     beforeEach(() => {
         mockSocketA = createMockSocket();
-        mockSocketB = createMockSocket();
-        mockSocketC = createMockSocket();
-        mockSocketD = createMockSocket();
     });
 
     describe("attemptToMatchUser", () => {
@@ -137,7 +141,7 @@ describe("Socket Events", () => {
     let serverSocket;  
     let clientSocket;
 
-    beforeAll((done) => {
+    beforeEach((done) => {
         // Connect the client socket to the same server running in server.js
         clientSocket = ioc('http://localhost:3000', {
             reconnectionDelay: 0,
@@ -152,7 +156,7 @@ describe("Socket Events", () => {
         });
     });
 
-    afterAll(() => {
+    afterEach(() => {
         clientSocket.disconnect();
     });
 
@@ -171,6 +175,7 @@ describe("Socket Events", () => {
             setWaitingUser(null);
             clientSocket.emit('join-chat', "foobar");
             serverSocket.on('join-chat', (arg) => {
+                // ensure the waitingUser is set
                 expect(getWaitingUser()).toBe(serverSocket);
                 expect(serverSocket.partnerSocket).toBeNull();
                 done();
@@ -178,7 +183,20 @@ describe("Socket Events", () => {
         });
 
         test("when there's a waitingUser, waitingUser and joining socket should connect", (done) => {
-            done();
+            setWaitingUser(mockSocketB);
+            clientSocket.emit('join-chat', "foobar");
+            serverSocket.on('join-chat', (arg) => {
+                // ensure the waitingUser is cleared
+                expect(getWaitingUser()).toBeNull();
+
+                // ensure the sockets store a reference to each other (form a connection)
+                expect(mockSocketB.partnerSocket).toBe(serverSocket);
+                expect(serverSocket.partnerSocket).toBe(mockSocketB);
+
+                // ensure the waiting user was called with the userID of the joining user
+                expect(mockSocketB.emit).toHaveBeenCalledWith('match-found', serverSocket.userID);
+                done();
+            });
         });
     });
 });  
