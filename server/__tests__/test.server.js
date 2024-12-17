@@ -158,13 +158,27 @@ describe("Socket Events", () => {
 
     describe("join-chat", () => {
 
-        test("join-chat should set socket's userID attribute", (done) => {
+        test("should set socket's userID attribute", (done) => {
             clientSocket.emit('join-chat', "foobar");
             serverSocket.on('join-chat', (arg) => {
                 expect(arg).toBe("foobar");
                 expect(serverSocket.userID).toBe(arg);
                 done();
             });
+        });
+
+        test("when there's no waitingUser, should set socket as waitingUser", (done) => {
+            setWaitingUser(null);
+            clientSocket.emit('join-chat', "foobar");
+            serverSocket.on('join-chat', (arg) => {
+                expect(getWaitingUser()).toBe(serverSocket);
+                expect(serverSocket.partnerSocket).toBeNull();
+                done();
+            });
+        });
+
+        test("when there's a waitingUser, waitingUser and joining socket should connect", (done) => {
+            done();
         });
     });
 });  
