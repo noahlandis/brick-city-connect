@@ -198,6 +198,30 @@ describe("Socket Events", () => {
                 done();
             });
         });
+
+        test("given a B-C connection and B is the userWaitingToSkip, A joining should cause B to be the waitingUser and A and C should connect", (done) => {
+            // ensure B is the userWaitingToSkip
+            setWaitingUser(null);
+            setUserWaitingToSkip(mockSocketB);
+
+            // setup B-C connection
+            mockSocketB.partnerSocket = mockSocketC;
+            mockSocketC.partnerSocket = mockSocketB;
+            clientSocket.emit('join-chat', "foobar");
+            serverSocket.on('join-chat', (arg) => {
+                // ensure the userWaitingToSkip was cleared
+                expect(getUserWaitingToSkip()).toBeNull();
+
+                // ensure B is the new waitingUser
+                expect(getWaitingUser()).toBe(mockSocketB);
+                expect(mockSocketB.partnerSocket).toBeNull();
+
+                // ensure A-C connection is formed
+                expect(serverSocket.partnerSocket).toBe(mockSocketC);
+                expect(mockSocketC.partnerSocket).toBe(serverSocket);
+                done();
+            });
+        });
     });
 
     describe('disconnect', () => {
