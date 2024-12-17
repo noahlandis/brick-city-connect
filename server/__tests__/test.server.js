@@ -214,6 +214,18 @@ describe("Socket Events", () => {
             expect(getUserWaitingToSkip()).toBe(mockSocketB);
         });
 
+        test("should clear waitingUser if the disconnecting socket was the waitingUser", () => {
+            setWaitingUser(serverSocket);
+            serverSocket.disconnect();
+            expect(getWaitingUser()).toBeNull();
+        });
+
+        test("should not clear waitingUser if the disconnecting socket wasn't the waitingUser", () => {
+            setWaitingUser(mockSocketB);
+            serverSocket.disconnect();
+            expect(getWaitingUser()).toBe(mockSocketB);
+        });
+
     });
 });  
 
