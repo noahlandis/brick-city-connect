@@ -254,6 +254,51 @@ describe("Socket Events", () => {
             expect(mockSocketB.partnerSocket).toBe(mockSocketC);
             expect(mockSocketC.partnerSocket).toBe(mockSocketB);
         });
+
+        test("given A-B connection with B as userWaitingToSkip, and no waitingUser, userWaitingToSkip should be cleared when A leaves and B should be the waitingUser", () => {
+            // ensure that B is the userWaitingToSkip
+            setWaitingUser(null);
+            setUserWaitingToSkip(mockSocketB);
+
+            // ensure that serverSocket and B are connected
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+
+            // execute
+            serverSocket.disconnect();
+
+            // B should be the waitingUser
+            expect(getWaitingUser()).toBe(mockSocketB);
+            expect(mockSocketB.partnerSocket).toBeNull();;
+
+            // the userWaitingToSkip should be cleared
+            expect(getUserWaitingToSkip()).toBeNull();
+        });
+
+        test("given A-B and C-D connections, if C is the userWaitingToSkip and A leaves, B and D should connect and C should be the waitingUser", () => {
+            // A-B, C-D A presses next. C leaves. A is waiting user, B and D connect
+            // set userWaitingToSkip as mockSocketC
+            setWaitingUser(null);
+            setUserWaitingToSkip(mockSocketC);
+            // ensure A and B are connected
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+            // ensure C and D are connected
+            mockSocketC.partnerSocket = mockSocketD;
+            mockSocketD.partnerSocket = mockSocketC;
+
+            // execute
+            serverSocket.disconnect();
+
+            // C should be the waitingUser
+            expect(getWaitingUser()).toBe(mockSocketC);
+            expect(mockSocketC.partnerSocket).toBeNull();;
+            // the userWaitingToSkip should be cleared
+            expect(getUserWaitingToSkip()).toBeNull();
+            // B and D should be connected
+            expect(mockSocketB.partnerSocket).toBe(mockSocketD);
+            expect(mockSocketD.partnerSocket).toBe(mockSocketB);
+        });
     });
 });  
 
