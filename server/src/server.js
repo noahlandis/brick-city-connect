@@ -85,7 +85,10 @@ function closeConnectionAndRematch(...sockets) {
 function handleUserLeaveAndJoin(socket) {
   attemptToMatchUser(socket);
   if (userWaitingToSkip) {
-      closeConnectionAndRematch(userWaitingToSkip)
+      // given A-B connection, if A clicks 'next' and gets set as the userWaitingToSkip, then B leaves, A is already the waitingUser so we don't try and match A again.
+      if (userWaitingToSkip != waitingUser) {
+        closeConnectionAndRematch(userWaitingToSkip)
+      }
       userWaitingToSkip = null;
   }
 }
