@@ -324,6 +324,26 @@ describe("Socket Events", () => {
             expect(mockSocketD.partnerSocket).toBe(mockSocketB);
         });
     });
+
+    describe('next', () => {
+
+        test("nothing happens when socket pressing next is the waitingUser", (done) => {
+            setWaitingUser(serverSocket);
+            setUserWaitingToSkip(null);
+            serverSocket.partnerSocket = null;
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                expect(getWaitingUser()).toBe(serverSocket);
+                expect(getUserWaitingToSkip()).toBeNull();
+                expect(serverSocket.partnerSocket).toBeNull();
+                done();
+            });
+            
+
+
+        });
+
+    });
 });  
 
 
