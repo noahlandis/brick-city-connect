@@ -353,6 +353,17 @@ describe("Socket Events", () => {
             });
         });
 
+        test("when there's no waitingUser and no userWaitingToSkip, the socket pressing next should become the userWaitingToSkip", (done) => {
+            setWaitingUser(null);
+            setUserWaitingToSkip(null);
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                // ensure that the socket becomes the userWaitingToSkip
+                expect(getUserWaitingToSkip()).toBe(serverSocket);
+                done();
+            });
+        });
+
     });
 });  
 
