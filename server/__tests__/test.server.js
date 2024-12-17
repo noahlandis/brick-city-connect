@@ -364,6 +364,63 @@ describe("Socket Events", () => {
             });
         });
 
+        test("when there's no waitingUser and the userWaitingToSkip is partners with the socket pressing next, the userWaitingToSkip is updated to the socket who pressed next", (done) => {
+            setWaitingUser(null);
+            setUserWaitingToSkip(mockSocketB);
+
+            // setup connection between A and B
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                // ensure that the socket becomes the userWaitingToSkip
+                expect(getUserWaitingToSkip()).toBe(serverSocket);
+                done();
+            });
+        });
+
+        test("when there's no waitingUser and the userWaitingToSkip isn't partners with the socket pressing next, socket pressing next and the userWaitingToSkip should swap partners", (done) => {
+            setWaitingUser(null);
+            setUserWaitingToSkip(mockSocketC);
+            // setup connection between A and B
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+            // setup C and D connection
+            mockSocketC.partnerSocket = mockSocketD;
+            mockSocketD.partnerSocket = mockSocketC;
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                // ensure the userWaitingToSkip is cleared
+                expect(getUserWaitingToSkip()).toBeNull();
+                // ensure A-C connection is formed
+                expect(serverSocket.partnerSocket).toBe(mockSocketC);
+                expect(mockSocketC.partnerSocket).toBe(serverSocket);
+                // ensure B-D connection is formed
+                expect(mockSocketB.partnerSocket).toBe(mockSocketD);
+                expect(mockSocketD.partnerSocket).toBe(mockSocketB);
+                done();
+            });
+        });
+
+        test("when there's a waitingUser (who isn't the socket pressing next), the socket pressing next should become the waitingUser and the waitingUser should connect with the socket pressing next's partner", (done) => {
+            setWaitingUser(mockSocketC);
+            setUserWaitingToSkip(null);
+            // setup connection between A and B
+            serverSocket.partnerSocket = mockSocketB;
+            mockSocketB.partnerSocket = serverSocket;
+            
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                // ensure A becomes the waitingUser
+                expect(getWaitingUser()).toBe(serverSocket);
+                expect(serverSocket.partnerSocket).toBeNull();
+                // ensure B-C connection is formed
+                expect(mockSocketB.partnerSocket).toBe(mockSocketC);
+                expect(mockSocketC.partnerSocket).toBe(mockSocketB);
+                done();
+            });
+        });
+
     });
 });  
 
