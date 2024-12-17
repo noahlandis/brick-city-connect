@@ -338,9 +338,19 @@ describe("Socket Events", () => {
                 expect(serverSocket.partnerSocket).toBeNull();
                 done();
             });
-            
+        });
 
-
+        test("nothing happens when socket pressing next is the userWaitingToSkip", (done) => {
+            setWaitingUser(null);
+            setUserWaitingToSkip(serverSocket);
+            serverSocket.partnerSocket = null;
+            clientSocket.emit('next');
+            serverSocket.on('next', () => {
+                expect(getWaitingUser()).toBeNull();
+                expect(getUserWaitingToSkip()).toBe(serverSocket);
+                expect(serverSocket.partnerSocket).toBeNull();
+                done();
+            });
         });
 
     });
