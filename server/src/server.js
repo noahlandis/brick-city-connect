@@ -2,7 +2,7 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-
+require('dotenv').config({ path: '../.env' });
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -12,7 +12,16 @@ const io = new Server(server, {
   transports: ['websocket'],
   upgrade: false
 });
-
+var Bugsnag = require('@bugsnag/js');
+var BugsnagPluginExpress = require('@bugsnag/plugin-express');
+Bugsnag.start({
+  apiKey: process.env.BUGSNAG_API_KEY,
+  releaseStage: process.env.ENV,
+  plugins: [BugsnagPluginExpress]
+});
+const middleware = Bugsnag.getPlugin('express');
+app.use(middleware.requestHandler);
+app.use(middleware.errorHandler);
 
 let waitingUser = null; 
 let userWaitingToSkip = null; 
@@ -24,6 +33,10 @@ let userWaitingToSkip = null;
  */
 function attemptToMatchUser(socket) {
   if (waitingUser) { // since we have a waiting user, we can match them
+    if (waitingUser == socket) {
+      Bugsnag.notify(new Error('User is attempting to match with themself. This should never happen'));
+      return;
+    }
     console.log('match found. Matching', socket.id, 'with', waitingUser.id);
 
     // we store a reference to the partner sockets for each user, so when a user leaves, we can tell their partner to find a new match
@@ -111,6 +124,9 @@ io.on('connection', (socket) => {
     } 
     else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
       handleUserLeaveAndJoin(socket.partnerSocket);
+    }
+    else {
+      Bugsnag.notify("The leaving user is without a partner, yet isn't the waiting user. This should't happen");
     }
   });
 
