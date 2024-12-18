@@ -1,6 +1,21 @@
 const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, io, handleUserLeaveAndJoin } = require('../src/server');
 const ioc = require("socket.io-client");
+const Bugsnag = require('@bugsnag/js');
 
+jest.mock('@bugsnag/js', () => {
+    const mockBugsnag = {
+        start: jest.fn(() => mockBugsnag),
+        getPlugin: jest.fn(() => ({
+            requestHandler: jest.fn(),
+            errorHandler: jest.fn()
+        })),
+        notify: jest.fn()
+    };
+    return mockBugsnag;
+});
+
+
+  
 
 function createMockSocket() {
     return {
@@ -10,6 +25,7 @@ function createMockSocket() {
 }
 
 beforeEach(() => {
+    jest.clearAllMocks();
     mockSocketB = createMockSocket();
     mockSocketC = createMockSocket();
     mockSocketD = createMockSocket();
@@ -50,6 +66,13 @@ describe("Utility Functions", () => {
             expect(mockSocketA.partnerSocket).toBe(mockSocketB);
             expect(mockSocketB.partnerSocket).toBe(mockSocketA);
         });
+
+        test("notify bugsnag when socket attempts to match with itself", () => {
+            setWaitingUser(mockSocketA);
+            attemptToMatchUser(mockSocketA);
+            expect(Bugsnag.notify).toHaveBeenCalled();
+        });
+
     });
 
     describe("closeConnectionAndRematch", () => {
@@ -322,6 +345,13 @@ describe("Socket Events", () => {
             // B and D should be connected
             expect(mockSocketB.partnerSocket).toBe(mockSocketD);
             expect(mockSocketD.partnerSocket).toBe(mockSocketB);
+        });
+
+        test("notify bugsnag if leaving socket is not waitingUser and doesn't have partner", () => {
+            setWaitingUser(null);
+            serverSocket.partnerSocket = null;
+            serverSocket.disconnect();
+            expect(Bugsnag.notify).toHaveBeenCalled();
         });
     });
 
