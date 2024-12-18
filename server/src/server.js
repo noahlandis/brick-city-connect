@@ -85,7 +85,10 @@ function closeConnectionAndRematch(...sockets) {
 function handleUserLeaveAndJoin(socket) {
   attemptToMatchUser(socket);
   if (userWaitingToSkip) {
-      closeConnectionAndRematch(userWaitingToSkip)
+      // given A-B connection, if A clicks 'next' and gets set as the userWaitingToSkip, then B leaves, A is already the waitingUser so we don't try and match A again.
+      if (userWaitingToSkip != waitingUser) {
+        closeConnectionAndRematch(userWaitingToSkip)
+      }
       userWaitingToSkip = null;
   }
 }
@@ -139,3 +142,15 @@ io.on('connection', (socket) => {
 server.listen(3000, () => {
   console.log('Server is running on port 3000');
 });
+
+module.exports = {
+  setWaitingUser: (user) => { waitingUser = user;},
+  setUserWaitingToSkip: (user) => { userWaitingToSkip = user; },
+  getWaitingUser: () => waitingUser,
+  getUserWaitingToSkip: () => userWaitingToSkip, 
+  attemptToMatchUser,
+  closeConnectionAndRematch,
+  handleUserLeaveAndJoin,
+  server,
+  io
+};
