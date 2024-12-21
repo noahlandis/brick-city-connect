@@ -1,4 +1,5 @@
-const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, server, io, handleUserLeaveAndJoin } = require('../src/server');
+const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, getIO, handleUserLeaveAndJoin } = require('../src/signaling_server');
+const { server } = require('../src/server');
 const ioc = require("socket.io-client");
 const Bugsnag = require('@bugsnag/js');
 
@@ -173,7 +174,7 @@ describe("Socket Events", () => {
         });
 
         // Wait for the server to establish a connection with our test client
-        io.once('connection', (socket) => {
+        getIO().once('connection', (socket) => {
             serverSocket = socket;
             done();
         });

@@ -1,5 +1,6 @@
 const { Server } = require('socket.io');
 const Bugsnag = require('@bugsnag/js');
+let io;
 
 let waitingUser = null; 
 let userWaitingToSkip = null; 
@@ -90,7 +91,7 @@ function handleUserLeaveAndJoin(socket) {
  * The main function that sets up Socket.io on your HTTP server.
  */
 function initializeSignalingServer(httpServer) {
-    const io = new Server(httpServer, {
+    io = new Server(httpServer, {
       cors: {
         origin: '*', // Adjust if needed for security
       },
@@ -157,4 +158,5 @@ module.exports = {
   closeConnectionAndRematch,
   handleUserLeaveAndJoin,
   initializeSignalingServer,
+  getIO: () => io
 };
