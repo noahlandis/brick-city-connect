@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
-
+import Bugsnag from '@bugsnag/js';
 function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
@@ -55,6 +55,10 @@ function Chat() {
       socketRef.current.emit('join-chat', localUserID);
     });
 
+    localUserRef.current.on('error', (error) => {
+      Bugsnag.notify(error);
+    });
+
     // initiate call
     socketRef.current.on('match-found', (remoteUserId) => {
       console.log("call initiated");
@@ -90,6 +94,10 @@ function Chat() {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
       }
+    });
+
+    call.on('error', (error) => {
+      Bugsnag.notify(error);
     });
   }
 

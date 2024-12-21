@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+var Bugsnag = require('@bugsnag/js')
+var BugsnagPluginReact = require('@bugsnag/plugin-react')
+
+Bugsnag.start({
+  apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
+  releaseStage: process.env.REACT_APP_ENV,
+  plugins: [new BugsnagPluginReact()]
+})
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
