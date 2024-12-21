@@ -108,21 +108,21 @@ function Chat() {
 
         // Monitor video track
         stream.getVideoTracks().forEach((track) => {
-          track.onended = handleTrackDisabled; // Handle camera turned off
-          track.onmute = handleTrackDisabled;  // Handle camera muted
+          track.onended = leaveChat; // Handle camera turned off
+          track.onmute = leaveChat;  // Handle camera muted
         });
 
         // Monitor audio track
         stream.getAudioTracks().forEach((track) => {
-          track.onended = handleTrackDisabled; // Handle mic turned off
-          track.onmute = handleTrackDisabled;  // Handle mic muted
+          track.onended = leaveChat; // Handle mic turned off
+          track.onmute = leaveChat;  // Handle mic muted
         });
 
         setIsStreamReady(true); // Mark stream as ready
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
-        handleTrackDisabled();
+        leaveChat();
       });
   }
 
@@ -133,8 +133,7 @@ function Chat() {
     }
   }
 
-  function handleTrackDisabled() {
-    console.log('Track disabled (camera/mic turned off or muted)');
+  function leaveChat() {
     navigate('/'); // Redirect to home
   }
 
@@ -148,6 +147,9 @@ function Chat() {
       }}>
         Next
       </button>
+      <button onClick={() => {
+        leaveChat();
+      }}>Leave</button>
     </div>
   );
 }
