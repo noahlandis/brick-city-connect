@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
+
 function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
