@@ -23,7 +23,7 @@ app.use(middleware.errorHandler);
 const server = http.createServer(app);
 
 // Import and initialize signaling server
-const { initializeSignalingServer } = require('./signaling_server');
+const { initializeSignalingServer } = require('./signaling-server');
 initializeSignalingServer(server);
 
 // Launch server

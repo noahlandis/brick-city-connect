@@ -1,4 +1,4 @@
-const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, getIO, handleUserLeaveAndJoin } = require('../src/signaling_server');
+const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip, setUserWaitingToSkip, closeConnectionAndRematch, getIO, handleUserLeaveAndJoin } = require('../src/signaling-server');
 const { server } = require('../src/server');
 const ioc = require("socket.io-client");
 const Bugsnag = require('@bugsnag/js');
