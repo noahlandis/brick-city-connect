@@ -13,7 +13,12 @@ let userWaitingToSkip = null;
 function attemptToMatchUser(socket) {
   if (waitingUser) { // since we have a waiting user, we can match them
     if (waitingUser == socket) {
-      Bugsnag.notify(new Error('User is attempting to match with themself. This should never happen'));
+      Bugsnag.notify(new Error("User is attempting to match with themself."), event => {
+        event.addMetadata('user', {
+          id: socket.id,
+          userID: socket.userID,
+        });
+      });
       return;
     }
     console.log('match found. Matching', socket.id, 'with', waitingUser.id);
@@ -102,6 +107,13 @@ function initializeSignalingServer(httpServer) {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
+    Bugsnag.notify(new Error('This is just a test'), event => {
+      event.addMetadata('user', {
+        id: socket.id,
+        userID: userID,
+      });
+    });
+
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     handleUserLeaveAndJoin(socket);
@@ -119,7 +131,12 @@ io.on('connection', (socket) => {
       handleUserLeaveAndJoin(socket.partnerSocket);
     }
     else {
-      Bugsnag.notify("The leaving user is without a partner, yet isn't the waiting user. This should't happen");
+      Bugsnag.notify(new Error("The leaving user is without a partner, yet isn't the waiting user."), event => {
+        event.addMetadata('user', {
+          id: socket.id,
+          userID: socket.userID,
+        });
+      });
     }
   });
 
