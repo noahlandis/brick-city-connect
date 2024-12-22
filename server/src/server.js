@@ -13,7 +13,14 @@ Bugsnag.start({
 });
 
 const middleware = Bugsnag.getPlugin('express');
+const cors = require('cors');
 const app = express();
+app.use(cors());
+
+
+// Import routes
+const routes = require('./routes');
+app.use(routes);
 
 // Apply Bugsnag middleware
 app.use(middleware.requestHandler);
@@ -32,5 +39,6 @@ server.listen(3000, () => {
 });
 
 module.exports = {
-  server
+  server,
+  app
 }
