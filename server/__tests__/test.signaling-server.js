@@ -2,6 +2,7 @@ const { attemptToMatchUser, getWaitingUser, setWaitingUser, getUserWaitingToSkip
 const { server } = require('../src/server');
 const ioc = require("socket.io-client");
 const Bugsnag = require('@bugsnag/js');
+require('dotenv').config();
 
 jest.mock('@bugsnag/js', () => {
     const mockBugsnag = {
@@ -167,7 +168,7 @@ describe("Socket Events", () => {
 
     beforeEach((done) => {
         // Connect the client socket to the same server running in server.js
-        clientSocket = ioc('http://localhost:3000', {
+        clientSocket = ioc(process.env.SERVER_URL, {
             reconnectionDelay: 0,
             forceNew: true,
             transports: ['websocket']
