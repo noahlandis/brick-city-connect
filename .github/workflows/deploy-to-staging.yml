@@ -34,6 +34,10 @@ jobs:
       # Step 4: Build React Frontend
       - name: Build React Frontend
         working-directory: ./client
+        env:
+          REACT_APP_SERVER_URL: "https://staging.brickcityconnect.com"
+          REACT_APP_BUGSNAG_API_KEY: ${{ secrets.REACT_APP_BUGSNAG_API_KEY }}
+          REACT_APP_ENV: "staging"
         run: |
           npm install
           npm run build
