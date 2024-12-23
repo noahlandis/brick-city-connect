@@ -32,12 +32,16 @@ function Chat() {
         socketRef.current.disconnect();
       }
     };
+    // we don't want this to run every render, just on mount so we ignore the eslint warning
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (isStreamReady) {
       joinChat();
     }
+    // we don't want this to run every render, just on mount so we ignore the eslint warning
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStreamReady]);
 
   function joinChat() {
