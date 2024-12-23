@@ -5,9 +5,6 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 var Bugsnag = require('@bugsnag/js');
 var BugsnagPluginReact = require('@bugsnag/plugin-react');
-console.log('BUGSNAG API KEY:', process.env.REACT_APP_BUGSNAG_API_KEY);
-console.log('ENV:', process.env.REACT_APP_ENV);
-
 
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,

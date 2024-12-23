@@ -107,12 +107,6 @@ function initializeSignalingServer(httpServer) {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
-    Bugsnag.notify(new Error('This is just a test'), event => {
-      event.addMetadata('user', {
-        id: socket.id,
-        userID: userID,
-      });
-    });
 
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
