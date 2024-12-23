@@ -46,7 +46,7 @@ function Chat() {
 
   function joinChat() {
     // Initialize socket
-    socketRef.current = io('http://localhost:3000', {
+    socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
       transports: ['websocket'],
       upgrade: false,
     });
