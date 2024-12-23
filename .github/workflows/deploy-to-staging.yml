@@ -32,7 +32,7 @@ jobs:
       - name: Deploy React Frontend
         env:
           SERVER_USER: "ec2-user"
-          SERVER_HOST: "3.12.34.236"
+          SERVER_HOST: "staging.brickcityconnect.com"
           DEPLOY_PATH: "/home/ec2-user/rit-omegle/client/build"
         run: |
           rsync -avz -e "ssh -i staging-bcc-key.pem" ./client/build/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
@@ -41,7 +41,7 @@ jobs:
       - name: Deploy Node.js Backend
         env:
           SERVER_USER: "ec2-user"
-          SERVER_HOST: "3.12.34.236"
+          SERVER_HOST: "staging.brickcityconnect.com"
           DEPLOY_PATH: "/home/ec2-user/rit-omegle/server"
         run: |
           rsync -avz -e "ssh -i staging-bcc-key.pem" ./server/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
@@ -50,7 +50,7 @@ jobs:
       - name: Install Backend Dependencies and Restart
         env:
           SERVER_USER: "ec2-user"
-          SERVER_HOST: "3.12.34.236"
+          SERVER_HOST: "staging.brickcityconnect.com"
         run: |
           ssh -i staging-bcc-key.pem $SERVER_USER@$SERVER_HOST << 'EOF'
           cd /home/ec2-user/rit-omegle/server
