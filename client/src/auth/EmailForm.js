@@ -6,7 +6,7 @@ function EmailForm() {
   const [email, setEmail] = useState('');
 
   async function handleSendVerification() {
-    await fetch("http://localhost:3000/verify-email", {
+    await fetch("http://localhost:3000/send-register-magic-link", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
