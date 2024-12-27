@@ -2,6 +2,7 @@
 require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const http = require('http');
+const { Sequelize } = require('sequelize');
 
 // Bugsnag configuration
 var Bugsnag = require('@bugsnag/js');
@@ -10,6 +11,30 @@ Bugsnag.start({
   apiKey: process.env.BUGSNAG_API_KEY,
   releaseStage: process.env.ENV,
   plugins: [BugsnagPluginExpress]
+});
+
+
+const sequelize = require('./config/database');
+
+const User = require('./models/user');
+
+// Wrap the database connection in an async function
+const initializeDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+};
+
+// Call the initialization function
+initializeDatabase();
+
+sequelize.sync().then(() => {
+  console.log('Database & tables created!');
+}).catch((error) => {
+  console.error('Error syncing database:', error);
 });
 
 const middleware = Bugsnag.getPlugin('express');

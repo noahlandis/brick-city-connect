@@ -18,6 +18,8 @@
     "jsonwebtoken": "^9.0.2",
     "mailgun.js": "^10.2.4",
     "nodemailer": "^6.9.16",
+    "pg": "^8.13.1",
+    "sequelize": "^6.37.5",
     "socket.io": "^4.8.0",
     "socket.io-client": "^4.8.1"
   },
