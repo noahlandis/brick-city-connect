@@ -38,7 +38,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Import routes
 const routes = require('./routes');
-app.use(routes);
 
 // prepend 'api' to all routes
 app.use('/api', routes);
