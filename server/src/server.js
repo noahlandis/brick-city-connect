@@ -54,6 +54,9 @@ app.use(routes);
 app.use(middleware.requestHandler);
 app.use(middleware.errorHandler);
 
+// prepend 'api' to all routes
+app.use('/api', routes);
+
 // Create the HTTP server from the express app
 const server = http.createServer(app);
 
