@@ -1,8 +1,8 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
 
-// verification-code-controller.js
-const verificationCodeController = {
+// register-magic-link-controller.js
+const registerMagicLinkController = {
     sendRegisterMagicLink: (req, res) => {
         // we are gonna want to check if email is valid and is an RIT email. 
         // For the magic link, do we use JWT or store token in Database?
@@ -41,5 +41,5 @@ const verificationCodeController = {
 }
 
 module.exports = {
-    verificationCodeController
+    registerMagicLinkController
 }

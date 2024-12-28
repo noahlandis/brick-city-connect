@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { verificationCodeController } = require('./controllers/verification-code-controller');
+const { registerMagicLinkController } = require('./controllers/register-magic-link-controller');
 
-router.post('/send-register-magic-link', verificationCodeController.sendRegisterMagicLink);
-router.get('/verify-token', verificationCodeController.verifyToken);
+router.post('/send-register-magic-link', registerMagicLinkController.sendRegisterMagicLink);
+router.get('/verify-token', registerMagicLinkController.verifyToken);
 
 module.exports = router;
