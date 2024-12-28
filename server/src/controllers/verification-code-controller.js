@@ -11,7 +11,11 @@ const verificationCodeController = {
         if (!email) {
             return res.status(400).json({ error: 'Email is required' });
         }
-        const token = jwt.sign({ email: email }, process.env.JWT_SECRET);
+        const token = jwt.sign(
+            { email: email }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '5m' }  // Token expires in 5 minutes
+        );
         const url = `http://localhost:3001/register?token=${token}`;
         sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
     },

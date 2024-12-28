@@ -5,6 +5,7 @@ import Home from './Home';
 import Chat from './Chat';
 import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
+import RegisterGuard from './guards/RegisterGuard';
 
 function App() {
   return (
@@ -13,7 +14,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/email" element={<EmailForm />} />
-        <Route path='/register' element={<Register />} />
+        <Route element={<RegisterGuard />}>
+          <Route path='/register' element={<Register />} />
+        </Route>
       </Routes>
     </Router>
   );
