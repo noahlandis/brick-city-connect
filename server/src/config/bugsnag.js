@@ -4,7 +4,8 @@ const BugsnagPluginExpress = require('@bugsnag/plugin-express');
 Bugsnag.start({
   apiKey: process.env.BUGSNAG_API_KEY,
   releaseStage: process.env.ENV,
-  plugins: [BugsnagPluginExpress]
+  plugins: [BugsnagPluginExpress],
+  notifyReleaseStages: ['staging','production']
 });
 
 module.exports = Bugsnag;
