@@ -1,5 +1,5 @@
 const { Server } = require('socket.io');
-const Bugsnag = require('@bugsnag/js');
+const Bugsnag = require('./config/bugsnag');
 let io;
 
 let waitingUser = null; 
@@ -107,7 +107,6 @@ function initializeSignalingServer(httpServer) {
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
   socket.on('join-chat', (userID) => {
-
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     handleUserLeaveAndJoin(socket);

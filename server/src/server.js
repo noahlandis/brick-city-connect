@@ -4,18 +4,8 @@ const express = require('express');
 const http = require('http');
 const { Sequelize } = require('sequelize');
 
-// Bugsnag configuration
-var Bugsnag = require('@bugsnag/js');
-var BugsnagPluginExpress = require('@bugsnag/plugin-express');
-Bugsnag.start({
-  apiKey: process.env.BUGSNAG_API_KEY,
-  releaseStage: process.env.ENV,
-  plugins: [BugsnagPluginExpress]
-});
-
-
 const sequelize = require('./config/database');
-
+const Bugsnag = require('./config/bugsnag');
 const User = require('./models/user');
 
 // Wrap the database connection in an async function
