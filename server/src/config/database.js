@@ -6,4 +6,20 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   dialect: 'postgres'
 });
 
-module.exports = sequelize; 
+// Initialize database connection
+async function initializeDatabase() {
+  try {
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+    
+    await sequelize.sync();
+    console.log('Database & tables created!');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+};
+
+module.exports = {
+  initializeDatabase,
+  sequelize
+}; 

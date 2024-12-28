@@ -2,30 +2,14 @@
 require('dotenv').config({ path: '../.env' });
 const express = require('express');
 const http = require('http');
-const { Sequelize } = require('sequelize');
-
-const sequelize = require('./config/database');
+const { initializeDatabase } = require('./config/database');
+const { initializeSignalingServer } = require('./signaling-server');
 const Bugsnag = require('./config/bugsnag');
-const User = require('./models/user');
 
-// Wrap the database connection in an async function
-const initializeDatabase = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-  }
-};
-
-// Call the initialization function
-initializeDatabase();
-
-sequelize.sync().then(() => {
-  console.log('Database & tables created!');
-}).catch((error) => {
-  console.error('Error syncing database:', error);
-});
+// Wrap initialization in IIFE
+(async () => {
+  await initializeDatabase();
+})();
 
 const middleware = Bugsnag.getPlugin('express');
 const cors = require('cors');
@@ -34,7 +18,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
-
 
 // Import routes
 const routes = require('./routes');
@@ -50,7 +33,6 @@ app.use(middleware.errorHandler);
 const server = http.createServer(app);
 
 // Import and initialize signaling server
-const { initializeSignalingServer } = require('./signaling-server');
 initializeSignalingServer(server);
 
 // Launch server
