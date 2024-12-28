@@ -6,6 +6,7 @@ import Chat from './Chat';
 import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
 import RegisterGuard from './guards/RegisterGuard';
+import AuthLayout from './layouts/AuthLayout';
 
 function App() {
   return (
@@ -13,9 +14,17 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/chat" element={<Chat />} />
-        <Route path="/email" element={<EmailForm />} />
+        <Route path="/email" element={
+          <AuthLayout>
+            <EmailForm />
+          </AuthLayout>
+        } />
         <Route element={<RegisterGuard />}>
-          <Route path='/register' element={<Register />} />
+          <Route path='/register' element={
+            <AuthLayout>
+              <Register />
+            </AuthLayout>
+          } />
         </Route>
       </Routes>
     </Router>
