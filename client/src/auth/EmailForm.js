@@ -4,9 +4,17 @@ import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
 
 function EmailForm() {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
   async function handleSendVerification() {
-    await sendRegisterMagicLink(email);
+    setError('');
+    try {
+      await sendRegisterMagicLink(email);
+    } catch (err) {
+      const errorMessage = err?.response?.data?.error || 'Something went wrong';
+      console.log("the error is", errorMessage);
+      setError(errorMessage);
+    }
   }
 
     return (
@@ -24,7 +32,7 @@ function EmailForm() {
                         <path
                             d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
                     </svg>
-                    <input type="text" class="grow" placeholder="user@rit.edu" />
+                    <input type="text" className="grow input-error" placeholder="user@rit.edu" />
                 </label>
                 <button className="btn btn-sm bg-black text-white" onClick={handleSendVerification}>Continue</button>
                 <p className="mt-4 text-white">
