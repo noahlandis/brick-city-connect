@@ -19,9 +19,13 @@ function EmailForm() {
 
     return (
         <div>
-            <div className="card-title text-white justify-center font-helvetica">Sign up with email</div>
+            <div className="card-title text-black justify-center font-helvetica">Sign Up</div>
             <div className="card-body">
-                <label className="input input-bordered bg-white flex items-center gap-2 text-black" onChange={(e) => setEmail(e.target.value)}>
+                <label className="form-control w-full max-w-xs">
+                <label className={`input input-bordered bg-white flex items-center gap-2 text-black ${error ? 'input-error' : ''}`} onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError('');
+                }}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
@@ -32,12 +36,16 @@ function EmailForm() {
                         <path
                             d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
                     </svg>
-                    <input type="text" className="grow input-error" placeholder="user@rit.edu" />
+                    <input type="text" className="grow" placeholder="user@rit.edu" />
+                </label>
+                <div class="label">
+                    {error && <span class="label-text-alt text-red-700">{error}</span>}
+                </div>
                 </label>
                 <button className="btn btn-sm bg-black text-white" onClick={handleSendVerification}>Continue</button>
-                <p className="mt-4 text-white">
+                <p className="mt-4 text-black">
                 Already have an account?{' '}
-                <a className="link font-bold">Sign in</a>
+                <a className="link font-bold text-[#F76902]">Sign in</a>
                 </p>
             </div>
         </div>
