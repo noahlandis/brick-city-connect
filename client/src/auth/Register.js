@@ -21,9 +21,12 @@ function Register() {
                     </svg>
                     <input type="text" className="grow" placeholder={email} />
                 </label>
+                
                 <div class="label">
                     {error && <span class="label-text-alt text-red-700">{error}</span>}
                 </div>
+                <input type="password" placeholder="Password" class="input text-black input-bordered  bg-white w-full max-w-xs" />
+                <input type="password" placeholder="Confirm Password" class="input text-black input-bordered  bg-white w-full max-w-xs" />
                 </label>
                 <button className="btn btn-sm bg-black text-white">Create Account</button>
                 <p className="mt-4 text-black">
