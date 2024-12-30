@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, useOutletContext } from 'react-router-dom';
-
+import { useLoaderData } from 'react-router-dom';
 function Register() {
-    const { email } = useOutletContext();
+    const { email } = useLoaderData();
 
     return <div>
         <h1>Register</h1>

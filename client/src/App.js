@@ -1,34 +1,43 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './App.css';
 import Home from './Home';
 import Chat from './Chat';
 import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
-import RegisterGuard from './guards/RegisterGuard';
 import AuthLayout from './layouts/AuthLayout';
+import { loader as registerGuard } from './guards/RegisterGuard';
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />
+  },
+  {
+    path: "/chat",
+    element: <Chat />
+  },
+  {
+    path: "/email",
+    element: (
+      <AuthLayout>
+        <EmailForm />
+      </AuthLayout>
+    )
+  },
+  {
+    path: "/register",
+    element: (
+      <AuthLayout>
+        <Register />
+      </AuthLayout>
+    ),
+    loader: registerGuard
+  }
+]);
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/email" element={
-          <AuthLayout>
-            <EmailForm />
-          </AuthLayout>
-        } />
-        <Route element={<RegisterGuard />}>
-          <Route path='/register' element={
-            <AuthLayout>
-              <Register />
-            </AuthLayout>
-          } />
-        </Route>
-      </Routes>
-    </Router>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
