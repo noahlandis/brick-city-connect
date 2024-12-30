@@ -14,9 +14,11 @@ function Register() {
                             type="text" 
                             placeholder=""
                             defaultValue={email}
-                            className="input input-bordered bg-white w-full pt-4 text-black peer" 
+                            value={email}
+                            disabled
+                            className="input input-bordered bg-white w-full pt-4 text-black peer cursor-not-allowed disabled:bg-white disabled:opacity-100 disabled:border-[#e5e6e6]" 
                         />
-                        <label className="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 pointer-events-none">
+                        <label className="absolute text-sm text-gray-400 duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-4 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 pointer-events-none">
                             Email
                         </label>
                     </div>
