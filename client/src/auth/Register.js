@@ -8,7 +8,7 @@ function Register() {
             <div className="card-title text-black justify-center font-helvetica text-2xl">Sign Up</div>
             <div className="card-body">
                 <label className="form-control w-full max-w-xs">
-                <label className={`input input-bordered bg-white flex items-center gap-2 text-black`}>
+                <label className={`input input-bordered bg-white flex items-center gap-2 text-black`} >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 16 16"
@@ -19,7 +19,7 @@ function Register() {
                         <path
                             d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
                     </svg>
-                    <input type="text" className="grow" placeholder="user@rit.edu" />
+                    <input type="text" className="grow" placeholder={email} />
                 </label>
                 <div class="label">
                     {error && <span class="label-text-alt text-red-700">{error}</span>}
