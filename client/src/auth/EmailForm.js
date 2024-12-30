@@ -19,7 +19,7 @@ function EmailForm() {
 
     return (
         <div>
-            <div className="card-title text-black justify-center font-helvetica">Sign Up</div>
+            <div className="card-title text-black justify-center font-helvetica text-2xl">Sign Up</div>
             <div className="card-body">
                 <label className="form-control w-full max-w-xs">
                 <label className={`input input-bordered bg-white flex items-center gap-2 text-black ${error ? 'input-error' : ''}`} onChange={(e) => {
