@@ -11,6 +11,9 @@ const registerMagicLinkController = {
         if (!email) {
             return res.status(400).json({ error: 'Email is required' });
         }
+        if (!email.endsWith('@rit.edu')) {
+            return res.status(400).json({ error: 'Please enter a valid RIT email' });
+        }
         const token = jwt.sign(
             { email: email }, 
             process.env.JWT_SECRET, 
