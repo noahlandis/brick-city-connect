@@ -21,6 +21,7 @@ const registerMagicLinkController = {
         );
         const url = `${process.env.FRONTEND_URL}/register?token=${token}`;
         sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
+        return res.status(200).json({ message: 'Magic link sent' });
     },
 
     verifyToken: (req, res) => {

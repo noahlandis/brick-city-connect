@@ -1,8 +1,9 @@
 import React from 'react';
 import { useState } from 'react';
 import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
-import { Typography, TextField, Button } from '@mui/material';
+import { Typography, TextField, Button, Modal } from '@mui/material';
 import { Link } from 'react-router-dom';
+
 function EmailForm() {
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -10,7 +11,11 @@ function EmailForm() {
     async function handleSendVerification() {
         setError('');
         try {
-            await sendRegisterMagicLink(email);
+            const response = await sendRegisterMagicLink(email);
+            if (response.status === 200) {
+                console.log("the response is", response);
+                setEmail('');
+            }
         } catch (err) {
             const errorMessage = err?.response?.data?.error || 'Something went wrong';
             console.log("the error is", errorMessage);
