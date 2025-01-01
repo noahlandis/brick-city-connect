@@ -1,17 +1,47 @@
+import { Card, CardContent, Box, Typography, Avatar } from '@mui/material';
+
 function AuthLayout({ children }) {
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url("/rit.jpg")' }}>
-      <div className="card bg-white p-8 rounded-lg shadow-lg">
-        <div className="flex items-center gap-4">
-          <img 
-            src="/tiger.png" 
-            alt="RIT Tiger Logo" 
-            className="w-32 h-32"
+       <Card
+      sx={{
+        backgroundColor: "white",
+        padding: 2,
+        borderRadius: 2,
+        boxShadow: 3,
+      }}
+    >
+      <CardContent>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
+          <Avatar
+            src="/tiger.png"
+            alt="RIT Tiger Logo"
+            sx={{
+              width: 80,
+              height: 80,
+            }}
           />
-          <div className="card-title text-[#F76902] font-helvetica text-2xl">Brick City Connect</div>
-        </div>
+          <Typography
+            variant="h5"
+            sx={{
+              color: "#F76902",
+              fontFamily: '"Helvetica Neue"',
+              fontWeight: 'bold',
+              fontSize: '1.8rem',
+            }}
+          >
+            Brick City Connect
+          </Typography>
+        </Box>
         {children}
-      </div>
+      </CardContent>
+    </Card>
     </div>
   );
 }
