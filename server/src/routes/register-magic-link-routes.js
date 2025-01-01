@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerMagicLinkController } = require('./controllers/register-magic-link-controller');
+const { registerMagicLinkController } = require('../controllers/register-magic-link-controller');
 const { body, query } = require('express-validator');
 
 router.post('/send-register-magic-link', body('email').isEmail().withMessage('Please enter a valid email').bail().custom(value => {

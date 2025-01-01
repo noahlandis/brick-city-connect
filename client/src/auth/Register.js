@@ -2,10 +2,27 @@ import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { register } from '../api/authApi';
 
 function Register() {
     const { email } = useLoaderData();
     const [error, setError] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    async function handleRegister() {
+        setError('');
+        try {
+            const response = await register(email, password, confirmPassword);
+            if (response.status === 200) {
+                console.log("the response is", response);
+            }
+        } catch (err) {
+            const errorMessage = err?.response?.data?.error || 'Something went wrong';
+            console.log("the error is", errorMessage);
+            setError(errorMessage);
+        }
+    }
     
     return (
         <div style={{
@@ -63,7 +80,9 @@ function Register() {
             size="small"
         />
 
-        <Button variant="contained"
+        <Button 
+            variant="contained"
+            onClick={handleRegister}
             sx={{
                 width: '100%',
                 marginTop: '2rem',
