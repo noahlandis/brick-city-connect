@@ -1,19 +1,16 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 
 // register-magic-link-controller.js
 const registerMagicLinkController = {
     sendRegisterMagicLink: (req, res) => {
-        // we are gonna want to check if email is valid and is an RIT email. 
-        // For the magic link, do we use JWT or store token in Database?
-        // We also need to make sure registration page is only accessible if user came from callback. How should we acomplish this?
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log("the errors are", errors);
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
         const email = req.body.email;
-        if (!email) {
-            return res.status(400).json({ error: 'Email is required' });
-        }
-        if (!email.endsWith('@rit.edu')) {
-            return res.status(400).json({ error: 'Please enter a valid RIT email' });
-        }
         const token = jwt.sign(
             { email: email }, 
             process.env.JWT_SECRET, 
@@ -25,11 +22,14 @@ const registerMagicLinkController = {
     },
 
     verifyToken: (req, res) => {
-        const { token } = req.query;
-        
-        if (!token) {
-            return res.status(400).json({ error: 'Token is required' });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log("the errors are", errors);
+            return res.status(401).json({ error: errors.array()[0].msg });
         }
+
+        
+        const { token } = req.query;
 
         try {
             // Verify the token using the same secret used to sign it
