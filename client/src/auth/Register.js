@@ -67,6 +67,7 @@ function Register() {
                 marginTop: '2rem',
             }}
             size="small"
+            onChange={(e) => setPassword(e.target.value)}
         />
 
         <TextField
@@ -78,6 +79,7 @@ function Register() {
                 marginTop: '2rem',
             }}
             size="small"
+            onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
         <Button 
