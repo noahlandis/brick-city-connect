@@ -1,20 +1,20 @@
 import React from 'react';
 import { useState } from 'react';
 import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
-import { Typography, TextField, Button, Modal } from '@mui/material';
+import { Typography, TextField, Button, Modal, InputAdornment } from '@mui/material';
 import { Link } from 'react-router-dom';
 
 function EmailForm() {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [error, setError] = useState('');
 
     async function handleSendVerification() {
         setError('');
         try {
-            const response = await sendRegisterMagicLink(email);
+            const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
                 console.log("the response is", response);
-                setEmail('');
+                setUsername('');
             }
         } catch (err) {
             const errorMessage = err?.response?.data?.error || 'Something went wrong';
@@ -28,7 +28,7 @@ function EmailForm() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            width: '100%',
+            width: '80%',
             maxWidth: '400px',
             margin: '0 auto'
         }}>
@@ -44,11 +44,11 @@ function EmailForm() {
 
             >Sign Up</Typography>
             <TextField
-                label="RIT Email"
-                placeholder="username@rit.edu"
-                value={email}
+                label="username"
+                placeholder="username"
+                value={username}
                 onChange={(e) => {
-                    setEmail(e.target.value);
+                    setUsername(e.target.value);
                     setError('');
                 }}
                 fullWidth
@@ -59,6 +59,11 @@ function EmailForm() {
                 size="small"
                 error={!!error}
                 helperText={error}
+                slotProps={{
+                    input: {
+                        endAdornment: <InputAdornment position="end">@rit.edu</InputAdornment>
+                    }
+                }}
             />
 
             <Button variant="contained"

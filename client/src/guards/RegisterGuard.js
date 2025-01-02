@@ -14,5 +14,5 @@ export async function loader({ request }) {
       throw redirect('/email');
     }
     
-    return { email: response.data.email };
+    return { username: response.data.username };
 }

@@ -5,22 +5,40 @@ import { Link } from 'react-router-dom';
 import { register } from '../api/authApi';
 
 function Register() {
-    const { email } = useLoaderData();
-    const [error, setError] = useState('');
+    const { username } = useLoaderData();
+    const [errors, setErrors] = useState({
+        username: '',
+        password: '',
+        confirmPassword: ''
+    });
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
     async function handleRegister() {
-        setError('');
+        setErrors({
+            username: '',
+            password: '',
+            confirmPassword: ''
+        });
+        
         try {
-            const response = await register(email, password, confirmPassword);
+            const response = await register(username, password, confirmPassword);
             if (response.status === 200) {
                 console.log("the response is", response);
             }
         } catch (err) {
-            const errorMessage = err?.response?.data?.error || 'Something went wrong';
-            console.log("the error is", errorMessage);
-            setError(errorMessage);
+            const serverErrors = err?.response?.data?.errors || [];
+            const newErrors = { username: '', password: '', confirmPassword: '' };
+            
+            serverErrors.forEach(error => {
+                // Map server errors to specific fields
+                if (error.path === 'username') newErrors.username = error.msg;
+                if (error.path === 'password') newErrors.password = error.msg;
+                if (error.path === 'confirmPassword') newErrors.confirmPassword = error.msg;
+                if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
+            });
+            
+            setErrors(newErrors);
         }
     }
     
@@ -45,18 +63,17 @@ function Register() {
 
         >Sign Up</Typography>
         <TextField
-            label="RIT Email"
-            placeholder="username@rit.edu"
-            value={email}
+            label="username"
+            placeholder="username"
+            value={username}
             disabled
             fullWidth
             sx={{
                 marginTop: '2rem',
-
             }}
             size="small"
-            error={!!error}
-            helperText={error}
+            error={!!errors.username}
+            helperText={errors.username}
         />
         <TextField
             label="Password"
@@ -68,6 +85,8 @@ function Register() {
             }}
             size="small"
             onChange={(e) => setPassword(e.target.value)}
+            error={!!errors.password}
+            helperText={errors.password}
         />
 
         <TextField
@@ -80,6 +99,8 @@ function Register() {
             }}
             size="small"
             onChange={(e) => setConfirmPassword(e.target.value)}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword}
         />
 
         <Button 

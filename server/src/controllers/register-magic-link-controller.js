@@ -10,9 +10,10 @@ const registerMagicLinkController = {
             console.log("the errors are", errors);
             return res.status(400).json({ error: errors.array()[0].msg });
         }
-        const email = req.body.email;
+        const email = req.body.username;
+        const username = email.split('@')[0];
         const token = jwt.sign(
-            { email: email }, 
+            { username: username }, 
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
@@ -36,7 +37,7 @@ const registerMagicLinkController = {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             
             // You can pass the email to the frontend as a query parameter if needed
-            return res.status(200).json({ email: decoded.email });
+            return res.status(200).json({ username: decoded.username });
         } catch (error) {
             // Token is invalid or expired
             return res.status(401).json({ error: 'Invalid or expired token' });
