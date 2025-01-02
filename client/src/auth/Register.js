@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { register } from '../api/authApi';
-
+import { useNavigate } from 'react-router-dom';
 function Register() {
     const { username } = useLoaderData();
     const [errors, setErrors] = useState({
@@ -13,7 +13,7 @@ function Register() {
     });
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
+    const navigate = useNavigate();
     async function handleRegister() {
         setErrors({
             username: '',
@@ -23,8 +23,8 @@ function Register() {
         
         try {
             const response = await register(username, password, confirmPassword);
-            if (response.status === 200) {
-                console.log("the response is", response);
+            if (response.status === 201) {
+                navigate('/');
             }
         } catch (err) {
             const serverErrors = err?.response?.data?.errors || [];
