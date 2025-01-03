@@ -6,7 +6,7 @@ function Home() {
 
     async function logout() {
         localStorage.removeItem('token');
-        navigate('/email');
+        navigate('/login');
     }
 
     return (

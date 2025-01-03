@@ -1,7 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,8 @@ function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from || '/';  // Default to home if no intended destination
 
     async function handleLogin() {
         setErrors({
@@ -25,7 +27,8 @@ function Login() {
             const response = await login(username, password);
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token);
-                navigate('/');
+                // Navigate to the intended destination
+                navigate(from);
             }
         } catch (err) {
             console.log(err);
