@@ -55,7 +55,10 @@ function EmailForm() {
             
             <Modal
                 open={showModal}
-                onClose={() => setShowModal(false)}
+                onClose={() => {
+                    setUsername('');
+                    setShowModal(false)}
+                }
                 aria-labelledby="success-modal"
             >
                 <Box sx={{
