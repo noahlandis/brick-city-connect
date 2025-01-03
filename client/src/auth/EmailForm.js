@@ -42,7 +42,7 @@ function EmailForm() {
 
     return (
         <AuthForm
-            title="Sign In"
+            title="Sign Up"
             fields={fields}
             onSubmit={handleSendVerification}
             submitButtonText="Continue"
