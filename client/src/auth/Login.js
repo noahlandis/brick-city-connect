@@ -4,6 +4,7 @@ import { Typography, TextField, Button } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/AuthForm';
 
 function Login() {
     const [errors, setErrors] = useState({
@@ -45,86 +46,42 @@ function Login() {
         }
     }
     
-    return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-        }}>
-        <Typography variant="h5"
-            sx={{
-                color: "black",
-                fontWeight: 'bold',
-                textAlign: 'center',
-                fontSize: '1.4rem',
-                marginTop: '0.5rem',
-                fontFamily: '"Helvetica Neue"',
-            }}
-
-        >Sign In</Typography>
-        <TextField
-            label="Username"
-            placeholder="Username"
-            variant="standard"
-            value={username}
-            fullWidth
-            sx={{
-                marginTop: '2rem',
-            }}
-            size="small"
-            error={!!errors.username}
-            helperText={errors.username}
-            onChange={(e) => {
+    const fields = [
+        {
+            label: "Username",
+            placeholder: "Username",
+            value: username,
+            error: !!errors.username,
+            helperText: errors.username,
+            onChange: (e) => {
                 setUsername(e.target.value);
                 setErrors({ ...errors, username: '' });
-            }}
-        />
-        <TextField
-            label="Password"
-            placeholder="Password"
-            type="password"
-            fullWidth
-            variant="standard"
-            sx={{
-                marginTop: '2rem',
-            }}
-            size="small"
-            onChange={(e) => {
+            }
+        },
+        {
+            label: "Password",
+            placeholder: "Password",
+            type: "password",
+            value: password,
+            error: !!errors.password,
+            helperText: errors.password,
+            onChange: (e) => {
                 setPassword(e.target.value);
                 setErrors({ ...errors, password: '' });
-            }}
-            error={!!errors.password}
-            helperText={errors.password}
+            }
+        }
+    ];
+
+    return (
+        <AuthForm
+            title="Sign In"
+            fields={fields}
+            onSubmit={handleLogin}
+            submitButtonText="Sign In"
+            footerText="Don't have an account?"
+            footerLinkText="Sign Up"
+            footerLinkTo="/register"
         />
-
-
-        <Button 
-            variant="contained"
-            onClick={handleLogin}
-            sx={{
-                width: '100%',
-                marginTop: '2rem',
-                backgroundColor: 'black',
-                color: 'white',
-                fontFamily: '"Helvetica Neue"',
-                fontWeight: 'bold',
-                borderRadius: '8px',
-                textTransform: 'none',
-            }}
-        >Sign In</Button>
-        <Typography variant="body2"
-            sx={{
-                color: 'black',
-                textAlign: 'center',
-                marginTop: '1rem',
-            }}
-        >Don't have an account? <Link to="/register" style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>Sign Up</Link></Typography>
-
-    </div>
-
     );
 }
 

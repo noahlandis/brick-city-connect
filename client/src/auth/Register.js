@@ -4,15 +4,16 @@ import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { register } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
+import AuthForm from '../components/AuthForm';
 function Register() {
     const { username } = useLoaderData();
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState({
         username: '',
         password: '',
         confirmPassword: ''
     });
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const navigate = useNavigate();
     async function handleRegister() {
         setErrors({
@@ -43,99 +44,51 @@ function Register() {
         }
     }
     
-    return (
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
-            maxWidth: '400px',
-            margin: '0 auto'
-        }}>
-        <Typography variant="h5"
-            sx={{
-                color: "black",
-                fontWeight: 'bold',
-                textAlign: 'center',
-                fontSize: '1.4rem',
-                marginTop: '0.5rem',
-                fontFamily: '"Helvetica Neue"',
-            }}
-
-        >Sign Up</Typography>
-        <TextField
-            label="Username"
-            placeholder="Username"
-            variant="standard"
-            value={username}
-            disabled
-            fullWidth
-            sx={{
-                marginTop: '2rem',
-            }}
-            size="small"
-            error={!!errors.username}
-            helperText={errors.username}
-        />
-        <TextField
-            label="Password"
-            placeholder="Password"
-            type="password"
-            variant="standard"
-            fullWidth
-            sx={{
-                marginTop: '2rem',
-            }}
-            size="small"
-            onChange={(e) => {
+    const fields = [
+        {
+            label: "Username",
+            placeholder: "Username",
+            value: username,
+            disabled: true,
+            error: !!errors.username,
+            helperText: errors.username
+        },
+        {
+            label: "Password",
+            placeholder: "Password",
+            type: "password",
+            value: password,
+            error: !!errors.password,
+            helperText: errors.password,
+            onChange: (e) => {
                 setPassword(e.target.value);
-                setErrors({ ...errors, password: '' });
-            }}
-            error={!!errors.password}
-            helperText={errors.password}
-        />
-
-        <TextField
-            label="Confirm Password"
-            placeholder="Confirm Password"
-            type="password"
-            variant="standard"
-            fullWidth
-            sx={{
-                marginTop: '2rem',
-            }}
-            size="small"
-            onChange={(e) => {
+                setErrors(prev => ({ ...prev, password: '' }));
+            }
+        },
+        {
+            label: "Confirm Password",
+            placeholder: "Confirm Password",
+            type: "password",
+            value: confirmPassword,
+            error: !!errors.confirmPassword,
+            helperText: errors.confirmPassword,
+            onChange: (e) => {
                 setConfirmPassword(e.target.value);
-                setErrors({ ...errors, confirmPassword: '' });
-            }}
-            error={!!errors.confirmPassword}
-            helperText={errors.confirmPassword}
+                setErrors(prev => ({ ...prev, confirmPassword: '' }));
+            }
+        }
+    ];
+    
+    return (
+        <AuthForm
+            title="Sign Up"
+            fields={fields}
+            onSubmit={handleRegister}
+            submitButtonText="Create Account"
+            footerText="Already have an account?"
+            footerLinkText="Sign In"
+            footerLinkTo="/login"
         />
-
-        <Button 
-            variant="contained"
-            onClick={handleRegister}
-            sx={{
-                width: '100%',
-                marginTop: '2rem',
-                backgroundColor: 'black',
-                color: 'white',
-                fontFamily: '"Helvetica Neue"',
-                fontWeight: 'bold',
-                borderRadius: '8px',
-                textTransform: 'none',
-            }}
-        >Create Account</Button>
-        <Typography variant="body2"
-            sx={{
-                color: 'black',
-                textAlign: 'center',
-                marginTop: '1rem',
-            }}
-        >Already have an account? <Link to="/login" style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>Sign In</Link></Typography>
-
-    </div>
 
     );
 }
