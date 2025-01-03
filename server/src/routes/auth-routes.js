@@ -12,7 +12,7 @@ router.post('/register', [
         .trim()
         .notEmpty().withMessage('This field is required')
         .bail()
-        .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+        .isLength({ min: 6, max: 255 }).withMessage('Password must be at least 6 characters long')
         .bail()
         .custom((value, { req }) => {
             if (value !== req.body.confirmPassword) {
