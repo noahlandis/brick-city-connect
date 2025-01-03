@@ -77,7 +77,10 @@ function Login() {
             size="small"
             error={!!errors.username}
             helperText={errors.username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+                setUsername(e.target.value);
+                setErrors({ ...errors, username: '' });
+            }}
         />
         <TextField
             label="Password"
@@ -89,7 +92,10 @@ function Login() {
                 marginTop: '2rem',
             }}
             size="small"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors({ ...errors, password: '' });
+            }}
             error={!!errors.password}
             helperText={errors.password}
         />
