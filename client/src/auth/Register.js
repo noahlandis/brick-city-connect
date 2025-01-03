@@ -64,8 +64,9 @@ function Register() {
 
         >Sign Up</Typography>
         <TextField
-            label="username"
-            placeholder="username"
+            label="Username"
+            placeholder="Username"
+            variant="standard"
             value={username}
             disabled
             fullWidth
@@ -80,12 +81,16 @@ function Register() {
             label="Password"
             placeholder="Password"
             type="password"
+            variant="standard"
             fullWidth
             sx={{
                 marginTop: '2rem',
             }}
             size="small"
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors({ ...errors, password: '' });
+            }}
             error={!!errors.password}
             helperText={errors.password}
         />
@@ -94,12 +99,16 @@ function Register() {
             label="Confirm Password"
             placeholder="Confirm Password"
             type="password"
+            variant="standard"
             fullWidth
             sx={{
                 marginTop: '2rem',
             }}
             size="small"
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setErrors({ ...errors, confirmPassword: '' });
+            }}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
         />

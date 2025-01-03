@@ -66,8 +66,9 @@ function Login() {
 
         >Sign In</Typography>
         <TextField
-            label="username"
-            placeholder="username"
+            label="Username"
+            placeholder="Username"
+            variant="standard"
             value={username}
             fullWidth
             sx={{
@@ -83,6 +84,7 @@ function Login() {
             placeholder="Password"
             type="password"
             fullWidth
+            variant="standard"
             sx={{
                 marginTop: '2rem',
             }}

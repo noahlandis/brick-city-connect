@@ -10,7 +10,7 @@ router.post('/register', [
         .bail(),
     body('password')
         .trim()
-        .notEmpty().withMessage('This field is required')
+        .notEmpty().withMessage('Password is required')
         .bail()
         .isLength({ min: 6, max: 255 }).withMessage('Password must be at least 6 characters long')
         .bail()
@@ -22,7 +22,7 @@ router.post('/register', [
         }),
     body('confirmPassword')
         .trim()
-        .notEmpty().withMessage('This field is required')
+        .notEmpty().withMessage('Confirm Password is required')
         .bail(),
 ], authController.register);
 
@@ -34,7 +34,7 @@ router.post('/login', [
         .bail(),
     body('password')
         .trim()
-        .notEmpty().withMessage('This field is required')
+        .notEmpty().withMessage('Password is required')
         .bail(),
 ], authController.login);
 

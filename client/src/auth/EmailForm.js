@@ -44,8 +44,9 @@ function EmailForm() {
 
             >Sign Up</Typography>
             <TextField
-                label="username"
-                placeholder="username"
+                label="RIT Username"
+                placeholder="RIT Username"
+                variant="standard"
                 value={username}
                 onChange={(e) => {
                     setUsername(e.target.value);
