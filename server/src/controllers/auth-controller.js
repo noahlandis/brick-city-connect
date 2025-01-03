@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
-
+const jwt = require('jsonwebtoken');
 
 const authController = {
     register: async (req, res) => {
@@ -12,11 +12,16 @@ const authController = {
         const { username, password } = req.body;
         
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({
+        const user = await User.create({
             username: username,
             password: hashedPassword
         });
-        return res.status(201).json({ message: 'User created successfully' });
+        const token = jwt.sign(
+            { id: user._id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        return res.status(201).json({ message: 'User created successfully', token });
     },
 
     login: (req, res) => {

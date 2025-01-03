@@ -7,15 +7,16 @@ import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
 import AuthLayout from './layouts/AuthLayout';
 import { loader as registerGuard } from './guards/RegisterGuard';
+import AuthGuard from './guards/AuthGuard';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />
+    element: <AuthGuard><Home /></AuthGuard>
   },
   {
     path: "/chat",
-    element: <Chat />
+    element: <AuthGuard><Chat /></AuthGuard>
   },
   {
     path: "/email",

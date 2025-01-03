@@ -24,6 +24,7 @@ function Register() {
         try {
             const response = await register(username, password, confirmPassword);
             if (response.status === 201) {
+                localStorage.setItem('token', response.data.token);
                 navigate('/');
             }
         } catch (err) {
