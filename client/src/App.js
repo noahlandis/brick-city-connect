@@ -8,7 +8,7 @@ import Register from './auth/Register';
 import AuthLayout from './layouts/AuthLayout';
 import { loader as registerGuard } from './guards/RegisterGuard';
 import AuthGuard from './guards/AuthGuard';
-
+import Login from './auth/Login';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,6 +17,16 @@ const router = createBrowserRouter([
   {
     path: "/chat",
     element: <AuthGuard><Chat /></AuthGuard>
+  },
+  {
+    path: "login",
+    element: <AuthLayout />,
+    children: [
+      {
+        index: true,
+        element: <Login />
+      }
+    ]
   },
   {
     path: "register",

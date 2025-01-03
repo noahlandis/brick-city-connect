@@ -27,7 +27,15 @@ router.post('/register', [
 ], authController.register);
 
 
-router.post('/login', authController.login);
-router.post('/logout', authController.logout);
+router.post('/login', [
+    body('username')
+        .trim()
+        .notEmpty().withMessage('Username is required')
+        .bail(),
+    body('password')
+        .trim()
+        .notEmpty().withMessage('This field is required')
+        .bail(),
+], authController.login);
 
 module.exports = router;
