@@ -6,12 +6,12 @@ export async function loader({ request }) {
     const token = url.searchParams.get('token');
     
     if (!token) {
-      throw redirect('/email');
+      throw redirect('/register');
     }
     
     const response = await verifyToken(token);
     if (response.error) {
-      throw redirect('/email');
+      throw redirect('/register');
     }
     
     return { username: response.data.username };

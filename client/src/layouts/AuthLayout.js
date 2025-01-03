@@ -1,6 +1,7 @@
 import { Card, CardContent, Box, Typography, Avatar } from '@mui/material';
+import { Outlet } from 'react-router-dom';
 
-function AuthLayout({ children }) {
+function AuthLayout() {
   return (
     <div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center" style={{ backgroundImage: 'url("/rit.jpg")' }}>
        <Card
@@ -39,7 +40,7 @@ function AuthLayout({ children }) {
             Brick City Connect
           </Typography>
         </Box>
-        {children}
+        <Outlet />
       </CardContent>
     </Card>
     </div>

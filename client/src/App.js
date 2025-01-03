@@ -19,21 +19,19 @@ const router = createBrowserRouter([
     element: <AuthGuard><Chat /></AuthGuard>
   },
   {
-    path: "/email",
-    element: (
-      <AuthLayout>
-        <EmailForm />
-      </AuthLayout>
-    )
-  },
-  {
-    path: "/register",
-    element: (
-      <AuthLayout>
-        <Register />
-      </AuthLayout>
-    ),
-    loader: registerGuard
+    path: "register",
+    element: <AuthLayout />,
+    children: [
+      {
+        index: true,
+        element: <EmailForm />
+      },
+      {
+        path: "callback",
+        element: <Register />,
+        loader: registerGuard
+      }
+    ]
   }
 ]);
 

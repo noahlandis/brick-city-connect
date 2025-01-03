@@ -17,7 +17,7 @@ const registerMagicLinkController = {
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
-        const url = `${process.env.FRONTEND_URL}/register?token=${token}`;
+        const url = `${process.env.FRONTEND_URL}/register/callback?token=${token}`;
         sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
         return res.status(200).json({ message: 'Magic link sent' });
     },
