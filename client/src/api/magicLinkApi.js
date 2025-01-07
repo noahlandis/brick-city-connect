@@ -8,6 +8,6 @@ export async function sendForgotPasswordMagicLink(username) {
     return await api.post('/send-forgot-password-magic-link', { username });
 };
 
-export async function verifyToken(token) {
-    return await api.get(`/verify-token?token=${token}`);
+export async function verifyToken(token, tokenType) {
+    return await api.get(`/verify-token?token=${token}&type=${tokenType}`);
 };

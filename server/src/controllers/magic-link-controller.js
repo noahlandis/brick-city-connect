@@ -20,7 +20,7 @@ const magicLinkController = {
         }
 
         const token = jwt.sign(
-            { username: username }, 
+            { username: username, type: 'register' }, 
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
@@ -44,7 +44,7 @@ const magicLinkController = {
         }
 
         const token = jwt.sign(
-            { username: username }, 
+            { username: username, type: 'reset-password' }, 
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
@@ -61,11 +61,14 @@ const magicLinkController = {
         }
 
         
-        const { token } = req.query;
+        const { token, type } = req.query;
 
         try {
             // Verify the token using the same secret used to sign it
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            if (decoded.type !== type) {
+                return res.status(401).json({ error: 'Invalid or expired token' });
+            }
             
             // You can pass the email to the frontend as a query parameter if needed
             return res.status(200).json({ username: decoded.username });
