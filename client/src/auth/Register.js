@@ -5,7 +5,10 @@ import { Link } from 'react-router-dom';
 import { register } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
+import { useModal } from '../contexts/ModalContext';
+
 function Register() {
+    const { showModal } = useModal();
     const { username } = useLoaderData();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,6 +32,15 @@ function Register() {
                 navigate('/');
             }
         } catch (err) {
+            if (err?.response?.data?.errors?.[0]?.msg === 'Account already exists') {
+                showModal({
+                    title: 'Account Already Exists',
+                    message: 'It looks like you already have an account with us. Please Sign In.',
+                    showActionButton: false,
+                    showSignInButton: true,
+                    signInLink: `/login?username=${username}`
+                });
+            } else {
             const serverErrors = err?.response?.data?.errors || [];
             const newErrors = { username: '', password: '', confirmPassword: '' };
             
@@ -40,7 +52,8 @@ function Register() {
                 if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
             });
             
-            setErrors(newErrors);
+                setErrors(newErrors);
+            }
         }
     }
     

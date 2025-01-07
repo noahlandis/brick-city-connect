@@ -2,33 +2,38 @@ import React from 'react';
 import { useState } from 'react';
 import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
 import AuthForm from '../components/AuthForm';
-import Modal from '../components/Modal';
+import { useModal } from '../contexts/ModalContext';
 
 function EmailForm() {
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
-    const [modalTitle, setModalTitle] = useState('');
-    const [showActionButton, setShowActionButton] = useState(true);
+    const { showModal } = useModal();
 
     async function handleSendVerification() {
         setError('');
         try {
             const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
-                setModalTitle('Check Your Inbox');
-                setModalMessage(`Click the link we've sent to ${username}@rit.edu to finish creating your account.`);
-                setShowActionButton(true);
-                setShowModal(true);
+                showModal({
+                    title: 'Check Your Inbox',
+                    message: `Click the link we've sent to ${username}@rit.edu to finish creating your account.`,
+                    showActionButton: true,
+                    actionText: 'try a different email',
+                    onAction: () => {
+                        setUsername('');
+                    }
+                });
             }
         } catch (err) {
             const errorMessage = err?.response?.data?.error || 'Something went wrong';
             if (errorMessage === 'Account already exists') {
-                setModalTitle('Account Already Exists');
-                setModalMessage('It looks like you already have an account with us. Please Sign In.');
-                setShowActionButton(false);
-                setShowModal(true);
+                showModal({
+                    title: 'Account Already Exists',
+                    message: 'It looks like you already have an account with us. Please Sign In.',
+                    showActionButton: false,
+                    showSignInButton: true,
+                    signInLink: `/login?username=${username}`
+                });
             } else {
                 setError(errorMessage);
             }
@@ -54,34 +59,15 @@ function EmailForm() {
     ];
 
     return (
-        <>
-            <AuthForm
-                title="Sign Up"
-                fields={fields}
-                onSubmit={handleSendVerification}
-                submitButtonText="Continue"
-                footerText="Already have an account?"
-                footerLinkText="Sign In"
-                footerLinkTo="/login"
-            />
-            
-            <Modal 
-                open={showModal}
-                onClose={() => {
-                    setUsername('');
-                    setShowModal(false);
-                }}
-                title={modalTitle}
-                message={modalMessage}
-                actionText={showActionButton ? "try a different email" : null}
-                onAction={showActionButton ? () => {
-                    setUsername('');
-                    setShowModal(false);
-                } : null}
-                showSignInButton={!showActionButton}
-                signInLink={`/login?username=${username}`}
-            />
-        </>
+        <AuthForm
+            title="Sign Up"
+            fields={fields}
+            onSubmit={handleSendVerification}
+            submitButtonText="Continue"
+            footerText="Already have an account?"
+            footerLinkText="Sign In"
+            footerLinkTo="/login"
+        />
     );
 }
 

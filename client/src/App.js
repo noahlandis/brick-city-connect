@@ -9,6 +9,8 @@ import AuthLayout from './layouts/AuthLayout';
 import { loader as registerGuard } from './guards/RegisterGuard';
 import AuthGuard from './guards/AuthGuard';
 import Login from './auth/Login';
+import { ModalProvider } from './contexts/ModalContext';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -46,7 +48,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <ModalProvider>
+      <RouterProvider router={router} />
+    </ModalProvider>
+  );
 }
 
 export default App;
