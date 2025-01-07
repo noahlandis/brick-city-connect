@@ -1,4 +1,4 @@
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { Typography, TextField, Button } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
@@ -7,12 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 
 function Login() {
+    const [searchParams] = useSearchParams();
     const [errors, setErrors] = useState({
         username: '',
         password: '',
-
     });
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState(searchParams.get('username') || '');
+
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
     const location = useLocation();

@@ -2,24 +2,36 @@ import React from 'react';
 import { useState } from 'react';
 import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
 import AuthForm from '../components/AuthForm';
-import { Modal, Box, Typography } from '@mui/material';
+import Modal from '../components/Modal';
 
 function EmailForm() {
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalTitle, setModalTitle] = useState('');
+    const [showActionButton, setShowActionButton] = useState(true);
 
     async function handleSendVerification() {
         setError('');
         try {
             const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
+                setModalTitle('Check Your Inbox');
+                setModalMessage(`Click the link we've sent to ${username}@rit.edu to finish creating your account.`);
+                setShowActionButton(true);
                 setShowModal(true);
             }
         } catch (err) {
             const errorMessage = err?.response?.data?.error || 'Something went wrong';
-            console.log("the error is", errorMessage);
-            setError(errorMessage);
+            if (errorMessage === 'Account already exists') {
+                setModalTitle('Account Already Exists');
+                setModalMessage('It looks like you already have an account with us. Please Sign In.');
+                setShowActionButton(false);
+                setShowModal(true);
+            } else {
+                setError(errorMessage);
+            }
         }
     }
 
@@ -53,51 +65,22 @@ function EmailForm() {
                 footerLinkTo="/login"
             />
             
-            <Modal
+            <Modal 
                 open={showModal}
                 onClose={() => {
                     setUsername('');
-                    setShowModal(false)}
-                }
-                aria-labelledby="success-modal"
-            >
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 400,
-                    bgcolor: 'background.paper',
-                    borderRadius: 2,
-                    boxShadow: 24,
-                    p: 4,
-                    textAlign: 'center'
-                }}>
-                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold' }}>
-                        Check Your Inbox
-                    </Typography>
-                    <Typography sx={{ mt: 2 }}>
-                        Click the link we've sent to {username}@rit.edu to finish creating your account.
-                    </Typography>
-                    <Typography sx={{ mt: 2, color: 'text.secondary', fontSize: '0.875rem' }}>
-                        Not seeing the email? Check your spam folder or{' '}
-                        <Box
-                            component="span"
-                            sx={{
-                                color: 'primary.main',
-                                cursor: 'pointer',
-                                '&:hover': { textDecoration: 'underline' }
-                            }}
-                            onClick={() => {
-                                setUsername('');
-                                setShowModal(false);
-                            }}
-                        >
-                            try a different email
-                        </Box>
-                    </Typography>
-                </Box>
-            </Modal>
+                    setShowModal(false);
+                }}
+                title={modalTitle}
+                message={modalMessage}
+                actionText={showActionButton ? "try a different email" : null}
+                onAction={showActionButton ? () => {
+                    setUsername('');
+                    setShowModal(false);
+                } : null}
+                showSignInButton={!showActionButton}
+                signInLink={`/login?username=${username}`}
+            />
         </>
     );
 }
