@@ -1,17 +1,24 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const User = require('../models/user');
 
 // register-magic-link-controller.js
 const registerMagicLinkController = {
-    sendRegisterMagicLink: (req, res) => {
+    sendRegisterMagicLink: async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             console.log("the errors are", errors);
             return res.status(400).json({ error: errors.array()[0].msg });
         }
+     
         const email = req.body.username;
         const username = email.split('@')[0];
+        const existingUser = await User.findOne({ where: { username: username } });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Account already exists' });
+        }
+
         const token = jwt.sign(
             { username: username }, 
             process.env.JWT_SECRET, 
@@ -20,6 +27,7 @@ const registerMagicLinkController = {
         const url = `${process.env.FRONTEND_URL}/register/callback?token=${token}`;
         sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
         return res.status(200).json({ message: 'Magic link sent' });
+       
     },
 
     verifyToken: (req, res) => {

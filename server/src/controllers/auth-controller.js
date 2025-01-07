@@ -8,7 +8,12 @@ const authController = {
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
         }
+    
         const { username, password } = req.body;
+        const existingUser = await User.findOne({ where: { username: username } });
+        if (existingUser) {
+            return res.status(400).json({ errors: [{ msg: 'Account already exists', path: 'username' }] });
+        }
         const user = await User.create({
             username: username,
             password: password
