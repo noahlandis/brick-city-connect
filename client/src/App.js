@@ -6,7 +6,7 @@ import Chat from './Chat';
 import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
 import AuthLayout from './layouts/AuthLayout';
-import { loader as registerGuard } from './guards/RegisterGuard';
+import { registerLoader as registerGuard, forgotPasswordLoader as forgotPasswordGuard } from './guards/MagicLinkGuard';
 import AuthGuard from './guards/AuthGuard';
 import Login from './auth/Login';
 import { ModalProvider } from './contexts/ModalContext';
@@ -56,7 +56,8 @@ const router = createBrowserRouter([
       },
       {
         path: "callback",
-        element: <ResetPassword />
+        element: <ResetPassword />,
+        loader: forgotPasswordGuard
       }
     ]
   }
