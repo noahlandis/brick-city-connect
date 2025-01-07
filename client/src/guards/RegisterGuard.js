@@ -9,10 +9,10 @@ export async function loader({ request }) {
       throw redirect('/register');
     }
     
-    const response = await verifyToken(token);
-    if (response.error) {
-      throw redirect('/register');
+    try {
+        const response = await verifyToken(token);
+        return { username: response.data.username };
+    } catch (error) {
+        throw redirect('/register');
     }
-    
-    return { username: response.data.username };
 }

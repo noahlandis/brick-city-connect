@@ -5,6 +5,5 @@ export async function sendRegisterMagicLink(username) {
 };
 
 export async function verifyToken(token) {
-    const response = await api.get(`/verify-token?token=${token}`);
-    return response;
+    return await api.get(`/verify-token?token=${token}`);
 };
