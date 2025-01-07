@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 
 // Import routes
-const magicLinkRoutes = require('./routes/register-magic-link-routes');
+const magicLinkRoutes = require('./routes/magic-link-routes');
 const authRoutes = require('./routes/auth-routes');
 
 // prepend 'api' to all routes

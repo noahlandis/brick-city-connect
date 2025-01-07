@@ -1,5 +1,5 @@
 import { redirect } from 'react-router-dom';
-import { verifyToken } from '../api/registerMagicLinkApi';
+import { verifyToken } from '../api/magicLinkApi';
 
 export async function loader({ request }) {
     const url = new URL(request.url);

@@ -4,7 +4,7 @@ const { validationResult } = require('express-validator');
 const User = require('../models/user');
 
 // register-magic-link-controller.js
-const registerMagicLinkController = {
+const magicLinkController = {
     sendRegisterMagicLink: async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -28,6 +28,29 @@ const registerMagicLinkController = {
         sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
         return res.status(200).json({ message: 'Magic link sent' });
        
+    },
+
+    sendForgotPasswordMagicLink: async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            console.log("the errors are", errors);
+            return res.status(400).json({ error: errors.array()[0].msg });
+        }
+        const email = req.body.username;
+        const username = email.split('@')[0];
+        const existingUser = await User.findOne({ where: { username: username } });
+        if (!existingUser) {
+            return res.status(400).json({ error: 'We didn\'t recognize that username.' });
+        }
+
+        const token = jwt.sign(
+            { username: username }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '5m' }  // Token expires in 5 minutes
+        );
+        const url = `${process.env.FRONTEND_URL}/forgot-password/callback?token=${token}`;
+        sendEmail(email, "Reset Password", `Click here to reset your password: ${url}`);
+        return res.status(200).json({ message: 'Magic link sent' });
     },
 
     verifyToken: (req, res) => {
@@ -54,5 +77,5 @@ const registerMagicLinkController = {
 }
 
 module.exports = {
-    registerMagicLinkController
+    magicLinkController
 }

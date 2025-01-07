@@ -10,7 +10,8 @@ import { loader as registerGuard } from './guards/RegisterGuard';
 import AuthGuard from './guards/AuthGuard';
 import Login from './auth/Login';
 import { ModalProvider } from './contexts/ModalContext';
-
+import ForgotPassword from './forgot-password/ForgotPassword';
+import ResetPassword from './forgot-password/ResetPassword';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -42,6 +43,20 @@ const router = createBrowserRouter([
         path: "callback",
         element: <Register />,
         loader: registerGuard
+      }
+    ]
+  },
+  {
+    path: "forgot-password",
+    element: <AuthLayout />,
+    children: [
+      {
+        index: true,
+        element: <ForgotPassword />
+      },
+      {
+        path: "callback",
+        element: <ResetPassword />
       }
     ]
   }
