@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 function AuthForm({ 
     title, 
+    errorMessage,
     fields, 
     onSubmit, 
     submitButtonText, 
@@ -29,6 +30,19 @@ function AuthForm({
                     fontFamily: '"Helvetica Neue"',
                 }}
             >{title}</Typography>
+
+            {errorMessage && (
+                <Typography 
+                    color="error"
+                    sx={{
+                        textAlign: 'center',
+                        marginTop: '1rem',
+                        fontSize: '0.875rem'
+                    }}
+                >
+                    {errorMessage}
+                </Typography>
+            )}
 
             {fields.map((field, index) => (
                 <TextField

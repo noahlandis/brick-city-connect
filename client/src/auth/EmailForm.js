@@ -1,13 +1,17 @@
 import React from 'react';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { sendRegisterMagicLink } from '../api/registerMagicLinkApi';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 
 function EmailForm() {
+    const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const { showModal } = useModal();
+
+    const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
 
     async function handleSendVerification() {
         setError('');
@@ -61,6 +65,7 @@ function EmailForm() {
     return (
         <AuthForm
             title="Sign Up"
+            errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
             fields={fields}
             onSubmit={handleSendVerification}
             submitButtonText="Continue"

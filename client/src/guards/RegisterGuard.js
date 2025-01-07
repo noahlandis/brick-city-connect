@@ -13,6 +13,6 @@ export async function loader({ request }) {
         const response = await verifyToken(token);
         return { username: response.data.username };
     } catch (error) {
-        throw redirect('/register?error=TOKEN_INVALID');
+        throw redirect('/register?error=INVALID_TOKEN');
     }
 }
