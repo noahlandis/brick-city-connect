@@ -3,6 +3,8 @@ const Mailgun = require('mailgun.js');
 const formData = require('form-data');
 const mailgun = new Mailgun(formData);
 const mg = mailgun.client({username: 'api', key: process.env.MAILGUN_API_KEY});
+const ejs = require('ejs');
+const path = require('path');
 
 // we use nodemailer for local development so we get emails at localhost:1025
 const nodemailer = require('nodemailer');
@@ -18,12 +20,15 @@ const transporter = nodemailer.createTransport({
  * @param {string} subject - The subject of the email.
  * @param {string} text - The body of the email.
  */
-function sendEmail(recipient, subject, text) {
+async function sendEmail(recipient, subject, text) {
+    const templatePath = path.join(__dirname, '../email-templates', `magic-link-email.ejs`);
+    const html = await ejs.renderFile(templatePath, {});
     const emailOptions = {
         from: "Brick City Connect <noreply@brickcityconnect.com>",
         to: recipient,
         subject: subject,
-        text: text
+        text: text,
+        html: html
     };
     if (process.env.ENV === 'local') {
         sendLocalMail(emailOptions);
