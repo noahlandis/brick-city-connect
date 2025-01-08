@@ -9,7 +9,7 @@ function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
-    const { showModal } = useModal();
+    const { showModal, hideModal } = useModal();
 
     const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
 
@@ -25,6 +25,7 @@ function EmailForm() {
                     actionText: 'try a different email',
                     onAction: () => {
                         setUsername('');
+                        hideModal();
                     }
                 });
             }
