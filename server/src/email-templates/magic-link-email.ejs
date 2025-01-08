@@ -5,15 +5,34 @@
 </head>
 <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; text-align: center; padding: 20px;">
     <!-- Logo and Title container -->
-    <div style="margin-bottom: 30px; display: flex; align-items: center; justify-content: center; gap: 20px;">
-        <img src="https://brickcityconnect.s3.us-east-2.amazonaws.com/tiger.png" alt="Brick City Connect Tiger" style="width: 120px; height: 120px;">
-        <span style="color: #F76902; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: bold; font-size: 36px;">Brick City Connect</span>
-    </div>
+    <table style="margin: 0 auto 30px; border-collapse: collapse;">
+        <tr class="stack-on-mobile">
+            <td style="padding-right: 20px; text-align: center;">
+                <img src="https://brickcityconnect.s3.us-east-2.amazonaws.com/tiger.png" alt="Brick City Connect Tiger" style="width: 120px; height: 120px; display: inline-block;">
+            </td>
+            <td style="vertical-align: middle; text-align: center;">
+                <span style="color: #F76902; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: bold; font-size: 36px;">Brick City Connect</span>
+            </td>
+        </tr>
+    </table>
+
+    <style>
+        @media screen and (max-width: 600px) {
+            .stack-on-mobile td {
+                display: block !important;
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            .stack-on-mobile td:first-child {
+                margin-bottom: 10px !important;
+            }
+        }
+    </style>
     
     <h1>Almost there!</h1>
-    <p>Click the link below to confirm your email and finish creating your Brick City Connect account</p>
-    <a href="http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f" style="background-color: #F76902; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>Create your account</strong></a>
-    <p>If the button above doesn't work, paste this link into your web browser: <a href="http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f" style="color: black; text-decoration: underline;">http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f</a></p>
+    <p style="margin-bottom: 30px;">Click the link below to confirm your email and finish creating your Brick City Connect account</p>
+    <a href="http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f" style="background-color: #F76902; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin-bottom: 30px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;"><strong>Create your account</strong></a>
+    <p style="margin-top: 30px;">If the button above doesn't work, paste this link into your web browser: <a href="http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f" style="color: black; text-decoration: underline;">http://localhost:3001/register/callback?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.d.Vuvek_5rZFH-YsrFIM8UgKKWy894YRqm65vkw6NxI3f</a></p>
 
     <!-- Footer -->
     <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #eee;">
