@@ -40,7 +40,7 @@ const magicLinkController = {
         const username = email.split('@')[0];
         const existingUser = await User.findOne({ where: { username: username } });
         if (!existingUser) {
-            return res.status(400).json({ error: 'We didn\'t recognize that username.' });
+            return res.status(400).json({ error: 'We couldn\'t find an account with that username.' });
         }
 
         const token = jwt.sign(

@@ -50,6 +50,20 @@ const authController = {
         );
         return res.status(200).json({ message: 'Login successful', token });
     },
+
+    resetPassword: async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        const { username, password } = req.body;
+        const user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            return res.status(404).json({ errors: [{ msg: 'User not found', path: 'username' }] });
+        }
+        await user.update({ password: password });
+        return res.status(200).json({ message: 'Password reset successful' });
+    }
 }
 
 module.exports = {

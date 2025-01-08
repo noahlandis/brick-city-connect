@@ -9,7 +9,6 @@ router.post('/register', [
         .notEmpty().withMessage('Username is required')
         .bail(),
     body('password')
-        .trim()
         .notEmpty().withMessage('Password is required')
         .bail()
         .isLength({ min: 6, max: 255 }).withMessage('Password must be at least 6 characters long')
@@ -21,7 +20,6 @@ router.post('/register', [
             return true;
         }),
     body('confirmPassword')
-        .trim()
         .notEmpty().withMessage('Confirm Password is required')
         .bail(),
 ], authController.register);
@@ -33,9 +31,26 @@ router.post('/login', [
         .notEmpty().withMessage('Username is required')
         .bail(),
     body('password')
-        .trim()
         .notEmpty().withMessage('Password is required')
         .bail(),
 ], authController.login);
+
+router.put('/reset-password', [
+    body('password')
+        .notEmpty().withMessage('Password is required')
+        .bail()
+        .isLength({ min: 6, max: 255 }).withMessage('Password must be at least 6 characters long')
+        .bail()
+        .custom((value, { req }) => {
+            if (value !== req.body.confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+            return true;
+        }),
+    body('confirmPassword')
+        .notEmpty().withMessage('Confirm Password is required')
+        .bail(),
+], authController.resetPassword);
+
 
 module.exports = router;
