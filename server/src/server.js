@@ -5,6 +5,7 @@ const http = require('http');
 const { initializeDatabase } = require('./config/database');
 const { initializeSignalingServer } = require('./signaling-server');
 const Bugsnag = require('./config/bugsnag');
+const path = require('path');
 
 // Wrap initialization in IIFE
 (async () => {
@@ -30,6 +31,18 @@ app.use('/api', authRoutes);
 // Apply Bugsnag middleware
 app.use(middleware.requestHandler);
 app.use(middleware.errorHandler);
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'email-templates'));
+
+// display a test email template
+app.get('/test-email', (req, res) => {
+  
+  res.render('magic-link-email', {
+    name: 'John Oliver',
+    message: 'We are excited to have you on board!'
+  });
+});
 
 // Create the HTTP server from the express app
 const server = http.createServer(app);
