@@ -45,16 +45,18 @@ function AuthForm({
             )}
 
             {fields.map((field, index) => (
-                <TextField
-                    key={index}
-                    {...field}
-                    variant="standard"
-                    fullWidth
-                    sx={{
-                        marginTop: '2rem',
-                    }}
-                    size="small"
-                />
+                <div key={index} style={{ width: '100%' }}>
+                    <TextField
+                        {...field}
+                        variant="standard"
+                        fullWidth
+                        sx={{
+                            marginTop: '2rem',
+                        }}
+                        size="small"
+                    />
+                    {field.additionalElement}
+                </div>
             ))}
 
             <Button 

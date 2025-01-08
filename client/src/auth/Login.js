@@ -69,7 +69,23 @@ function Login() {
             onChange: (e) => {
                 setPassword(e.target.value);
                 setErrors({ ...errors, password: '' });
-            }
+            },
+            additionalElement: (
+                <Link 
+                    to="/forgot-password" 
+                    style={{ 
+                        alignSelf: 'flex-end',
+                        textDecoration: 'none',
+                        marginTop: '8px',
+                        fontSize: '11px',
+                        color: '#F76902',
+                        fontWeight: 'bold',
+                        fontStyle: 'italic'
+                    }}
+                >
+                    Forgot Password?
+                </Link>
+            )
         }
     ];
 
