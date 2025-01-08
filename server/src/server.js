@@ -31,7 +31,6 @@ app.use('/api', authRoutes);
 // Apply Bugsnag middleware
 app.use(middleware.requestHandler);
 app.use(middleware.errorHandler);
-app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'email-templates'));
