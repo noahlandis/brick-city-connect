@@ -20,7 +20,7 @@ router.post('/send-forgot-password-magic-link',
   body('username')
     .trim()
     .notEmpty()
-    .withMessage('RIT Username is required')
+    .withMessage('Username is required')
     .bail()
     .customSanitizer(value => `${value}@rit.edu`)
     .bail()

@@ -37,8 +37,8 @@ function ForgotPassword() {
 
     const fields = [
         {
-            label: "RIT Username",
-            placeholder: "RIT Username",
+            label: "Username",
+            placeholder: "Username",
             type: "text",
             value: username,
             error: !!error,
