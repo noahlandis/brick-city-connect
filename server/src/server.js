@@ -35,20 +35,6 @@ app.use(middleware.errorHandler);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'email-templates'));
 
-// display a test email template
-app.get('/test-email', (req, res) => {
-  
-  res.render('register-email', {
-    url: 'https://www.google.com'
-  });
-});
-
-app.get('/test-forgot-password-email', (req, res) => {
-  res.render('forgot-password-email', {
-    url: 'https://www.google.com'
-  });
-});
-
 // Create the HTTP server from the express app
 const server = http.createServer(app);
 
