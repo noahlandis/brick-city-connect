@@ -30,6 +30,7 @@ function getEmailTemplate(templateName, data) {
  * @param {string} recipient - The email address of the recipient.
  * @param {string} subject - The subject of the email.
  * @param {string} text - The body of the email.
+ * @param {string} html - The HTML body of the email.
  */
 function sendEmail(recipient, subject, text, html) {
     const emailOptions = {
