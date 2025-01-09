@@ -50,7 +50,8 @@ const magicLinkController = {
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
         const url = `${process.env.FRONTEND_URL}/forgot-password/callback?token=${token}`;
-        sendEmail(email, "Reset Password", `Click here to reset your password: ${url}`);
+        const html = await getEmailTemplate('forgot-password-email', { url });
+        sendEmail(email, "Reset Password", `Click here to reset your password: ${url}`, html);
         return res.status(200).json({ message: 'Magic link sent' });
     },
 

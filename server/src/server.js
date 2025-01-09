@@ -43,6 +43,12 @@ app.get('/test-email', (req, res) => {
   });
 });
 
+app.get('/test-forgot-password-email', (req, res) => {
+  res.render('forgot-password-email', {
+    url: 'https://www.google.com'
+  });
+});
+
 // Create the HTTP server from the express app
 const server = http.createServer(app);
 
