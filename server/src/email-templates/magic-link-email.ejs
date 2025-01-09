@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <!-- For mobile responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Brick City Connect</title>
+    <title>Brick City Connect - Confirm Your Email</title>
     
     <style>
       /* We keep most styles inline, but a little in <style> for fallback. */
@@ -38,7 +38,7 @@
     </style>
   </head>
 
-  <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+  <body>
     <!-- Center the entire email for better aesthetics -->
     <center>
       <!-- Start main container table -->
@@ -50,28 +50,19 @@
         style="
           border-collapse: collapse;
           margin: 20px auto;
-          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         "
       >
         <!-- HEADER / LOGO SECTION -->
         <tr>
-          <td style="padding: 20px;">
-            <table style="width: 100%;">
-              <tr>
-                <td style="vertical-align: middle; width: 80px;">
-                  <img 
-                    src="https://brickcityconnect.s3.us-east-2.amazonaws.com/tiger.png" 
-                    alt="Brick City Connect Tiger" 
-                    style="width: 90px; height: 90px; pointer-events: none; -webkit-user-drag: none; user-drag: none;"
-                  />
-                </td>
-                <td style="vertical-align: middle; padding-left: 15px;">
-                  <h1 style="color: #F76902; font-weight: bold; font-size: 28px; margin: -4px 0 0; line-height: 1;">
-                    Brick City Connect
-                  </h1>
-                </td>
-              </tr>
-            </table>
+          <td style="padding: 20px; text-align: center;">
+            <img 
+              src="https://brickcityconnect.s3.us-east-2.amazonaws.com/tiger.png" 
+              alt="Brick City Connect Tiger" 
+              style="width: 120px; height: 120px; display: block; margin: 0 auto;"
+            />
+            <h1 style="color: #F76902; font-weight: bold; font-size: 28px; margin-top: 10px;">
+              Brick City Connect
+            </h1>
           </td>
         </tr>
 
@@ -88,6 +79,7 @@
         <!-- CTA BUTTON -->
         <tr>
           <td style="padding: 20px;">
+            <center>
               <a 
                 href="http://localhost:3001/register/callback?token=YOUR_TOKEN_HERE"
                 style="
@@ -98,11 +90,11 @@
                   font-size: 16px; 
                   display: inline-block;
                   margin: 10px 0;
-                  text-decoration: none;
                 "
               >
                 <strong>Create your account</strong>
               </a>
+            </center>
             <p style="font-size: 14px; color: #666; line-height: 1.4; margin-top: 20px;">
               If the button above doesn’t work, paste this link into your browser: <br />
               <a 
