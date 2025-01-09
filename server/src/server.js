@@ -39,8 +39,7 @@ app.set('views', path.join(__dirname, 'email-templates'));
 app.get('/test-email', (req, res) => {
   
   res.render('magic-link-email', {
-    name: 'John Oliver',
-    message: 'We are excited to have you on board!'
+    url: 'https://www.google.com'
   });
 });
 

@@ -2,7 +2,7 @@ const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
-
+const { getEmailTemplate } = require('../services/email-service');
 // register-magic-link-controller.js
 const magicLinkController = {
     sendRegisterMagicLink: async (req, res) => {
@@ -25,7 +25,8 @@ const magicLinkController = {
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
         const url = `${process.env.FRONTEND_URL}/register/callback?token=${token}`;
-        sendEmail(email, "Continue Sign Up", `Click here to continue signing up: ${url}`);
+        const html = await getEmailTemplate('magic-link-email', { url });
+        sendEmail(email, "Continue Sign Up", `Click here to finish creating your Brick City Connect account: ${url}`, html);
         return res.status(200).json({ message: 'Magic link sent' });
        
     },

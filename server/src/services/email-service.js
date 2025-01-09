@@ -15,14 +15,23 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
+ * Returns the HTML for an email template.
+ * @param {string} templateName - The name of the email template.
+ * @param {object} data - The data to pass to the email template.
+ * @returns {string} - The HTML for the email template.
+ */
+function getEmailTemplate(templateName, data) {
+    const templatePath = path.join(__dirname, '../email-templates', `${templateName}.ejs`);
+    return ejs.renderFile(templatePath, data);
+}
+
+/**
  * Sends an email to either the recipient or the local mailpit server, depending on the environment.
  * @param {string} recipient - The email address of the recipient.
  * @param {string} subject - The subject of the email.
  * @param {string} text - The body of the email.
  */
-async function sendEmail(recipient, subject, text) {
-    const templatePath = path.join(__dirname, '../email-templates', `magic-link-email.ejs`);
-    const html = await ejs.renderFile(templatePath, {});
+function sendEmail(recipient, subject, text, html) {
     const emailOptions = {
         from: "Brick City Connect <noreply@brickcityconnect.com>",
         to: recipient,
@@ -47,4 +56,4 @@ function sendLocalMail(emailOptions) {
     console.log("local email sent");
 }
 
-module.exports = { sendEmail };
+module.exports = { sendEmail, getEmailTemplate };

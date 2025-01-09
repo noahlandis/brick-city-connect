@@ -13,7 +13,7 @@
 <!-- CTA BUTTON -->
 <tr>
     <td style="padding: 20px;">
-        <a href="http://localhost:3001/register/callback?token=YOUR_TOKEN_HERE" style="
+        <a href="<%= url %>" style="
                   background-color: #F76902; 
                   color: #ffffff; 
                   padding: 12px 24px; 
@@ -27,9 +27,9 @@
         </a>
         <p style="font-size: 14px; color: #666; line-height: 1.4; margin-top: 20px;">
             If the button above doesn’t work, paste this link into your browser: <br />
-            <a href="http://localhost:3001/register/callback?token=YOUR_TOKEN_HERE"
+            <a href="<%= url %>"
                 style="text-decoration: underline;">
-                http://localhost:3001/register/callback?token=YOUR_TOKEN_HERE
+                <%= url %>
             </a>
         </p>
     </td>
