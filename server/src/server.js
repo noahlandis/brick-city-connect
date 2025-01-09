@@ -38,7 +38,7 @@ app.set('views', path.join(__dirname, 'email-templates'));
 // display a test email template
 app.get('/test-email', (req, res) => {
   
-  res.render('magic-link-email', {
+  res.render('register-email', {
     url: 'https://www.google.com'
   });
 });

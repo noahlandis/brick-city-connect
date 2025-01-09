@@ -25,7 +25,7 @@ const magicLinkController = {
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
         const url = `${process.env.FRONTEND_URL}/register/callback?token=${token}`;
-        const html = await getEmailTemplate('magic-link-email', { url });
+        const html = await getEmailTemplate('register-email', { url });
         sendEmail(email, "Continue Sign Up", `Click here to finish creating your Brick City Connect account: ${url}`, html);
         return res.status(200).json({ message: 'Magic link sent' });
        
