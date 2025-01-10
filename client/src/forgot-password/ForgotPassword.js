@@ -30,7 +30,8 @@ function ForgotPassword() {
                 });
             }
         } catch (err) {
-            const errorMessage = err?.response?.data?.error || 'Something went wrong';
+            console.log("the error is", err);
+            const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
             setError(errorMessage);
         }
     }

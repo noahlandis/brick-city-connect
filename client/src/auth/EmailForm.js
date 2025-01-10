@@ -30,7 +30,7 @@ function EmailForm() {
                 });
             }
         } catch (err) {
-            const errorMessage = err?.response?.data?.error || 'Something went wrong';
+            const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
             if (errorMessage === 'Account already exists') {
                 showModal({
                     title: 'Account Already Exists',

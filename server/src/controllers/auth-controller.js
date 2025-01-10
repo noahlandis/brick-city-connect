@@ -4,11 +4,6 @@ const jwt = require('jsonwebtoken');
 
 const authController = {
     register: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-    
         const { username, password } = req.body;
         const existingUser = await User.findOne({ where: { username: username } });
         if (existingUser) {
@@ -27,10 +22,6 @@ const authController = {
     },
 
     login: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username: username }});
         
@@ -52,10 +43,6 @@ const authController = {
     },
 
     resetPassword: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username: username } });
         if (!user) {

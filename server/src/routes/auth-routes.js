@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authController } = require('../controllers/auth-controller');
 const { body } = require('express-validator');
+const validateRequest = require('../middleware/validate-request');
 
 router.post('/register', [
     body('username')
@@ -22,6 +23,7 @@ router.post('/register', [
     body('confirmPassword')
         .notEmpty().withMessage('Confirm Password is required')
         .bail(),
+    validateRequest,
 ], authController.register);
 
 
@@ -33,6 +35,7 @@ router.post('/login', [
     body('password')
         .notEmpty().withMessage('Password is required')
         .bail(),
+    validateRequest,
 ], authController.login);
 
 router.put('/reset-password', [
@@ -50,6 +53,7 @@ router.put('/reset-password', [
     body('confirmPassword')
         .notEmpty().withMessage('Confirm Password is required')
         .bail(),
+    validateRequest,
 ], authController.resetPassword);
 
 

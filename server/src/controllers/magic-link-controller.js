@@ -1,22 +1,16 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const { getEmailTemplate } = require('../services/email-service');
+
 // register-magic-link-controller.js
 const magicLinkController = {
     sendRegisterMagicLink: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            console.log("the errors are", errors);
-            return res.status(400).json({ error: errors.array()[0].msg });
-        }
-     
         const email = req.body.username;
         const username = email.split('@')[0];
         const existingUser = await User.findOne({ where: { username: username } });
         if (existingUser) {
-            return res.status(400).json({ error: 'Account already exists' });
+            return res.status(400).json({ errors: [{ msg: 'Account already exists', path: 'username' }] });
         }
 
         const token = jwt.sign(
@@ -32,16 +26,11 @@ const magicLinkController = {
     },
 
     sendForgotPasswordMagicLink: async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            console.log("the errors are", errors);
-            return res.status(400).json({ error: errors.array()[0].msg });
-        }
         const email = req.body.username;
         const username = email.split('@')[0];
         const existingUser = await User.findOne({ where: { username: username } });
         if (!existingUser) {
-            return res.status(400).json({ error: 'We couldn\'t find an account with that username.' });
+            return res.status(400).json({ errors: [{ msg: 'We couldn\'t find an account with that username.', path: 'username' }] });
         }
 
         const token = jwt.sign(
@@ -56,13 +45,6 @@ const magicLinkController = {
     },
 
     verifyToken: (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            console.log("the errors are", errors);
-            return res.status(401).json({ error: errors.array()[0].msg });
-        }
-
-        
         const { token, type } = req.query;
 
         try {
