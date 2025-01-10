@@ -1,7 +1,5 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { register } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';

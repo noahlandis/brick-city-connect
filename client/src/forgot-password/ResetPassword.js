@@ -1,9 +1,6 @@
-import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
 import { resetPassword } from '../api/authApi';
-import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 import validateFields from '../utils/validateFields';

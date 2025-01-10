@@ -17,9 +17,15 @@ export function ModalProvider({ children }) {
 
     const showModal = (config) => {
         setModalState({
-            ...modalState,
-            open: true,
-            ...config
+            title: '',
+            message: '',
+            showActionButton: true,
+            actionText: '',
+            onAction: null,
+            showSignInButton: false,
+            signInLink: '',
+            ...config,
+            open: true
         });
     };
 
