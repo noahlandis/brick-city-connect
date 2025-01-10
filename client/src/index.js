@@ -9,7 +9,8 @@ var BugsnagPluginReact = require('@bugsnag/plugin-react');
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
   releaseStage: process.env.REACT_APP_ENV,
-  plugins: [new BugsnagPluginReact()]
+  plugins: [new BugsnagPluginReact()],
+  notifyReleaseStages: ['staging','production']
 })
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

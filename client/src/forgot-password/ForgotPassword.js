@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { sendForgotPasswordMagicLink } from '../api/magicLinkApi';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
-import { sendRegisterMagicLink } from '../api/magicLinkApi';
 import validateFields from '../utils/validateFields';
-function EmailForm() {
+function ForgotPassword() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
     const [errors, setErrors] = useState({
@@ -18,7 +18,7 @@ function EmailForm() {
     async function handleSendVerification() {
         const isValid = validateFields({
             username: [
-                { condition: !username, message: 'RIT Username is required' },
+                { condition: !username, message: 'Username is required' },
                 { condition: username.endsWith('@rit.edu'), message: `We didn't recognize ${username}@rit.edu as a valid RIT email address` },
             ],
         }, setErrors);
@@ -28,13 +28,12 @@ function EmailForm() {
         }
 
         setErrors({ username: '' });
-        
         try {
-            const response = await sendRegisterMagicLink(username);
+            const response = await sendForgotPasswordMagicLink(username);
             if (response.status === 200) {
                 showModal({
                     title: 'Check Your Inbox',
-                    message: `Click the link we've sent to ${username}@rit.edu to finish creating your account.`,
+                    message: `Click the link we've sent to ${username}@rit.edu to reset your password.`,
                     showActionButton: true,
                     actionText: 'try a different email',
                     onAction: () => {
@@ -44,25 +43,16 @@ function EmailForm() {
                 });
             }
         } catch (err) {
+            console.log("the error is", err);
             const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
-            if (errorMessage === 'Account already exists') {
-                showModal({
-                    title: 'Account Already Exists',
-                    message: 'It looks like you already have an account with us. Please Sign In.',
-                    showActionButton: false,
-                    showSignInButton: true,
-                    signInLink: `/login?username=${username}`
-                });
-            } else {
-                setErrors({ username: errorMessage });
-            }
+            setErrors({ username: errorMessage });
         }
     }
 
     const fields = [
         {
-            label: "RIT Username",
-            placeholder: "RIT Username",
+            label: "Username",
+            placeholder: "Username",
             type: "text",
             value: username,
             error: !!errors.username,
@@ -79,16 +69,16 @@ function EmailForm() {
 
     return (
         <AuthForm
-            title="Sign Up"
+            title="Forgot Password"
             errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
             fields={fields}
             onSubmit={handleSendVerification}
             submitButtonText="Continue"
-            footerText="Already have an account?"
+            footerText="Remember your password?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
         />
     );
 }
 
-export default EmailForm;
+export default ForgotPassword;

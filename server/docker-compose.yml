@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/usr/src/app/src
+      - ./.env:/usr/src/app/.env
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: npx nodemon src/server.js
+
+  db:
+    image: postgres:15
+    container_name: database
+    ports:
+      - "5433:5432" # Map to 5432 on host
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_HOST: ${DB_HOST}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+
+volumes:
+  postgres_data:

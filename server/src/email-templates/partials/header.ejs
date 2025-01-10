@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta charset="utf-8" />
+  <!-- For mobile responsiveness -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brick City Connect</title>
+
+  <style>
+    /* We keep most styles inline, but a little in <style> for fallback. */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      /* Light gray background for the whole email */
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      /* Center the table on larger screens */
+      background-color: #ffffff;
+      /* White background for the content area */
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    /* You can include media queries if needed, 
+         but many email clients will ignore them. */
+    @media only screen and (max-width: 600px) {
+      .container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 10px;
+        /* Some breathing room on small screens */
+      }
+    }
+  </style>
+</head>
+
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+  <!-- Center the entire email for better aesthetics -->
+  <center>
+    <!-- Start main container table -->
+    <table border="0" cellpadding="0" cellspacing="0" class="container" style="
+          border-collapse: collapse;
+          margin: 20px auto;
+        ">
+      <!-- HEADER / LOGO SECTION -->
+      <tr>
+        <td style="padding: 20px;">
+          <img src="https://brickcityconnect.s3.us-east-2.amazonaws.com/tiger.png" alt="Brick City Connect Tiger"
+            style="width: 120px; height: 120px;" />
+          <h1 style="color: #F76902; font-weight: bold; font-size: 28px; margin-top: 0px;">
+            Brick City Connect
+          </h1>
+        </td>
+      </tr>
