@@ -17,7 +17,6 @@ export function ModalProvider({ children }) {
 
     const showModal = (config) => {
         setModalState({
-            open: false,
             title: '',
             message: '',
             showActionButton: true,

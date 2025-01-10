@@ -1,6 +1,5 @@
-import { useLoaderData, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
-import { Typography, TextField, Button } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
