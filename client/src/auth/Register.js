@@ -6,6 +6,7 @@ import { register } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
+import validateFields from '../utils/validateFields';
 
 function Register() {
     const { showModal } = useModal();
@@ -18,7 +19,26 @@ function Register() {
         confirmPassword: ''
     });
     const navigate = useNavigate();
+
     async function handleRegister() {
+        const isValid = validateFields({
+            username: [
+                { condition: !username, message: 'Username is required' },
+            ],
+            password: [
+                { condition: !password, message: 'Password is required' },
+                { condition: password.length < 6, message: 'Password must be at least 6 characters long' },
+            ],
+            confirmPassword: [
+                { condition: !confirmPassword, message: 'Confirm Password is required' },
+                { condition: password !== confirmPassword, message: 'Passwords do not match' },
+            ],
+        }, setErrors);
+
+        if (!isValid) {
+            return;
+        }
+
         setErrors({
             username: '',
             password: '',

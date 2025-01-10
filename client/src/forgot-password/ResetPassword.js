@@ -6,6 +6,7 @@ import { resetPassword } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
+import validateFields from '../utils/validateFields';
 
 function ResetPassword() {
     const { username } = useLoaderData();
@@ -18,6 +19,17 @@ function ResetPassword() {
     const { showModal } = useModal();
 
     async function handleResetPassword() {
+        const isValid = validateFields({
+            password: [
+                { condition: !password, message: 'Password is required' },
+                { condition: password !== confirmPassword, message: 'Passwords do not match' },
+            ],
+        }, setErrors);
+
+        if (!isValid) {
+            return;
+        }
+
         try {
             console.log("passed username", username);
             const response = await resetPassword(username, password, confirmPassword);

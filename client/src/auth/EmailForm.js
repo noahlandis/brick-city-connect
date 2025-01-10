@@ -4,17 +4,31 @@ import { useSearchParams } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../api/magicLinkApi';
-
+import validateFields from '../utils/validateFields';
 function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
-    const [error, setError] = useState('');
+    const [errors, setErrors] = useState({
+        username: ''
+    });
     const { showModal, hideModal } = useModal();
 
     const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
 
     async function handleSendVerification() {
-        setError('');
+        const isValid = validateFields({
+            username: [
+                { condition: !username, message: 'RIT Username is required' },
+                { condition: username.endsWith('@rit.edu'), message: `We didn't recognize ${username}@rit.edu as a valid RIT email address` },
+            ],
+        }, setErrors);
+
+        if (!isValid) {
+            return;
+        }
+
+        setErrors({ username: '' });
+        
         try {
             const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
@@ -40,7 +54,7 @@ function EmailForm() {
                     signInLink: `/login?username=${username}`
                 });
             } else {
-                setError(errorMessage);
+                setErrors({ username: errorMessage });
             }
         }
     }
@@ -51,11 +65,11 @@ function EmailForm() {
             placeholder: "RIT Username",
             type: "text",
             value: username,
-            error: !!error,
-            helperText: error,
+            error: !!errors.username,
+            helperText: errors.username,
             onChange: (e) => {
                 setUsername(e.target.value);
-                setError('');
+                setErrors({ username: '' });
             },
             InputProps: {
                 endAdornment: <span style={{ color: 'rgba(0, 0, 0, 0.54)' }}>@rit.edu</span>

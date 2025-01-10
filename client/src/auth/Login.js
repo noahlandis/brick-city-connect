@@ -5,7 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
-
+import validateFields from '../utils/validateFields';
 function Login() {
     const [searchParams] = useSearchParams();
     const [errors, setErrors] = useState({
@@ -20,6 +20,19 @@ function Login() {
     const from = location.state?.from || '/';  // Default to home if no intended destination
 
     async function handleLogin() {
+        const isValid = validateFields({
+            username: [
+                { condition: !username, message: 'Username is required' },
+            ],
+            password: [
+                { condition: !password, message: 'Password is required' },
+            ],
+        }, setErrors);
+
+        if (!isValid) {
+            return;
+        }
+
         setErrors({
             username: '',
             password: '',
