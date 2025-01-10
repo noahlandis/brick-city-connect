@@ -12,9 +12,8 @@ const magicLinkController = {
         if (existingUser) {
             return res.status(400).json({ errors: [{ msg: 'Account already exists', path: 'username' }] });
         }
-
         const token = jwt.sign(
-            { username: username, type: 'register' }, 
+            { username: username, type: 'register' }, // we include the type to make sure the token is only used for register
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
@@ -32,9 +31,8 @@ const magicLinkController = {
         if (!existingUser) {
             return res.status(400).json({ errors: [{ msg: 'We couldn\'t find an account with that username.', path: 'username' }] });
         }
-
         const token = jwt.sign(
-            { username: username, type: 'reset-password' }, 
+            { username: username, type: 'reset-password' }, // we include the type to make sure the token is only used for reset-password
             process.env.JWT_SECRET, 
             { expiresIn: '5m' }  // Token expires in 5 minutes
         );
@@ -46,15 +44,12 @@ const magicLinkController = {
 
     verifyToken: (req, res) => {
         const { token, type } = req.query;
-
         try {
             // Verify the token using the same secret used to sign it
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             if (decoded.type !== type) {
                 return res.status(401).json({ error: 'Invalid or expired token' });
             }
-            
-            // You can pass the email to the frontend as a query parameter if needed
             return res.status(200).json({ username: decoded.username });
         } catch (error) {
             // Token is invalid or expired

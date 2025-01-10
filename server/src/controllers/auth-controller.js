@@ -24,7 +24,6 @@ const authController = {
     login: async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username: username }});
-        
         if (!user || !(await user.validatePassword(password))) {
             return res.status(401).json({
                 errors: [
@@ -33,7 +32,6 @@ const authController = {
                 ]
             });
         }
-
         const token = jwt.sign(
             { id: user._id, username: user.username },
             process.env.JWT_SECRET,
