@@ -1,16 +1,24 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  dialect: 'postgres',
-  dialectOptions: {
-    ssl: {
-      require: true,              // Enforce SSL
-      rejectUnauthorized: false   // For self-signed or AWS certs
+// Check if we should enable SSL (e.g., in production with RDS)
+const ssl =
+  process.env.ENV !== 'local'
+    ? { require: true, rejectUnauthorized: false }
+    : false;
+
+const sequelize = new Sequelize(
+  process.env.DB_NAME, 
+  process.env.DB_USER, 
+  process.env.DB_PASSWORD, 
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl
     }
   }
-});
+);
 
 async function initializeDatabase() {
   try {
@@ -24,7 +32,4 @@ async function initializeDatabase() {
   }
 }
 
-module.exports = {
-  initializeDatabase,
-  sequelize
-};
+module.exports = { initializeDatabase, sequelize };
