@@ -145,8 +145,19 @@ function Chat() {
   return (
     <div>
       <h1>Chat</h1>
-      <video ref={localVideoRef} autoPlay muted />
-      <video ref={remoteVideoRef} autoPlay />
+      <video
+        ref={localVideoRef}
+        autoPlay
+        muted
+        playsInline
+        webkit-playsinline
+      />
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        webkit-playsinline
+      />
       <button onClick={() => {
         socketRef.current.emit('next');
       }}>
