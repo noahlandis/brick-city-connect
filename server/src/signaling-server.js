@@ -121,6 +121,7 @@ io.on('connection', (socket) => {
       waitingUser = null;
     } 
     else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
+      socket.partnerSocket.emit('close-connection');
       handleUserLeaveAndJoin(socket.partnerSocket);
     }
     else {
