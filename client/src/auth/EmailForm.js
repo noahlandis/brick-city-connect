@@ -92,7 +92,7 @@ function EmailForm() {
             footerLinkTo="/login"
         />
             <GoogleLogin 
-            hostedDomain="gmail.com"
+            hosted_domain="rit.edu"
             onSuccess={() => {console.log('hi')}} onError={() => {console.log('not allowed')}} />
         </div>
     );
