@@ -5,7 +5,7 @@ import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../api/magicLinkApi';
 import validateFields from '../utils/validateFields';
-import { GoogleLogin } from '@react-oauth/google';
+import GoogleOAuth from '../components/GoogleOAuth';
 
 function EmailForm() {
     const [searchParams] = useSearchParams();
@@ -80,9 +80,8 @@ function EmailForm() {
     ];
 
     return (
-        <div>
-            <AuthForm
-                title="Sign Up"
+        <AuthForm
+            title="Sign Up"
                 errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
                 fields={fields}
                 onSubmit={handleSendVerification}
@@ -90,12 +89,8 @@ function EmailForm() {
             footerText="Already have an account?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
+            googleAuthText="signup_with"
         />
-            <GoogleLogin 
-            hosted_domain="rit.edu"
-            text="signup_with"
-            onSuccess={() => {console.log('hi')}} onError={() => {console.log('not allowed')}} />
-        </div>
     );
 }
 

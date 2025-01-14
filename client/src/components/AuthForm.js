@@ -1,5 +1,6 @@
 import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import GoogleOAuth from './GoogleOAuth';
 
 function AuthForm({ 
     title, 
@@ -9,7 +10,8 @@ function AuthForm({
     submitButtonText, 
     footerText, 
     footerLinkText, 
-    footerLinkTo 
+    footerLinkTo,
+    googleAuthText 
 }) {
     return (
         <div style={{
@@ -73,6 +75,8 @@ function AuthForm({
                     textTransform: 'none',
                 }}
             >{submitButtonText}</Button>
+
+            {googleAuthText && <GoogleOAuth text={googleAuthText} />}
 
             <Typography variant="body2"
                 sx={{

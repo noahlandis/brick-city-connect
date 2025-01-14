@@ -119,6 +119,7 @@ function Register() {
             footerText="Already have an account?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
+            googleAuthText="signup_with"
         />
 
     );

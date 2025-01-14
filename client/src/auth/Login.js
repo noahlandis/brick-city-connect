@@ -110,6 +110,7 @@ function Login() {
             footerText="Don't have an account?"
             footerLinkText="Sign Up"
             footerLinkTo="/register"
+            googleAuthText="signin_with"
         />
     );
 }
