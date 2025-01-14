@@ -12,6 +12,7 @@ import Login from './auth/Login';
 import { ModalProvider } from './contexts/ModalContext';
 import ForgotPassword from './forgot-password/ForgotPassword';
 import ResetPassword from './forgot-password/ResetPassword';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -65,9 +66,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <ModalProvider>
-      <RouterProvider router={router} />
-    </ModalProvider>
+    <GoogleOAuthProvider clientId="678807010034-42f8f3ttofp752pvp83jdgrg7o7am9u5.apps.googleusercontent.com">
+      <ModalProvider>
+        <RouterProvider router={router} />
+      </ModalProvider>
+    </GoogleOAuthProvider>
   );
 }
 
