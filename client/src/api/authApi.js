@@ -12,3 +12,7 @@ export async function resetPassword(username, password, confirmPassword) {
     return await api.put('/reset-password', { username,password, confirmPassword });
 };
 
+export async function googleCallback(code) {
+    return await api.post('/google-callback', { code });
+};
+

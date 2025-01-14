@@ -1,6 +1,8 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authController = {
     register: async (req, res) => {
@@ -48,6 +50,19 @@ const authController = {
         }
         await user.update({ password: password });
         return res.status(200).json({ message: 'Password reset successful' });
+    },
+
+    googleCallback: async (req, res) => {
+        const { code } = req.body;
+        console.log("the code is: ");
+        console.log(code);
+        const ticket = await client.verifyIdToken({
+            idToken: code,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        console.log(payload);
+        return res.status(200).json({ message: 'Google callback successful' });
     }
 }
 

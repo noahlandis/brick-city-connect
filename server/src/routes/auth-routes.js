@@ -56,5 +56,7 @@ router.put('/reset-password', [
     validateRequest,
 ], authController.resetPassword);
 
+router.post('/google-callback', authController.googleCallback);
+
 
 module.exports = router;
