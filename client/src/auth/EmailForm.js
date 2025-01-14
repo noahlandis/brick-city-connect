@@ -93,6 +93,7 @@ function EmailForm() {
         />
             <GoogleLogin 
             hosted_domain="rit.edu"
+            text="signup_with"
             onSuccess={() => {console.log('hi')}} onError={() => {console.log('not allowed')}} />
         </div>
     );
