@@ -54,14 +54,18 @@ const authController = {
 
     googleCallback: async (req, res) => {
         const { code } = req.body;
-        console.log("the code is: ");
-        console.log(code);
         const ticket = await client.verifyIdToken({
             idToken: code,
             audience: process.env.GOOGLE_CLIENT_ID
         });
         const payload = ticket.getPayload();
-        console.log(payload);
+        const { sub: googleId, email, hd } = payload;
+        console.log("the googleId is: ");
+        console.log(googleId);
+        console.log("the email is: ");
+        console.log(email);
+        console.log("the hd is: ");
+        console.log(hd);
         return res.status(200).json({ message: 'Google callback successful' });
     }
 }
