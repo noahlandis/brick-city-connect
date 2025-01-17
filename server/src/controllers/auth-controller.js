@@ -60,13 +60,23 @@ const authController = {
         });
         const payload = ticket.getPayload();
         const { sub: googleId, email, hd } = payload;
-        console.log("the googleId is: ");
-        console.log(googleId);
-        console.log("the email is: ");
-        console.log(email);
-        console.log("the hd is: ");
-        console.log(hd);
-        return res.status(200).json({ message: 'Google callback successful' });
+        if (hd !== 'rit.edu' && hd !== 'g.rit.edu') {
+            return res.status(401).json({ errors: [{ msg: 'You must sign in with a RIT email', path: 'email' }] });
+        }
+        const username = email.split('@')[0];
+        let user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            user = await User.create({
+                username: username,
+                googleId: googleId
+            });
+        }
+        const token = jwt.sign(
+            { id: user._id, username: user.username },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        return res.status(200).json({ message: 'Google callback successful', token });
     }
 }
 

@@ -10,18 +10,32 @@ const User = sequelize.define('user', {
   },
   password: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     validate: {
       len: [6, 255]
     }
+  },
+  googleId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
   }
 }, {
+  validate: {
+    eitherPasswordOrGoogleId() {
+      if (!this.password && !this.googleId) {
+        throw new Error('Either password or googleId must be provided');
+      }
+    }
+  },
   hooks: {
     beforeCreate: async (user) => {
-      user.password = await bcrypt.hash(user.password, 10);
+      if (user.password) {
+        user.password = await bcrypt.hash(user.password, 10);
+      }
     },
     beforeUpdate: async (user) => {
-      if (user.changed('password')) {
+      if (user.password && user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 10);
       }
     }

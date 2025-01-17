@@ -1,14 +1,27 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { googleCallback } from '../api/authApi';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 function GoogleOAuth({ text }) {
-    
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
     const handleSuccess = async (successResponse) => {
-        console.log("handle success called");
-        const response = await googleCallback(successResponse.credential);
+        setError(null);
+        try {
+            const response = await googleCallback(successResponse.credential);
+            if (response.status === 200) {
+                localStorage.setItem('token', response.data.token);
+                navigate('/');
+            }
+        } catch (error) {
+            setError(error.response?.data?.errors?.[0]?.msg || 'An error occurred');
+        }
     };
 
     return (
-        <div className="flex justify-center mt-6" style={{ width: '100%' }}>
+        <div className="flex flex-col items-center mt-6" style={{ width: '100%' }}>
             <GoogleLogin 
                 hosted_domain="rit.edu" 
                 onSuccess={handleSuccess} 
@@ -16,6 +29,7 @@ function GoogleOAuth({ text }) {
                 text={text}
                 width="100%"
             />
+            {error && <p className="mt-2 text-red-500">{error}</p>}
         </div>
     );  
 }
