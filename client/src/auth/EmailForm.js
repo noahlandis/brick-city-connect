@@ -5,7 +5,6 @@ import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../api/magicLinkApi';
 import validateFields from '../utils/validateFields';
-import GoogleOAuth from '../components/GoogleOAuth';
 
 function EmailForm() {
     const [searchParams] = useSearchParams();
