@@ -16,8 +16,37 @@ jest.mock('@bugsnag/js', () => {
     return mockBugsnag;
 });
 
+jest.mock('../src/services/email-service', () => ({
+}));
 
-  
+jest.mock('../src/config/database', () => ({
+    initializeDatabase: jest.fn(),
+}));
+
+jest.mock('../src/models/user', () => {
+    return {
+        User: {
+            findOne: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn()
+        }
+    };
+});
+
+// Mock Sequelize itself 
+jest.mock('sequelize', () => {
+    const mSequelize = {
+        define: jest.fn(),
+        authenticate: jest.fn(),
+        sync: jest.fn()
+    };
+    const Sequelize = jest.fn(() => mSequelize);
+    Sequelize.DataTypes = {
+        STRING: 'STRING',
+        INTEGER: 'INTEGER',
+    };
+    return Sequelize;
+});
 
 function createMockSocket() {
     return {
