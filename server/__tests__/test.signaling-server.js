@@ -310,6 +310,8 @@ describe("Socket Events", () => {
             serverSocket.partnerSocket = mockSocketB;
             mockSocketB.partnerSocket = serverSocket;
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
             expect(getWaitingUser()).toBe(mockSocketB);
             expect(mockSocketB.partnerSocket).toBeNull();
         });
@@ -326,7 +328,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
-
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
             // B and C should connect, waitingUser should be cleared
             expect(getWaitingUser()).toBeNull();
             expect(mockSocketB.partnerSocket).toBe(mockSocketC);
@@ -344,6 +347,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
 
             // B should be the waitingUser
             expect(getWaitingUser()).toBe(mockSocketB);
@@ -367,6 +372,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
 
             // C should be the waitingUser
             expect(getWaitingUser()).toBe(mockSocketC);
