@@ -13,6 +13,7 @@ import { ModalProvider } from './contexts/ModalContext';
 import ForgotPassword from './forgot-password/ForgotPassword';
 import ResetPassword from './forgot-password/ResetPassword';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import GuestGuard from './guards/GuestGuard';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,7 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <AuthLayout />,
+    element: <GuestGuard><AuthLayout /></GuestGuard>,
     children: [
       {
         index: true,
@@ -34,7 +35,7 @@ const router = createBrowserRouter([
   },
   {
     path: "register",
-    element: <AuthLayout />,
+    element: <GuestGuard><AuthLayout /></GuestGuard>,
     children: [
       {
         index: true,
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
   },
   {
     path: "forgot-password",
-    element: <AuthLayout />,
+    element: <GuestGuard><AuthLayout /></GuestGuard>,
     children: [
       {
         index: true,
