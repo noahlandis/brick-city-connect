@@ -5,7 +5,10 @@ import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import validateFields from '../utils/validateFields';
+import { useAuth } from '../contexts/AuthContext';
+
 function Login() {
+    const { clientLogin } = useAuth();
     const [searchParams] = useSearchParams();
     const [errors, setErrors] = useState({
         username: '',
@@ -40,7 +43,7 @@ function Login() {
         try {
             const response = await login(username, password);
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
+                clientLogin(response.data.token);
                 // Navigate to the intended destination
                 navigate(from);
             }

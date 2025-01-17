@@ -14,6 +14,8 @@ import ForgotPassword from './forgot-password/ForgotPassword';
 import ResetPassword from './forgot-password/ResetPassword';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GuestGuard from './guards/GuestGuard';
+import { AuthProvider } from './contexts/AuthContext';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -67,11 +69,13 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-      <ModalProvider>
-        <RouterProvider router={router} />
-      </ModalProvider>
-    </GoogleOAuthProvider>
+    <AuthProvider>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <ModalProvider>
+          <RouterProvider router={router} />
+        </ModalProvider>
+      </GoogleOAuthProvider>
+    </AuthProvider>
   );
 }
 

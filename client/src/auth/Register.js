@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';
 import { useModal } from '../contexts/ModalContext';
 import validateFields from '../utils/validateFields';
-
+import { useAuth } from '../contexts/AuthContext';
 function Register() {
     const { showModal } = useModal();
     const { username } = useLoaderData();
@@ -17,7 +17,7 @@ function Register() {
         confirmPassword: ''
     });
     const navigate = useNavigate();
-
+    const { clientLogin } = useAuth();
     async function handleRegister() {
         const isValid = validateFields({
             username: [
@@ -46,7 +46,7 @@ function Register() {
         try {
             const response = await register(username, password, confirmPassword);
             if (response.status === 201) {
-                localStorage.setItem('token', response.data.token);
+                clientLogin(response.data.token);
                 navigate('/');
             }
         } catch (err) {

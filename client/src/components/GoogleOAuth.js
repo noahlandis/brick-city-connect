@@ -2,17 +2,17 @@ import { GoogleLogin } from '@react-oauth/google';
 import { googleCallback } from '../api/authApi';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { useAuth } from '../contexts/AuthContext';
 function GoogleOAuth({ text }) {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
+    const { clientLogin } = useAuth();
     const handleSuccess = async (successResponse) => {
         setError(null);
         try {
             const response = await googleCallback(successResponse.credential);
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);
+                clientLogin(response.data.token);
                 navigate('/');
             }
         } catch (error) {
