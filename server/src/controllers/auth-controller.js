@@ -65,7 +65,20 @@ const authController = {
         }
         const username = email.split('@')[0];
         let user = await User.findOne({ where: { username: username } });
-        if (!user) {
+
+        if (user) {
+            // if the user has a googleId and it is not the same as the googleId from the payload, something is wrong
+            if (user.googleId && user.googleId !== googleId) {
+                return res.status(401).json({ errors: [{ msg: 'You must sign in with a RIT email', path: 'email' }] });
+            }
+            else {
+                // in this case, the user manually signed up so we just update the googleId
+                user.googleId = googleId;
+                await user.save();
+            }
+        }
+        else {
+            // if the user does not exist, we create a new user
             user = await User.create({
                 username: username,
                 googleId: googleId
