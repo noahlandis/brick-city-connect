@@ -26,7 +26,7 @@ const authController = {
     login: async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username: username }});
-        if (!user || !(await user.validatePassword(password)) || !user.password) {
+        if (!user || !user.password || !(await user.validatePassword(password))) {
             return res.status(401).json({
                 errors: [
                     { msg: 'Invalid username or password', path: 'username' },
