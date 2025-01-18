@@ -156,13 +156,13 @@ function Chat() {
         autoPlay
         muted
         playsInline
-        webkit-playsinline
+        webkit-playsinline="true"
       />
       <video
         ref={remoteVideoRef}
         autoPlay
         playsInline
-        webkit-playsinline
+        webkit-playsinline="true"
       />
       <button onClick={() => {
         socketRef.current.emit('next');
