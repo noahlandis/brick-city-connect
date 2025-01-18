@@ -116,7 +116,6 @@ io.on('connection', (socket) => {
     socket.username = username;
     if (connectedUsers[username]) {
       console.log("user already connected. Removing ", connectedUsers[username].id, "from the chat");
-      connectedUsers[username].disconnect();
     }
     connectedUsers[username] = socket;
     console.log("user joined chat. The username is", username);
