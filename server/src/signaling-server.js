@@ -5,6 +5,10 @@ let io;
 let waitingUser = null; 
 let userWaitingToSkip = null; 
 
+// this ensures that a user can't be in multiple chats at once 
+// (if they try to open a new tab, we remove them from the old tab)
+let connectedUsers = {}; 
+
 /**
  * Attempts to match a user with the waiting user. 
  * If there is no waiting user, the passed in socket becomes the waiting user
@@ -110,6 +114,11 @@ io.on('connection', (socket) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     socket.username = username;
+    if (connectedUsers[username]) {
+      console.log("user already connected. Removing ", connectedUsers[username].id, "from the chat");
+      connectedUsers[username].disconnect();
+    }
+    connectedUsers[username] = socket;
     console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
