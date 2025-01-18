@@ -94,6 +94,20 @@ function handleUserLeaveAndJoin(socket) {
   }
 }
 
+/**
+ * Handles the case where a user opens a new tab while already connected to the chat.
+ * This will remove the existing user from the chat and replace them with the new user.
+ * @param {*} socket - The socket of the new user joining the chat.
+ */
+function handleExistingUserConnection(socket) {
+  const currentUserSocket = connectedUsers[socket.username];
+  if (currentUserSocket) {
+    console.log("user already connected. Removing ", currentUserSocket.id, "from the chat");
+    currentUserSocket.emit('leave-chat');
+    currentUserSocket.disconnect();
+  }
+  connectedUsers[socket.username] = socket;
+}
 
 
 /**
@@ -114,15 +128,7 @@ io.on('connection', (socket) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     socket.username = username;
-    console.log("connectedUsers", Object.values(connectedUsers).map(socket => socket.id));
-
-    if (connectedUsers[username]) {
-      console.log("user already connected. Removing ", connectedUsers[username].id, "from the chat");
-      connectedUsers[username].emit('leave-chat');
-      connectedUsers[username].disconnect();
-    }
-    connectedUsers[username] = socket;
-
+    handleExistingUserConnection(socket);
     console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
