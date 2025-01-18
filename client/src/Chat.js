@@ -65,6 +65,11 @@ function Chat() {
       Bugsnag.notify(error);
     });
 
+    socketRef.current.on('leave-chat', () => {
+      console.log('user left');
+      leaveChat();
+    });
+
     // initiate call
     socketRef.current.on('match-found', (remoteUserId) => {
       console.log("call initiated");

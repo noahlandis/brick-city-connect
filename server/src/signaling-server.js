@@ -114,16 +114,22 @@ io.on('connection', (socket) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
     socket.username = username;
+    console.log("connectedUsers", Object.values(connectedUsers).map(socket => socket.id));
+
     if (connectedUsers[username]) {
       console.log("user already connected. Removing ", connectedUsers[username].id, "from the chat");
+      connectedUsers[username].emit('leave-chat');
+      connectedUsers[username].disconnect();
     }
     connectedUsers[username] = socket;
+
     console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    delete connectedUsers[socket.username];
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
     }
