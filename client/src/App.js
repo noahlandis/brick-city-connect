@@ -23,7 +23,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/chat",
-    element: <Chat />
+    element: <AuthGuard><Chat /></AuthGuard>
   },
   {
     path: "login",
