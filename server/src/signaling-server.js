@@ -20,7 +20,7 @@ function attemptToMatchUser(socket) {
       Bugsnag.notify(new Error("User is attempting to match with themself."), event => {
         event.addMetadata('user', {
           id: socket.id,
-          userID: socket.userID,
+          peerID: socket.peerID,
         });
       });
       return;
@@ -30,7 +30,7 @@ function attemptToMatchUser(socket) {
     // we store a reference to the partner sockets for each user, so when a user leaves, we can tell their partner to find a new match
     socket.partnerSocket = waitingUser;
     waitingUser.partnerSocket = socket;
-    waitingUser.emit('match-found', socket.userID);
+    waitingUser.emit('match-found', socket.peerID);
 
     // since they were matched, there's no longer a waiting user
     waitingUser = null;
@@ -124,9 +124,9 @@ function initializeSignalingServer(httpServer) {
     
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (userID, username) => {
-    // we always store the userID as this identifies the peer to call to start the video stream
-    socket.userID = userID;
+  socket.on('join-chat', (peerID, username) => {
+    // we always store the peerID as this identifies the peer to call to start the video stream
+    socket.peerID = peerID;
     socket.username = username;
     handleExistingUserConnection(socket);
     console.log("user joined chat. The username is", username);
@@ -150,7 +150,7 @@ io.on('connection', (socket) => {
       Bugsnag.notify(new Error("The leaving user is without a partner, yet isn't the waiting user."), event => {
         event.addMetadata('user', {
           id: socket.id,
-          userID: socket.userID,
+          peerID: socket.peerID,
         });
       });
     }

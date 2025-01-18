@@ -56,9 +56,9 @@ function Chat() {
     localUserRef.current = new Peer();
 
     // Once the peer is open, we join the chat
-    localUserRef.current.on('open', (localUserID) => {
-      console.log('local user id', localUserID);
-      socketRef.current.emit('join-chat', localUserID, user.username);
+    localUserRef.current.on('open', (localPeerID) => {
+      console.log('local user id', localPeerID);
+      socketRef.current.emit('join-chat', localPeerID, user.username);
     });
 
     localUserRef.current.on('error', (error) => {
@@ -71,9 +71,9 @@ function Chat() {
     });
 
     // initiate call
-    socketRef.current.on('match-found', (remoteUserId) => {
+    socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
-      const call = localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+      const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
 
