@@ -106,9 +106,11 @@ function initializeSignalingServer(httpServer) {
     
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (userID) => {
+  socket.on('join-chat', (userID, username) => {
     // we always store the userID as this identifies the peer to call to start the video stream
     socket.userID = userID;
+    socket.username = username;
+    console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
 
