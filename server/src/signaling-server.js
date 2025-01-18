@@ -21,6 +21,7 @@ function attemptToMatchUser(socket) {
         event.addMetadata('user', {
           id: socket.id,
           peerID: socket.peerID,
+          username: socket.username,
         });
       });
       return;
@@ -151,6 +152,7 @@ io.on('connection', (socket) => {
         event.addMetadata('user', {
           id: socket.id,
           peerID: socket.peerID,
+          username: socket.username,
         });
       });
     }
