@@ -5,6 +5,10 @@ let io;
 let waitingUser = null; 
 let userWaitingToSkip = null; 
 
+// this ensures that a user can't be in multiple chats at once 
+// (if they try to open a new tab, we remove them from the old tab)
+let connectedUsers = {}; 
+
 /**
  * Attempts to match a user with the waiting user. 
  * If there is no waiting user, the passed in socket becomes the waiting user
@@ -16,7 +20,8 @@ function attemptToMatchUser(socket) {
       Bugsnag.notify(new Error("User is attempting to match with themself."), event => {
         event.addMetadata('user', {
           id: socket.id,
-          userID: socket.userID,
+          peerID: socket.peerID,
+          username: socket.username,
         });
       });
       return;
@@ -26,7 +31,7 @@ function attemptToMatchUser(socket) {
     // we store a reference to the partner sockets for each user, so when a user leaves, we can tell their partner to find a new match
     socket.partnerSocket = waitingUser;
     waitingUser.partnerSocket = socket;
-    waitingUser.emit('match-found', socket.userID);
+    waitingUser.emit('match-found', socket.peerID);
 
     // since they were matched, there's no longer a waiting user
     waitingUser = null;
@@ -90,6 +95,20 @@ function handleUserLeaveAndJoin(socket) {
   }
 }
 
+/**
+ * Handles the case where a user opens a new tab while already connected to the chat.
+ * This will remove the existing user from the chat and replace them with the new user.
+ * @param {*} socket - The socket of the new user joining the chat.
+ */
+function handleExistingUserConnection(socket) {
+  const currentUserSocket = connectedUsers[socket.username];
+  if (currentUserSocket) {
+    console.log("user already connected. Removing ", currentUserSocket.id, "from the chat");
+    currentUserSocket.emit('leave-chat');
+    currentUserSocket.disconnect();
+  }
+  connectedUsers[socket.username] = socket;
+}
 
 
 /**
@@ -106,14 +125,18 @@ function initializeSignalingServer(httpServer) {
     
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (userID) => {
-    // we always store the userID as this identifies the peer to call to start the video stream
-    socket.userID = userID;
+  socket.on('join-chat', (peerID, username) => {
+    // we always store the peerID as this identifies the peer to call to start the video stream
+    socket.peerID = peerID;
+    socket.username = username;
+    handleExistingUserConnection(socket);
+    console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
+    delete connectedUsers[socket.username];
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
     }
@@ -128,7 +151,8 @@ io.on('connection', (socket) => {
       Bugsnag.notify(new Error("The leaving user is without a partner, yet isn't the waiting user."), event => {
         event.addMetadata('user', {
           id: socket.id,
-          userID: socket.userID,
+          peerID: socket.peerID,
+          username: socket.username,
         });
       });
     }

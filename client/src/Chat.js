@@ -3,12 +3,13 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
+import { useAuth } from './contexts/AuthContext';
 
 function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-
+  const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -55,19 +56,24 @@ function Chat() {
     localUserRef.current = new Peer();
 
     // Once the peer is open, we join the chat
-    localUserRef.current.on('open', (localUserID) => {
-      console.log('local user id', localUserID);
-      socketRef.current.emit('join-chat', localUserID);
+    localUserRef.current.on('open', (localPeerID) => {
+      console.log('local user id', localPeerID);
+      socketRef.current.emit('join-chat', localPeerID, user.username);
     });
 
     localUserRef.current.on('error', (error) => {
       Bugsnag.notify(error);
     });
 
+    socketRef.current.on('leave-chat', () => {
+      console.log('user left');
+      leaveChat();
+    });
+
     // initiate call
-    socketRef.current.on('match-found', (remoteUserId) => {
+    socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
-      const call = localUserRef.current.call(remoteUserId, localVideoRef.current.srcObject);
+      const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
 
@@ -150,13 +156,13 @@ function Chat() {
         autoPlay
         muted
         playsInline
-        webkit-playsinline
+        webkit-playsinline="true"
       />
       <video
         ref={remoteVideoRef}
         autoPlay
         playsInline
-        webkit-playsinline
+        webkit-playsinline="true"
       />
       <button onClick={() => {
         socketRef.current.emit('next');

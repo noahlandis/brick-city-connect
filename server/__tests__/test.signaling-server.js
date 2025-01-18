@@ -16,8 +16,37 @@ jest.mock('@bugsnag/js', () => {
     return mockBugsnag;
 });
 
+jest.mock('../src/services/email-service', () => ({
+}));
 
-  
+jest.mock('../src/config/database', () => ({
+    initializeDatabase: jest.fn(),
+}));
+
+jest.mock('../src/models/user', () => {
+    return {
+        User: {
+            findOne: jest.fn(),
+            create: jest.fn(),
+            update: jest.fn()
+        }
+    };
+});
+
+// Mock Sequelize itself 
+jest.mock('sequelize', () => {
+    const mSequelize = {
+        define: jest.fn(),
+        authenticate: jest.fn(),
+        sync: jest.fn()
+    };
+    const Sequelize = jest.fn(() => mSequelize);
+    Sequelize.DataTypes = {
+        STRING: 'STRING',
+        INTEGER: 'INTEGER',
+    };
+    return Sequelize;
+});
 
 function createMockSocket() {
     return {
@@ -281,6 +310,8 @@ describe("Socket Events", () => {
             serverSocket.partnerSocket = mockSocketB;
             mockSocketB.partnerSocket = serverSocket;
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
             expect(getWaitingUser()).toBe(mockSocketB);
             expect(mockSocketB.partnerSocket).toBeNull();
         });
@@ -297,7 +328,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
-
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
             // B and C should connect, waitingUser should be cleared
             expect(getWaitingUser()).toBeNull();
             expect(mockSocketB.partnerSocket).toBe(mockSocketC);
@@ -315,6 +347,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
 
             // B should be the waitingUser
             expect(getWaitingUser()).toBe(mockSocketB);
@@ -338,6 +372,8 @@ describe("Socket Events", () => {
 
             // execute
             serverSocket.disconnect();
+            // make sure the partnerSocket emits a close-connection event
+            expect(mockSocketB.emit).toHaveBeenCalledWith('close-connection');
 
             // C should be the waitingUser
             expect(getWaitingUser()).toBe(mockSocketC);

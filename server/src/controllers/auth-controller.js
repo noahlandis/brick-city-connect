@@ -1,9 +1,8 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/user');
-const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
+const { generateToken } = require('../services/jwt-service');
 const authController = {
     register: async (req, res) => {
         const { username, password } = req.body;
@@ -15,18 +14,14 @@ const authController = {
             username: username,
             password: password
         });
-        const token = jwt.sign(
-            { id: user._id, username: user.username },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = generateToken(user);
         return res.status(201).json({ message: 'User created successfully', token });
     },
 
     login: async (req, res) => {
         const { username, password } = req.body;
         const user = await User.findOne({ where: { username: username }});
-        if (!user || !(await user.validatePassword(password)) || !user.password) {
+        if (!user || !user.password || !(await user.validatePassword(password))) {
             return res.status(401).json({
                 errors: [
                     { msg: 'Invalid username or password', path: 'username' },
@@ -34,11 +29,7 @@ const authController = {
                 ]
             });
         }
-        const token = jwt.sign(
-            { id: user._id, username: user.username },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = generateToken(user);
         return res.status(200).json({ message: 'Login successful', token });
     },
 
@@ -84,11 +75,7 @@ const authController = {
                 googleId: googleId
             });
         }
-        const token = jwt.sign(
-            { id: user._id, username: user.username },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        const token = generateToken(user);
         return res.status(200).json({ message: 'Google callback successful', token });
     }
 }
