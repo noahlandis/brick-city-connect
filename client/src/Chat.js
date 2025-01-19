@@ -1,181 +1,140 @@
 import React, { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
-import { useNavigate } from 'react-router-dom';
-import Bugsnag from '@bugsnag/js';
-import { useAuth } from './contexts/AuthContext';
+import { ImageSegmenter, FilesetResolver } from "@mediapipe/tasks-vision";
 
 function Chat() {
-  const navigate = useNavigate();
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
-  const { user } = useAuth();
-  const localUserRef = useRef(null);
-  const socketRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [webcamRunning, setWebcamRunning] = useState(false);
+  const [imageSegmenter, setImageSegmenter] = useState(null);
+  const [runningMode, setRunningMode] = useState("IMAGE");
+  
+  // Define legend colors
+  const legendColors = [
+    [255, 197, 0, 255], // Vivid Yellow
+    [128, 62, 117, 255], // Strong Purple
+    // ... rest of the colors ...
+  ];
 
-  const [isStreamReady, setIsStreamReady] = useState(false);
-
+  // Initialize image segmenter
   useEffect(() => {
-    // Start local video stream and set up chat when ready
-    startLocalStream();
+    const initializeSegmenter = async () => {
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+      );
 
-    return () => {
-      // Stop stream on cleanup, **check if this is needed before pushing to staging**
-      stopLocalStream();
-
-      // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
-      if (localUserRef.current) {
-        localUserRef.current.destroy();
-      }
-
-      // This ensures we tell the server that we've disconnected if we leave the page
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      const segmenter = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath:
+            "https://storage.googleapis.com/mediapipe-models/image_segmenter/deeplab_v3/float32/1/deeplab_v3.tflite",
+          delegate: "GPU"
+        },
+        runningMode: runningMode,
+        outputCategoryMask: true,
+        outputConfidenceMasks: false
+      });
+      
+      setImageSegmenter(segmenter);
     };
-    // we don't want this to run every render, just on mount so we ignore the eslint warning
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    initializeSegmenter();
   }, []);
 
-  useEffect(() => {
-    if (isStreamReady) {
-      joinChat();
+  // Webcam handling
+  const enableCam = async () => {
+    if (!imageSegmenter) return;
+
+    setWebcamRunning(prev => !prev);
+    
+    if (!webcamRunning) {
+      const constraints = { video: true };
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      videoRef.current.srcObject = stream;
     }
-    // we don't want this to run every render, just on mount so we ignore the eslint warning
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStreamReady]);
+  };
 
-  function joinChat() {
-    // Initialize socket
-    socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
-      transports: ['websocket'],
-      upgrade: false,
-    });
+  // Video callback function
+  const callbackForVideo = (result) => {
+    const canvasCtx = canvasRef.current.getContext('2d');
+    const video = videoRef.current;
+    
+    let imageData = canvasCtx.getImageData(
+      0,
+      0,
+      video.videoWidth,
+      video.videoHeight
+    ).data;
 
-    // Initialize peer
-    localUserRef.current = new Peer();
-
-    // Once the peer is open, we join the chat
-    localUserRef.current.on('open', (localPeerID) => {
-      console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID, user.username);
-    });
-
-    localUserRef.current.on('error', (error) => {
-      Bugsnag.notify(error);
-    });
-
-    socketRef.current.on('leave-chat', () => {
-      console.log('user left');
-      leaveChat();
-    });
-
-    // initiate call
-    socketRef.current.on('match-found', (remotePeerID) => {
-      console.log("call initiated");
-      const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
-      handleRemoteCall(call);
-    });
-
-    // answer call
-    localUserRef.current.on('call', (call) => {
-      console.log("call recieved");
-      call.answer(localVideoRef.current.srcObject);
-      handleRemoteCall(call);
-    });
-  }
-
-  // handle call events
-  function handleRemoteCall(call) {
-
-    // their local stream -> our remote stream
-    call.on('stream', (remoteStream) => {
-      remoteVideoRef.current.srcObject = remoteStream;
-    });
-
-    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
-    socketRef.current.on('close-connection', () => {
-      call.close();
-    });
-
-    call.on('close', function () {
-      console.log("closing call");
-      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
-      if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
-        remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-        remoteVideoRef.current.srcObject = null;
-      }
-    });
-
-    call.on('error', (error) => {
-      Bugsnag.notify(error);
-    });
-  }
-
-  function startLocalStream() {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideoRef.current.srcObject = stream;
-
-        // Monitor video track
-        stream.getVideoTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle camera turned off
-          track.onmute = leaveChat;  // Handle camera muted
-        });
-
-        // Monitor audio track
-        stream.getAudioTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle mic turned off
-          track.onmute = leaveChat;  // Handle mic muted
-        });
-
-        setIsStreamReady(true); // Mark stream as ready
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices:', error);
-        leaveChat();
-      });
-  }
-
-  function stopLocalStream() {
-    if (localVideoRef.current && localVideoRef.current.srcObject) {
-      localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      localVideoRef.current.srcObject = null;
+    const mask = result.categoryMask.getAsFloat32Array();
+    let j = 0;
+    
+    for (let i = 0; i < mask.length; ++i) {
+      const maskVal = Math.round(mask[i] * 255.0);
+      const legendColor = legendColors[maskVal % legendColors.length];
+      imageData[j] = (legendColor[0] + imageData[j]) / 2;
+      imageData[j + 1] = (legendColor[1] + imageData[j + 1]) / 2;
+      imageData[j + 2] = (legendColor[2] + imageData[j + 2]) / 2;
+      imageData[j + 3] = (legendColor[3] + imageData[j + 3]) / 2;
+      j += 4;
     }
-  }
 
-  function leaveChat() {
-    navigate('/'); // Redirect to home
-  }
+    const uint8Array = new Uint8ClampedArray(imageData.buffer);
+    const dataNew = new ImageData(
+      uint8Array,
+      video.videoWidth,
+      video.videoHeight
+    );
+    canvasCtx.putImageData(dataNew, 0, 0);
+    
+    if (webcamRunning) {
+      requestAnimationFrame(predictWebcam);
+    }
+  };
+
+  // Prediction function
+  const predictWebcam = async () => {
+    if (!videoRef.current || !imageSegmenter) return;
+    
+    const canvasCtx = canvasRef.current.getContext('2d');
+    canvasCtx.drawImage(
+      videoRef.current,
+      0,
+      0,
+      videoRef.current.videoWidth,
+      videoRef.current.videoHeight
+    );
+
+    if (runningMode === "IMAGE") {
+      setRunningMode("VIDEO");
+      await imageSegmenter.setOptions({ runningMode: "VIDEO" });
+    }
+
+    const startTimeMs = performance.now();
+    imageSegmenter.segmentForVideo(videoRef.current, startTimeMs, callbackForVideo);
+  };
 
   return (
     <div>
-      <h1>Chat</h1>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        playsInline
-        webkit-playsinline="true"
-      />
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        webkit-playsinline="true"
-      />
-      <button onClick={() => {
-        socketRef.current.emit('next');
-      }}>
-        Next
+      <h2>Webcam Segmentation</h2>
+      <button onClick={enableCam}>
+        {webcamRunning ? 'Disable Segmentation' : 'Enable Segmentation'}
       </button>
-      <button onClick={() => {
-        leaveChat();
-      }}>Leave</button>
+      <div className="webcam">
+        <video
+          ref={videoRef}
+          autoPlay
+          style={{ display: 'none' }}
+          onLoadedData={predictWebcam}
+        />
+        <canvas
+          ref={canvasRef}
+          width="1280px"
+          height="720px"
+        />
+      </div>
     </div>
   );
 }
 
 export default Chat;
-
-
