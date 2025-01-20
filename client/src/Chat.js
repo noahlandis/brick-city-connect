@@ -309,12 +309,12 @@ function Chat() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Set up texture coordinates
+    // Update texture coordinates to flip the image vertically
     const texCoords = [
-      0.0, 0.0,
-      1.0, 0.0,
-      0.0, 1.0,
-      1.0, 1.0,
+      0.0, 1.0,  // bottom-left
+      1.0, 1.0,  // bottom-right
+      0.0, 0.0,  // top-left
+      1.0, 0.0,  // top-right
     ];
     const texCoordBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
