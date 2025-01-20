@@ -106,7 +106,7 @@ function Chat() {
     // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localPeerID) => {
       console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID, user.username);
+      socketRef.current.emit('join-chat', localPeerID);
     });
 
     localUserRef.current.on('error', (error) => {
