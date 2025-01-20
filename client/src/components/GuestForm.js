@@ -85,6 +85,37 @@ function GuestForm({
                     marginTop: '1rem',
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
+
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '1rem',
+                marginTop: '2rem',
+                marginBottom: '1rem',
+                flexWrap: 'wrap'
+            }}>
+                <Link to="/terms" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                    Terms & Conditions
+                </Link>
+                <Link to="/privacy" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                    Privacy Policy
+                </Link>
+                <Link to="/contact" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                    Contact Us
+                </Link>
+            </div>
+
+            <Typography 
+                variant="caption" 
+                sx={{
+                    color: '#666',
+                    textAlign: 'center',
+                    marginBottom: '1rem',
+                    fontSize: '0.7rem'
+                }}
+            >
+                © {new Date().getFullYear()} Brick City Connect. All rights reserved.
+            </Typography>
         </div>
     );
 }
