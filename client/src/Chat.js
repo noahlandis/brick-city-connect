@@ -52,6 +52,15 @@ function Chat() {
   const backgroundImageRef = useRef(null);
   const canvasStreamRef = useRef(null);
 
+  // Add a second canvas and GL context for remote video
+  const remoteCanvasRef = useRef(null);
+  const remoteGlRef = useRef(null);
+  const remoteProgramRef = useRef(null);
+  const remoteTextureRef = useRef(null);
+  const remoteMaskTextureRef = useRef(null);
+  const remoteBackgroundTextureRef = useRef(null);
+  const remoteImageSegmenterRef = useRef(null);
+
   const [isStreamReady, setIsStreamReady] = useState(false);
   const [useBackground, setUseBackground] = useState(false);
 
@@ -96,101 +105,107 @@ function Chat() {
 
   // Now define the callbacks that depend on the above functions
   const initWebGLCallback = useCallback(() => {
-    const canvas = canvasRef.current;
-    const gl = canvas.getContext('webgl');
-    if (!gl) {
-      console.error('WebGL not supported');
-      return;
-    }
-    glRef.current = gl;
+    // Initialize local canvas WebGL
+    const initCanvas = (canvas, glRef, programRef, textureRef, maskTextureRef, backgroundTextureRef) => {
+      const gl = canvas.getContext('webgl');
+      if (!gl) {
+        console.error('WebGL not supported');
+        return;
+      }
+      glRef.current = gl;
 
-    // Create shaders
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vertexShaderSource);
-    gl.compileShader(vertexShader);
+      // Create shaders
+      const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      gl.shaderSource(vertexShader, vertexShaderSource);
+      gl.compileShader(vertexShader);
 
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, fragmentShaderSource);
-    gl.compileShader(fragmentShader);
+      const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+      gl.shaderSource(fragmentShader, fragmentShaderSource);
+      gl.compileShader(fragmentShader);
 
-    // Create program
-    const program = gl.createProgram();
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
-    programRef.current = program;
+      // Create program
+      const program = gl.createProgram();
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+      gl.useProgram(program);
+      programRef.current = program;
 
-    // Set up position buffer
-    const positions = [
-      -1, -1,
-       1, -1,
-      -1,  1,
-       1,  1,
-    ];
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+      // Set up position buffer
+      const positions = [
+        -1, -1,
+         1, -1,
+        -1,  1,
+         1,  1,
+      ];
+      const positionBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-    // Update texture coordinates to flip the image vertically
-    const texCoords = [
-      0.0, 1.0,  // bottom-left
-      1.0, 1.0,  // bottom-right
-      0.0, 0.0,  // top-left
-      1.0, 0.0,  // top-right
-    ];
-    const texCoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
+      // Update texture coordinates to flip the image vertically
+      const texCoords = [
+        0.0, 1.0,  // bottom-left
+        1.0, 1.0,  // bottom-right
+        0.0, 0.0,  // top-left
+        1.0, 0.0,  // top-right
+      ];
+      const texCoordBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCoords), gl.STATIC_DRAW);
 
-    // Set up texture
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    textureRef.current = texture;
+      // Set up texture
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      textureRef.current = texture;
 
-    // Add another texture for the mask
-    const maskTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, maskTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    maskTextureRef.current = maskTexture;
+      // Add another texture for the mask
+      const maskTexture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, maskTexture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      maskTextureRef.current = maskTexture;
 
-    // Add background texture
-    const backgroundTexture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    backgroundTextureRef.current = backgroundTexture;
+      // Add background texture
+      const backgroundTexture = gl.createTexture();
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      backgroundTextureRef.current = backgroundTexture;
 
-    // Set up attributes
-    const positionLocation = gl.getAttribLocation(program, 'a_position');
-    const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
+      // Set up attributes
+      const positionLocation = gl.getAttribLocation(program, 'a_position');
+      const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.enableVertexAttribArray(positionLocation);
+      gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
-    gl.enableVertexAttribArray(texCoordLocation);
-    gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+      gl.enableVertexAttribArray(texCoordLocation);
+      gl.vertexAttribPointer(texCoordLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Set up texture units
-    gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), 1);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_background'), 2);
+      // Set up texture units
+      gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
+      gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), 1);
+      gl.uniform1i(gl.getUniformLocation(program, 'u_background'), 2);
 
-    // After setting up other uniforms, add the background toggle uniform with false as default
-    gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), false);
+      // After setting up other uniforms, add the background toggle uniform with false as default
+      gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), false);
+    };
 
+    // Initialize both canvases
+    initCanvas(canvasRef.current, glRef, programRef, textureRef, maskTextureRef, backgroundTextureRef);
+    initCanvas(remoteCanvasRef.current, remoteGlRef, remoteProgramRef, remoteTextureRef, remoteMaskTextureRef, remoteBackgroundTextureRef);
+    
     loadBackgroundImage();
   }, [loadBackgroundImage]);
 
@@ -238,6 +253,15 @@ function Chat() {
     socketRef.current.on('leave-chat', () => {
       console.log('user left');
       leaveChat();
+    });
+
+    // Add listener for background toggle from other user
+    socketRef.current.on('background-toggle', (remoteUseBackground) => {
+      if (remoteGlRef.current && remoteProgramRef.current) {
+        const gl = remoteGlRef.current;
+        gl.useProgram(remoteProgramRef.current);
+        gl.uniform1i(gl.getUniformLocation(remoteProgramRef.current, 'u_useBackground'), remoteUseBackground);
+      }
     });
 
     // initiate call - update to use original stream
@@ -291,22 +315,35 @@ function Chat() {
   }, [isStreamReady, initializeSegmenterCallback, initWebGLCallback, joinChatCallback]);
 
   function handleRemoteCall(call) {
-    // their local stream -> our remote stream
     call.on('stream', (remoteStream) => {
+      // Set the remote video source
       remoteVideoRef.current.srcObject = remoteStream;
+      
+      // Wait for the remote video to be loaded before initializing segmenter
+      remoteVideoRef.current.onloadedmetadata = () => {
+        remoteVideoRef.current.play()
+          .then(() => {
+            console.log("Remote video is playing");
+            initializeRemoteSegmenter();
+          })
+          .catch(error => console.error("Error playing remote video:", error));
+      };
     });
 
-    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
     socketRef.current.on('close-connection', () => {
+      socketRef.current.removeListener('close-connection');
       call.close();
     });
 
     call.on('close', function () {
       console.log("closing call");
-      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
+      }
+      // Clean up remote segmenter
+      if (remoteImageSegmenterRef.current) {
+        remoteImageSegmenterRef.current = null;
       }
     });
 
@@ -387,7 +424,7 @@ function Chat() {
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, backgroundImageRef.current);
   }
 
-  // Add new function to handle background toggle
+  // Update toggleBackground to emit the state change
   function toggleBackground() {
     setUseBackground(!useBackground);
     if (glRef.current && programRef.current) {
@@ -395,7 +432,90 @@ function Chat() {
       gl.useProgram(programRef.current);
       gl.uniform1i(gl.getUniformLocation(programRef.current, 'u_useBackground'), !useBackground);
     }
+    // Emit the new background state to the other user
+    socketRef.current.emit('background-toggle', !useBackground);
   }
+
+  // Add remote segmenter initialization
+  const initializeRemoteSegmenter = useCallback(async () => {
+    try {
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      );
+
+      remoteImageSegmenterRef.current = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: `/models/selfie_segmenter_landscape.tflite`,
+        },
+        runningMode: "LIVE_STREAM",
+        outputCategoryMask: false,
+        outputConfidenceMasks: true,
+        resultListener: handleRemoteSegmentationResult
+      });
+      startRemoteSegmenter();
+    } catch (error) {
+      console.error("Error initializing remote segmenter", error);
+    }
+  }, []);
+
+  // Add remote segmentation handler
+  function handleRemoteSegmentationResult(result) {
+    if (!remoteGlRef.current || !result || !result.confidenceMasks || !result.confidenceMasks[0]) return;
+
+    const gl = remoteGlRef.current;
+    
+    // Update video texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, remoteTextureRef.current);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, remoteVideoRef.current);
+
+    // Update mask texture
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, remoteMaskTextureRef.current);
+    gl.texImage2D(
+      gl.TEXTURE_2D, 
+      0, 
+      gl.LUMINANCE, 
+      result.confidenceMasks[0].width,
+      result.confidenceMasks[0].height, 
+      0,
+      gl.LUMINANCE,
+      gl.UNSIGNED_BYTE,
+      result.confidenceMasks[0].getAsUint8Array()
+    );
+
+    // Draw
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  // Add remote segmenter start function
+  const startRemoteSegmenter = useCallback(() => {
+    if (!remoteVideoRef.current || !remoteVideoRef.current.videoWidth) {
+      console.log("Remote video not ready yet");
+      return;
+    }
+
+    let animationFrameId;
+    console.log("segmenting remote");
+    function renderLoop() {
+      if (remoteVideoRef.current && remoteVideoRef.current.videoWidth) {
+        try {
+          remoteImageSegmenterRef.current.segmentForVideo(remoteVideoRef.current, performance.now(), handleRemoteSegmentationResult);
+          animationFrameId = requestAnimationFrame(renderLoop);
+        } catch (error) {
+          console.error("Error in remote render loop:", error);
+          cancelAnimationFrame(animationFrameId);
+        }
+      }
+    }
+    renderLoop();
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []);
 
   return (
     <div>
@@ -407,9 +527,9 @@ function Chat() {
         margin: '20px 0'
       }}>
         <div style={{
-          width: '640px',  // Fixed width container
-          height: '480px', // Fixed height container
-          backgroundColor: '#000' // Black background for empty state
+          width: '640px',
+          height: '480px',
+          backgroundColor: '#000'
         }}>
           <video
             ref={localVideoRef}
@@ -431,16 +551,22 @@ function Chat() {
           />
         </div>
         <div style={{
-          width: '640px',  // Fixed width container
-          height: '480px', // Fixed height container
-          backgroundColor: '#000' // Black background for empty state
+          width: '640px',
+          height: '480px',
+          backgroundColor: '#000'
         }}>
           <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
             webkit-playsinline="true"
-            style={{
+            style={{ display: 'none' }}
+          />
+          <canvas
+            ref={remoteCanvasRef}
+            width="640"
+            height="480"
+            style={{ 
               width: '100%',
               height: '100%',
               objectFit: 'cover'
