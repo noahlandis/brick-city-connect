@@ -3,7 +3,6 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
-import { useAuth } from './contexts/AuthContext';
 import { FilesetResolver, ImageSegmenter } from '@mediapipe/tasks-vision';
 
 // Add these shader constants at the top of the file
@@ -39,7 +38,6 @@ function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
   const imageSegmenterRef = useRef(null);
@@ -247,7 +245,7 @@ function Chat() {
     // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localPeerID) => {
       console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID, user.username);
+      socketRef.current.emit('join-chat', localPeerID, 'test');
     });
 
     localUserRef.current.on('error', (error) => {
@@ -282,7 +280,7 @@ function Chat() {
       handleRemoteCall(call);
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leaveChat, user.username]);
+  }, [leaveChat]);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
