@@ -21,14 +21,15 @@ const fragmentShaderSource = `
   precision mediump float;
   uniform sampler2D u_image;
   uniform sampler2D u_mask;
-  uniform vec3 u_backgroundColor;
+  uniform sampler2D u_background;
   varying vec2 v_texCoord;
   
   void main() {
     vec4 color = texture2D(u_image, v_texCoord);
     float mask = texture2D(u_mask, v_texCoord).r;
+    vec4 backgroundColor = texture2D(u_background, v_texCoord);
     
-    vec3 finalColor = mix(u_backgroundColor, color.rgb, mask);
+    vec3 finalColor = mix(backgroundColor.rgb, color.rgb, mask);
     gl_FragColor = vec4(finalColor, 1.0);
   }
 `;
@@ -46,13 +47,11 @@ function Chat() {
   const programRef = useRef(null);
   const textureRef = useRef(null);
   const maskTextureRef = useRef(null);
+  const backgroundTextureRef = useRef(null);
+  const backgroundImageRef = useRef(null);
 
   const [isStreamReady, setIsStreamReady] = useState(false);
-
-  // Update state to include background color
-  const [backgroundSettings, setBackgroundSettings] = useState({
-    color: [0.0, 1.0, 0.0], // Green background
-  });
+  const [backgroundImage, setBackgroundImage] = useState(null);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -261,12 +260,6 @@ function Chat() {
       result.confidenceMasks[0].getAsUint8Array()
     );
 
-    // Set background color uniform
-    gl.uniform3fv(
-      gl.getUniformLocation(program, 'u_backgroundColor'),
-      new Float32Array(backgroundSettings.color)
-    );
-
     // Draw
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
@@ -338,6 +331,16 @@ function Chat() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     maskTextureRef.current = maskTexture;
 
+    // Add background texture
+    const backgroundTexture = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    backgroundTextureRef.current = backgroundTexture;
+
     // Set up attributes
     const positionLocation = gl.getAttribLocation(program, 'a_position');
     const texCoordLocation = gl.getAttribLocation(program, 'a_texCoord');
@@ -353,63 +356,83 @@ function Chat() {
     // Set up texture units
     gl.uniform1i(gl.getUniformLocation(program, 'u_image'), 0);
     gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), 1);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_background'), 2);
+
+    // Load the background image
+    loadBackgroundImage();
+  }
+
+  // Add new function to load background image
+  function loadBackgroundImage() {
+    const image = new Image();
+    image.src = '/rit.jpg'; // Make sure to place rit.jpg in the public folder
+    image.onload = () => {
+      backgroundImageRef.current = image;
+      if (glRef.current && programRef.current) {
+        updateBackgroundTexture();
+      }
+    };
+  }
+
+  function updateBackgroundTexture() {
+    if (!glRef.current || !backgroundImageRef.current) return;
+    
+    const gl = glRef.current;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, backgroundTextureRef.current);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, backgroundImageRef.current);
   }
 
   return (
     <div>
       <h1>Chat</h1>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        playsInline
-        webkit-playsinline="true"
-        style={{ display: 'none' }} // Hide the original video
-      />
-      <canvas
-        ref={canvasRef}
-        width="640"
-        height="480"
-        style={{ backgroundColor: 'transparent' }}
-      />
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        webkit-playsinline="true"
-      />
-      <button onClick={() => {
-        socketRef.current.emit('next');
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        gap: '20px',
+        margin: '20px 0'
       }}>
-        Next
-      </button>
-      <button onClick={() => {
-        leaveChat();
-      }}>Leave</button>
-      <div>
-        <label>
-          Background Color:
-          <input
-            type="color"
-            value={`#${Math.round(backgroundSettings.color[0] * 255).toString(16).padStart(2, '0')}${
-              Math.round(backgroundSettings.color[1] * 255).toString(16).padStart(2, '0')}${
-              Math.round(backgroundSettings.color[2] * 255).toString(16).padStart(2, '0')}`}
-            onChange={(e) => {
-              const hex = e.target.value.substring(1);
-              const r = parseInt(hex.substring(0, 2), 16) / 255;
-              const g = parseInt(hex.substring(2, 4), 16) / 255;
-              const b = parseInt(hex.substring(4, 6), 16) / 255;
-              setBackgroundSettings(prev => ({
-                ...prev,
-                color: [r, g, b]
-              }));
+        <div>
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            playsInline
+            webkit-playsinline="true"
+            style={{ display: 'none' }}
+          />
+          <canvas
+            ref={canvasRef}
+            width="640"
+            height="480"
+            style={{ 
+              backgroundColor: 'transparent',
+              maxWidth: '100%',
+              height: 'auto'
             }}
           />
-        </label>
+        </div>
+        <video
+          ref={remoteVideoRef}
+          autoPlay
+          playsInline
+          webkit-playsinline="true"
+          style={{
+            maxWidth: '640px',
+            height: 'auto'
+          }}
+        />
+      </div>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '10px'
+      }}>
+        <button onClick={() => socketRef.current.emit('next')}>Next</button>
+        <button onClick={() => leaveChat()}>Leave</button>
       </div>
     </div>
   );
 }
 
 export default Chat;
-
