@@ -125,18 +125,15 @@ function initializeSignalingServer(httpServer) {
     
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (peerID, username) => {
+  socket.on('join-chat', (peerID) => {
     // we always store the peerID as this identifies the peer to call to start the video stream
     socket.peerID = peerID;
-    socket.username = username;
-    handleExistingUserConnection(socket);
-    console.log("user joined chat. The username is", username);
+ 
     handleUserLeaveAndJoin(socket);
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
-    delete connectedUsers[socket.username];
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
     }
