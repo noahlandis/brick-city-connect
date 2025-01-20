@@ -240,17 +240,17 @@ function Chat() {
       leaveChat();
     });
 
-    // initiate call - update to use canvas stream
+    // initiate call - update to use original stream
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
-      const call = localUserRef.current.call(remotePeerID, canvasStreamRef.current);
+      const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
 
-    // answer call - update to use canvas stream
+    // answer call - update to use original stream
     localUserRef.current.on('call', (call) => {
       console.log("call received");
-      call.answer(canvasStreamRef.current);
+      call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
   }, [leaveChat, user.username]);
