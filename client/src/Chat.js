@@ -196,9 +196,8 @@ function Chat() {
     renderLoop();
   }
 
-  function handleSegmentationResult(test) {
-    console.log("segmentation result received");
-    console.log(test);
+  function handleSegmentationResult(result) {
+   
   }
 
   return (
