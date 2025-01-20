@@ -178,6 +178,10 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('background-toggle', (useBackground) => {
+    socket.partnerSocket.emit('background-toggle', useBackground);
+  });
+
 
     });
 }
