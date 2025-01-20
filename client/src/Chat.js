@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
@@ -39,7 +39,7 @@ function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  const { user: _user } = useAuth();
+  const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
   const imageSegmenterRef = useRef(null);
@@ -53,179 +53,26 @@ function Chat() {
   const canvasStreamRef = useRef(null);
 
   const [isStreamReady, setIsStreamReady] = useState(false);
-  const [_backgroundImage, _setBackgroundImage] = useState(null);
   const [useBackground, setUseBackground] = useState(false);
 
-  useEffect(() => {
-    // Start local video stream and set up chat when ready
-    startLocalStream();
+  // Add leaveChat at the top with other function definitions
+  const leaveChat = useCallback(() => {
+    navigate('/'); // Redirect to home
+  }, [navigate]); // Include navigate as a dependency since it's from useNavigate
 
-    return () => {
-      // Stop stream on cleanup, **check if this is needed before pushing to staging**
-      stopLocalStream();
-
-      // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
-      if (localUserRef.current) {
-        localUserRef.current.destroy();
-      }
-
-      // This ensures we tell the server that we've disconnected if we leave the page
-      if (socketRef.current) {
-        socketRef.current.disconnect();
+  // Define these functions first since they're dependencies
+  const loadBackgroundImage = useCallback(() => {
+    const image = new Image();
+    image.src = '/rit.jpg';
+    image.onload = () => {
+      backgroundImageRef.current = image;
+      if (glRef.current && programRef.current) {
+        updateBackgroundTexture();
       }
     };
-    // we don't want this to run every render, just on mount so we ignore the eslint warning
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (isStreamReady) {
-      const init = async () => {
-        await initializeSegmenter();
-        initWebGL();
-        // Create canvas stream after WebGL is initialized
-        canvasStreamRef.current = canvasRef.current.captureStream();
-        // Add audio track from original stream to canvas stream
-        const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
-        if (audioTrack) {
-          canvasStreamRef.current.addTrack(audioTrack);
-        }
-        joinChat();
-      };
-      init();
-    }
-  }, [isStreamReady, initializeSegmenter, initWebGL, joinChat]);
-
-  function joinChat() {
-    // Initialize socket
-    socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
-      transports: ['websocket'],
-      upgrade: false,
-    });
-
-    // Initialize peer
-    localUserRef.current = new Peer();
-
-    // Once the peer is open, we join the chat
-    localUserRef.current.on('open', (localPeerID) => {
-      console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID);
-    });
-
-    localUserRef.current.on('error', (error) => {
-      Bugsnag.notify(error);
-    });
-
-    socketRef.current.on('leave-chat', () => {
-      console.log('user left');
-      leaveChat();
-    });
-
-    // initiate call - update to use canvas stream
-    socketRef.current.on('match-found', (remotePeerID) => {
-      console.log("call initiated");
-      const call = localUserRef.current.call(remotePeerID, canvasStreamRef.current);
-      handleRemoteCall(call);
-    });
-
-    // answer call - update to use canvas stream
-    localUserRef.current.on('call', (call) => {
-      console.log("call received");
-      call.answer(canvasStreamRef.current);
-      handleRemoteCall(call);
-    });
-  }
-
-  // handle call events
-  function handleRemoteCall(call) {
-
-    // their local stream -> our remote stream
-    call.on('stream', (remoteStream) => {
-      remoteVideoRef.current.srcObject = remoteStream;
-    });
-
-    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
-    socketRef.current.on('close-connection', () => {
-      call.close();
-    });
-
-    call.on('close', function () {
-      console.log("closing call");
-      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
-      if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
-        remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-        remoteVideoRef.current.srcObject = null;
-      }
-    });
-
-    call.on('error', (error) => {
-      Bugsnag.notify(error);
-    });
-  }
-
-  function startLocalStream() {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localVideoRef.current.srcObject = stream;
-        
-        // Wait for the video to be properly loaded before marking stream as ready
-        localVideoRef.current.onloadedmetadata = () => {
-          localVideoRef.current.play()
-            .then(() => {
-              console.log("Video is playing");
-              setIsStreamReady(true);
-            })
-            .catch(error => console.error("Error playing video:", error));
-        };
-
-        // Monitor video track
-        stream.getVideoTracks().forEach((track) => {
-          track.onended = leaveChat;
-          track.onmute = leaveChat;
-        });
-      })
-      .catch((error) => {
-        console.error('Error accessing media devices:', error);
-        leaveChat();
-      });
-  }
-
-  function stopLocalStream() {
-    if (localVideoRef.current && localVideoRef.current.srcObject) {
-      localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
-      localVideoRef.current.srcObject = null;
-    }
-  }
-
-  function leaveChat() {
-    navigate('/'); // Redirect to home
-  }
-
-  async function initializeSegmenter() {
-    try {
-      const vision = await FilesetResolver.forVisionTasks(
-        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
-      );
-
-      imageSegmenterRef.current = await ImageSegmenter.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: `/models/selfie_segmenter_landscape.tflite`,
-        },
-        runningMode: "LIVE_STREAM",
-        outputCategoryMask: false,
-        outputConfidenceMasks: true,
-        resultListener: handleSegmentationResult
-
-      });
-      // Only start segmenter after initialization is complete
-      startSegmenter();
-    } catch (error) {
-      console.error("Error initializing segmenter", error);
-    }
-  }
-
-  function startSegmenter() {
-    // Check if video is ready before starting the render loop
+  const startSegmenter = useCallback(() => {
     if (!localVideoRef.current || !localVideoRef.current.videoWidth) {
       console.log("Video not ready yet");
       return;
@@ -245,40 +92,10 @@ function Chat() {
       }
     }
     renderLoop();
-  }
+  }, []);
 
-  function handleSegmentationResult(result) {
-    if (!glRef.current || !result || !result.confidenceMasks || !result.confidenceMasks[0]) return;
-
-    const gl = glRef.current;
-    const _program = programRef.current;
-
-    // Update video texture
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, textureRef.current);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, localVideoRef.current);
-
-    // Update mask texture
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, maskTextureRef.current);
-    gl.texImage2D(
-      gl.TEXTURE_2D, 
-      0, 
-      gl.LUMINANCE, 
-      result.confidenceMasks[0].width,
-      result.confidenceMasks[0].height, 
-      0,
-      gl.LUMINANCE,
-      gl.UNSIGNED_BYTE,
-      result.confidenceMasks[0].getAsUint8Array()
-    );
-
-    // Draw
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-  }
-
-  // Add this new function to set up WebGL
-  function initWebGL() {
+  // Now define the callbacks that depend on the above functions
+  const initWebGLCallback = useCallback(() => {
     const canvas = canvasRef.current;
     const gl = canvas.getContext('webgl');
     if (!gl) {
@@ -374,20 +191,191 @@ function Chat() {
     // After setting up other uniforms, add the background toggle uniform with false as default
     gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), false);
 
-    // Load the background image
     loadBackgroundImage();
-  }
+  }, [loadBackgroundImage]);
 
-  // Add new function to load background image
-  function loadBackgroundImage() {
-    const image = new Image();
-    image.src = '/rit.jpg'; // Make sure to place rit.jpg in the public folder
-    image.onload = () => {
-      backgroundImageRef.current = image;
-      if (glRef.current && programRef.current) {
-        updateBackgroundTexture();
+  const initializeSegmenterCallback = useCallback(async () => {
+    try {
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      );
+
+      imageSegmenterRef.current = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: `/models/selfie_segmenter_landscape.tflite`,
+        },
+        runningMode: "LIVE_STREAM",
+        outputCategoryMask: false,
+        outputConfidenceMasks: true,
+        resultListener: handleSegmentationResult
+      });
+      startSegmenter();
+    } catch (error) {
+      console.error("Error initializing segmenter", error);
+    }
+  }, [startSegmenter]);
+
+  const joinChatCallback = useCallback(() => {
+    // Initialize socket
+    socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
+      transports: ['websocket'],
+      upgrade: false,
+    });
+
+    // Initialize peer
+    localUserRef.current = new Peer();
+
+    // Once the peer is open, we join the chat
+    localUserRef.current.on('open', (localPeerID) => {
+      console.log('local user id', localPeerID);
+      socketRef.current.emit('join-chat', localPeerID, user.username);
+    });
+
+    localUserRef.current.on('error', (error) => {
+      Bugsnag.notify(error);
+    });
+
+    socketRef.current.on('leave-chat', () => {
+      console.log('user left');
+      leaveChat();
+    });
+
+    // initiate call - update to use canvas stream
+    socketRef.current.on('match-found', (remotePeerID) => {
+      console.log("call initiated");
+      const call = localUserRef.current.call(remotePeerID, canvasStreamRef.current);
+      handleRemoteCall(call);
+    });
+
+    // answer call - update to use canvas stream
+    localUserRef.current.on('call', (call) => {
+      console.log("call received");
+      call.answer(canvasStreamRef.current);
+      handleRemoteCall(call);
+    });
+  }, [leaveChat, user.username]);
+
+  useEffect(() => {
+    // Start local video stream and set up chat when ready
+    startLocalStream();
+
+    return () => {
+      // Stop stream on cleanup, **check if this is needed before pushing to staging**
+      stopLocalStream();
+
+      // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
+      if (localUserRef.current) {
+        localUserRef.current.destroy();
+      }
+
+      // This ensures we tell the server that we've disconnected if we leave the page
+      if (socketRef.current) {
+        socketRef.current.disconnect();
       }
     };
+    // we don't want this to run every render, just on mount so we ignore the eslint warning
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (isStreamReady) {
+      initializeSegmenterCallback();
+      initWebGLCallback();
+      canvasStreamRef.current = canvasRef.current.captureStream();
+      const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
+      if (audioTrack) {
+        canvasStreamRef.current.addTrack(audioTrack);
+      }
+      joinChatCallback();
+    }
+  }, [isStreamReady, initializeSegmenterCallback, initWebGLCallback, joinChatCallback]);
+
+  function handleRemoteCall(call) {
+    // their local stream -> our remote stream
+    call.on('stream', (remoteStream) => {
+      remoteVideoRef.current.srcObject = remoteStream;
+    });
+
+    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
+    socketRef.current.on('close-connection', () => {
+      call.close();
+    });
+
+    call.on('close', function () {
+      console.log("closing call");
+      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
+      if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+        remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        remoteVideoRef.current.srcObject = null;
+      }
+    });
+
+    call.on('error', (error) => {
+      Bugsnag.notify(error);
+    });
+  }
+
+  function startLocalStream() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        localVideoRef.current.srcObject = stream;
+        
+        // Wait for the video to be properly loaded before marking stream as ready
+        localVideoRef.current.onloadedmetadata = () => {
+          localVideoRef.current.play()
+            .then(() => {
+              console.log("Video is playing");
+              setIsStreamReady(true);
+            })
+            .catch(error => console.error("Error playing video:", error));
+        };
+
+        // Monitor video track
+        stream.getVideoTracks().forEach((track) => {
+          track.onended = leaveChat;
+          track.onmute = leaveChat;
+        });
+      })
+      .catch((error) => {
+        console.error('Error accessing media devices:', error);
+        leaveChat();
+      });
+  }
+
+  function stopLocalStream() {
+    if (localVideoRef.current && localVideoRef.current.srcObject) {
+      localVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      localVideoRef.current.srcObject = null;
+    }
+  }
+
+  function handleSegmentationResult(result) {
+    if (!glRef.current || !result || !result.confidenceMasks || !result.confidenceMasks[0]) return;
+
+    const gl = glRef.current;
+    
+    // Update video texture
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textureRef.current);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, localVideoRef.current);
+
+    // Update mask texture
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, maskTextureRef.current);
+    gl.texImage2D(
+      gl.TEXTURE_2D, 
+      0, 
+      gl.LUMINANCE, 
+      result.confidenceMasks[0].width,
+      result.confidenceMasks[0].height, 
+      0,
+      gl.LUMINANCE,
+      gl.UNSIGNED_BYTE,
+      result.confidenceMasks[0].getAsUint8Array()
+    );
+
+    // Draw
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   function updateBackgroundTexture() {
@@ -418,7 +406,11 @@ function Chat() {
         gap: '20px',
         margin: '20px 0'
       }}>
-        <div>
+        <div style={{
+          width: '640px',  // Fixed width container
+          height: '480px', // Fixed height container
+          backgroundColor: '#000' // Black background for empty state
+        }}>
           <video
             ref={localVideoRef}
             autoPlay
@@ -432,22 +424,29 @@ function Chat() {
             width="640"
             height="480"
             style={{ 
-              backgroundColor: 'transparent',
-              maxWidth: '100%',
-              height: 'auto'
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
             }}
           />
         </div>
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          webkit-playsinline="true"
-          style={{
-            maxWidth: '640px',
-            height: 'auto'
-          }}
-        />
+        <div style={{
+          width: '640px',  // Fixed width container
+          height: '480px', // Fixed height container
+          backgroundColor: '#000' // Black background for empty state
+        }}>
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            webkit-playsinline="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }}
+          />
+        </div>
       </div>
       <div style={{
         display: 'flex',
