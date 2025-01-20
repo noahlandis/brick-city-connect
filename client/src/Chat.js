@@ -39,8 +39,7 @@ function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
-  // eslint-disable-next-line no-unused-vars
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
   const imageSegmenterRef = useRef(null);
@@ -54,8 +53,7 @@ function Chat() {
   const canvasStreamRef = useRef(null);
 
   const [isStreamReady, setIsStreamReady] = useState(false);
-  // eslint-disable-next-line no-unused-vars
-  const [backgroundImage, setBackgroundImage] = useState(null);
+  const [_backgroundImage, _setBackgroundImage] = useState(null);
   const [useBackground, setUseBackground] = useState(false);
 
   useEffect(() => {
@@ -82,21 +80,21 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      initializeSegmenter();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      initWebGL();
-      // Create canvas stream after WebGL is initialized
-      canvasStreamRef.current = canvasRef.current.captureStream();
-      // Add audio track from original stream to canvas stream
-      const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
-      if (audioTrack) {
-        canvasStreamRef.current.addTrack(audioTrack);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      joinChat();
+      const init = async () => {
+        await initializeSegmenter();
+        initWebGL();
+        // Create canvas stream after WebGL is initialized
+        canvasStreamRef.current = canvasRef.current.captureStream();
+        // Add audio track from original stream to canvas stream
+        const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
+        if (audioTrack) {
+          canvasStreamRef.current.addTrack(audioTrack);
+        }
+        joinChat();
+      };
+      init();
     }
-  }, [isStreamReady]);
+  }, [isStreamReady, initializeSegmenter, initWebGL, joinChat]);
 
   function joinChat() {
     // Initialize socket
@@ -253,8 +251,7 @@ function Chat() {
     if (!glRef.current || !result || !result.confidenceMasks || !result.confidenceMasks[0]) return;
 
     const gl = glRef.current;
-    // eslint-disable-next-line no-unused-vars
-    const program = programRef.current;
+    const _program = programRef.current;
 
     // Update video texture
     gl.activeTexture(gl.TEXTURE0);
