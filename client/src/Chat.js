@@ -22,6 +22,7 @@ const fragmentShaderSource = `
   uniform sampler2D u_image;
   uniform sampler2D u_mask;
   uniform sampler2D u_background;
+  uniform bool u_useBackground;
   varying vec2 v_texCoord;
   
   void main() {
@@ -29,7 +30,7 @@ const fragmentShaderSource = `
     float mask = texture2D(u_mask, v_texCoord).r;
     vec4 backgroundColor = texture2D(u_background, v_texCoord);
     
-    vec3 finalColor = mix(backgroundColor.rgb, color.rgb, mask);
+    vec3 finalColor = u_useBackground ? mix(backgroundColor.rgb, color.rgb, mask) : color.rgb;
     gl_FragColor = vec4(finalColor, 1.0);
   }
 `;
@@ -52,6 +53,7 @@ function Chat() {
 
   const [isStreamReady, setIsStreamReady] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
+  const [useBackground, setUseBackground] = useState(true);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -358,6 +360,9 @@ function Chat() {
     gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), 1);
     gl.uniform1i(gl.getUniformLocation(program, 'u_background'), 2);
 
+    // After setting up other uniforms, add the background toggle uniform
+    gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), true);
+
     // Load the background image
     loadBackgroundImage();
   }
@@ -381,6 +386,16 @@ function Chat() {
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, backgroundTextureRef.current);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, backgroundImageRef.current);
+  }
+
+  // Add new function to handle background toggle
+  function toggleBackground() {
+    setUseBackground(!useBackground);
+    if (glRef.current && programRef.current) {
+      const gl = glRef.current;
+      gl.useProgram(programRef.current);
+      gl.uniform1i(gl.getUniformLocation(programRef.current, 'u_useBackground'), !useBackground);
+    }
   }
 
   return (
@@ -430,6 +445,9 @@ function Chat() {
       }}>
         <button onClick={() => socketRef.current.emit('next')}>Next</button>
         <button onClick={() => leaveChat()}>Leave</button>
+        <button onClick={toggleBackground}>
+          {useBackground ? 'Disable' : 'Enable'} Background
+        </button>
       </div>
     </div>
   );
