@@ -2,7 +2,7 @@ import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 
-function AuthForm({ 
+function GuestForm({ 
     title, 
     errorMessage,
     fields, 
@@ -89,4 +89,4 @@ function AuthForm({
     );
 }
 
-export default AuthForm;
+export default GuestForm;

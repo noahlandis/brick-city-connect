@@ -1,7 +1,7 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
 import { resetPassword } from '../api/authApi';
-import AuthForm from '../components/AuthForm';
+import GuestForm from '../components/GuestForm';
 import { useModal } from '../contexts/ModalContext';
 import validateFields from '../utils/validateFields';
 
@@ -81,7 +81,7 @@ function ResetPassword() {
     ];
 
     return (
-        <AuthForm
+        <GuestForm
             title="Reset Password"
             fields={fields}
             onSubmit={handleResetPassword}

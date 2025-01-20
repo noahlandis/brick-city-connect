@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import AuthForm from '../components/AuthForm';
+import GuestForm from '../components/GuestForm';
 import { useModal } from '../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../api/magicLinkApi';
 import validateFields from '../utils/validateFields';
@@ -79,7 +79,7 @@ function EmailForm() {
     ];
 
     return (
-        <AuthForm
+        <GuestForm
             title="Sign Up"
                 errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
                 fields={fields}

@@ -5,7 +5,7 @@ import Home from './Home';
 import Chat from './Chat';
 import EmailForm from './auth/EmailForm';
 import Register from './auth/Register';
-import AuthLayout from './layouts/AuthLayout';
+import GuestLayout from './layouts/GuestLayout';
 import { registerLoader as registerGuard, forgotPasswordLoader as forgotPasswordGuard } from './guards/MagicLinkGuard';
 import AuthGuard from './guards/AuthGuard';
 import Login from './auth/Login';
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <GuestGuard><AuthLayout /></GuestGuard>,
+    element: <GuestGuard><GuestLayout /></GuestGuard>,
     children: [
       {
         index: true,
@@ -37,7 +37,7 @@ const router = createBrowserRouter([
   },
   {
     path: "register",
-    element: <GuestGuard><AuthLayout /></GuestGuard>,
+    element: <GuestGuard><GuestLayout /></GuestGuard>,
     children: [
       {
         index: true,
@@ -52,7 +52,7 @@ const router = createBrowserRouter([
   },
   {
     path: "forgot-password",
-    element: <GuestGuard><AuthLayout /></GuestGuard>,
+    element: <GuestGuard><GuestLayout /></GuestGuard>,
     children: [
       {
         index: true,
