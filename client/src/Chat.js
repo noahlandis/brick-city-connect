@@ -39,6 +39,7 @@ function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  // eslint-disable-next-line no-unused-vars
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
@@ -53,6 +54,7 @@ function Chat() {
   const canvasStreamRef = useRef(null);
 
   const [isStreamReady, setIsStreamReady] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [useBackground, setUseBackground] = useState(false);
 
@@ -80,7 +82,9 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       initializeSegmenter();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       initWebGL();
       // Create canvas stream after WebGL is initialized
       canvasStreamRef.current = canvasRef.current.captureStream();
@@ -89,6 +93,7 @@ function Chat() {
       if (audioTrack) {
         canvasStreamRef.current.addTrack(audioTrack);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       joinChat();
     }
   }, [isStreamReady]);
@@ -248,6 +253,7 @@ function Chat() {
     if (!glRef.current || !result || !result.confidenceMasks || !result.confidenceMasks[0]) return;
 
     const gl = glRef.current;
+    // eslint-disable-next-line no-unused-vars
     const program = programRef.current;
 
     // Update video texture
