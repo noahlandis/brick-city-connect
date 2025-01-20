@@ -73,10 +73,14 @@ function Chat() {
   const loadBackgroundImage = useCallback(() => {
     const image = new Image();
     image.src = '/rit.jpg';
+    image.crossOrigin = "anonymous";
     image.onload = () => {
       backgroundImageRef.current = image;
       if (glRef.current && programRef.current) {
-        updateBackgroundTexture();
+        updateBackgroundTexture(glRef.current, backgroundTextureRef.current);
+      }
+      if (remoteGlRef.current && remoteProgramRef.current) {
+        updateBackgroundTexture(remoteGlRef.current, remoteBackgroundTextureRef.current);
       }
     };
   }, []);
@@ -415,12 +419,13 @@ function Chat() {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
-  function updateBackgroundTexture() {
-    if (!glRef.current || !backgroundImageRef.current) return;
+  function updateBackgroundTexture(gl, backgroundTexture) {
+    if (!gl || !backgroundImageRef.current) return;
     
-    const gl = glRef.current;
     gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, backgroundTextureRef.current);
+    gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
+    
+    // Simply draw the image normally without flipping
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, backgroundImageRef.current);
   }
 
@@ -431,8 +436,8 @@ function Chat() {
       const gl = glRef.current;
       gl.useProgram(programRef.current);
       gl.uniform1i(gl.getUniformLocation(programRef.current, 'u_useBackground'), !useBackground);
+      updateBackgroundTexture(gl, backgroundTextureRef.current);  // Refresh background texture
     }
-    // Emit the new background state to the other user
     socketRef.current.emit('background-toggle', !useBackground);
   }
 
