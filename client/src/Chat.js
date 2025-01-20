@@ -281,6 +281,7 @@ function Chat() {
       call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveChat, user.username]);
 
   useEffect(() => {
@@ -461,6 +462,7 @@ function Chat() {
     } catch (error) {
       console.error("Error initializing remote segmenter", error);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Add remote segmentation handler
