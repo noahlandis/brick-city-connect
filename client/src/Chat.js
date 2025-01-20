@@ -54,7 +54,7 @@ function Chat() {
 
   const [isStreamReady, setIsStreamReady] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
-  const [useBackground, setUseBackground] = useState(true);
+  const [useBackground, setUseBackground] = useState(false);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -368,8 +368,8 @@ function Chat() {
     gl.uniform1i(gl.getUniformLocation(program, 'u_mask'), 1);
     gl.uniform1i(gl.getUniformLocation(program, 'u_background'), 2);
 
-    // After setting up other uniforms, add the background toggle uniform
-    gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), true);
+    // After setting up other uniforms, add the background toggle uniform with false as default
+    gl.uniform1i(gl.getUniformLocation(program, 'u_useBackground'), false);
 
     // Load the background image
     loadBackgroundImage();
