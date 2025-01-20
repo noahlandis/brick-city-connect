@@ -50,6 +50,7 @@ function Chat() {
   const maskTextureRef = useRef(null);
   const backgroundTextureRef = useRef(null);
   const backgroundImageRef = useRef(null);
+  const canvasStreamRef = useRef(null);
 
   const [isStreamReady, setIsStreamReady] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState(null);
@@ -80,8 +81,15 @@ function Chat() {
   useEffect(() => {
     if (isStreamReady) {
       initializeSegmenter();
-      joinChat();
       initWebGL();
+      // Create canvas stream after WebGL is initialized
+      canvasStreamRef.current = canvasRef.current.captureStream();
+      // Add audio track from original stream to canvas stream
+      const audioTrack = localVideoRef.current.srcObject.getAudioTracks()[0];
+      if (audioTrack) {
+        canvasStreamRef.current.addTrack(audioTrack);
+      }
+      joinChat();
     }
   }, [isStreamReady]);
 
@@ -110,17 +118,17 @@ function Chat() {
       leaveChat();
     });
 
-    // initiate call
+    // initiate call - update to use canvas stream
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
-      const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
+      const call = localUserRef.current.call(remotePeerID, canvasStreamRef.current);
       handleRemoteCall(call);
     });
 
-    // answer call
+    // answer call - update to use canvas stream
     localUserRef.current.on('call', (call) => {
-      console.log("call recieved");
-      call.answer(localVideoRef.current.srcObject);
+      console.log("call received");
+      call.answer(canvasStreamRef.current);
       handleRemoteCall(call);
     });
   }
