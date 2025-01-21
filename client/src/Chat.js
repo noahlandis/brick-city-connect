@@ -5,15 +5,19 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from './contexts/AuthContext';
 import { ERROR_CODES } from './utils/constants';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
+
 
 function Chat() {
   const navigate = useNavigate();
+  const theme = useTheme();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
   const [isStreamReady, setIsStreamReady] = useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -153,29 +157,84 @@ function Chat() {
   }
 
   return (
-    <div>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        playsInline
-        webkit-playsinline="true"
-      />
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        webkit-playsinline="true"
-      />
-      <button onClick={() => {
-        socketRef.current.emit('next');
+    <Box sx={{ 
+      width: '97%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 4
+    }}>
+      {/* Video Container */}
+      <Box sx={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: 2,
+        width: '100%',
+        flex: 1,
       }}>
-        Next
-      </button>
-      <button onClick={() => {
-        leaveChat();
-      }}>Leave</button>
-    </div>
+        {/* Local Video */}
+        <Box sx={{
+          flex: 1,
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            playsInline
+            webkit-playsinline="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </Box>
+
+        {/* Remote Video */}
+        <Box sx={{
+          flex: 1,
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            webkit-playsinline="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+          {true && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              gap: 2,
+            }}>
+              <CircularProgress sx={{ color: '#F76902' }} />
+              <Typography variant="h6">Finding a match...</Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
