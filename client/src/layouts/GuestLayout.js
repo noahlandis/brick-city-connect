@@ -48,6 +48,9 @@ function GuestLayout() {
               display: "flex",
               alignItems: "center",
               gap: 2,
+              justifyContent: "center",
+              width: "100%",
+              marginBottom: 2,
             }}
           >
             <Avatar

@@ -70,10 +70,8 @@ function GuestForm({
                 onClick={onSubmit}
                 sx={{
                     width: '100%',
-                    marginTop: {
-                        xs: '2.5rem',
-                        sm: '1.5rem'
-                    },
+                    marginTop: { xs: '1.5rem', sm: '1.5rem' },
+                    marginBottom: { xs: '2rem', sm: '1.5rem' },
                     backgroundColor: 'black',
                     color: 'white',
                     fontFamily: '"Helvetica Neue"',
@@ -85,10 +83,7 @@ function GuestForm({
             >{submitButtonText}</Button>
 
             {googleAuthText && (
-                <div style={{ width: '100%', marginTop: {
-                    xs: '2.5rem',
-                    sm: '1.5rem'
-                } }}>
+                <div style={{ width: '100%', marginTop: { xs: '2rem', sm: '1.5rem' } }}>
                     <GoogleOAuth text={googleAuthText} />
                 </div>
             )}
@@ -97,10 +92,7 @@ function GuestForm({
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: {
-                        xs: '2.3rem',
-                        sm: '1.3rem'
-                    },
+                    marginTop: { xs: '2rem', sm: '1.3rem' },
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
