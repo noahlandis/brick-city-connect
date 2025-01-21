@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from './contexts/AuthContext';
 import { ERROR_CODES } from './utils/constants';
+
 function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);

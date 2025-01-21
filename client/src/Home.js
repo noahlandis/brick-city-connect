@@ -5,10 +5,28 @@ import { Box, Button } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import VideoCallIcon from '@mui/icons-material/VideoCall';
 import VideocamIcon from '@mui/icons-material/Videocam';
-
+import { ERROR_CODES } from './utils/constants';
+import { useModal } from './contexts/ModalContext';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 function Home() {
     const navigate = useNavigate();
     const { clientLogout } = useAuth();
+    const [searchParams] = useSearchParams();
+    const { showModal, hideModal } = useModal();
+    const isMediaPermissionDenied = searchParams.get('error') === ERROR_CODES.MEDIA_PERMISSION_DENIED;
+
+    useEffect(() => {
+        if (isMediaPermissionDenied) {
+            showModal({
+                title: "Camera and Microphone Access Required",
+                message: "To use the chat feature, please allow access to your camera and microphone. Make sure your device is not muted. You can update these permissions in your browser settings.",
+                showCloseButton: true,
+                closeButtonText: "OK",
+                onClose: hideModal
+            });
+        }
+    }, [isMediaPermissionDenied, showModal, hideModal]);
 
     async function logout() {
         clientLogout();
