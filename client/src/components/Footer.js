@@ -11,7 +11,10 @@ function Footer({ inline = false }) {
                 justifyContent: 'center',
                 gap: '1rem',
                 marginBottom: inline ? 0 : '0.5rem',
-                flexWrap: inline ? 'nowrap' : 'wrap',
+                flexWrap: inline ? {
+                    xs: 'wrap',  // On mobile: wrap
+                    sm: 'nowrap' // On desktop: nowrap
+                } : 'wrap',
                 alignItems: 'center'
             }}>
                 <Link to="/terms" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
