@@ -5,7 +5,7 @@ import GuestForm from '../components/GuestForm';
 import { useModal } from '../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../api/magicLinkApi';
 import validateFields from '../utils/validateFields';
-
+import { ERROR_CODES } from '../utils/constants';
 function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
@@ -14,7 +14,7 @@ function EmailForm() {
     });
     const { showModal, hideModal } = useModal();
 
-    const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
+    const invalidToken = searchParams.get('error') === ERROR_CODES.INVALID_TOKEN;
 
     async function handleSendVerification() {
         const isValid = validateFields({

@@ -4,7 +4,7 @@ import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from './contexts/AuthContext';
-
+import { ERROR_CODES } from './utils/constants';
 function Chat() {
   const navigate = useNavigate();
   const localVideoRef = useRef(null);
@@ -12,7 +12,6 @@ function Chat() {
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
-
   const [isStreamReady, setIsStreamReady] = useState(false);
 
   useEffect(() => {
@@ -119,21 +118,21 @@ function Chat() {
 
         // Monitor video track
         stream.getVideoTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle camera turned off
-          track.onmute = leaveChat;  // Handle camera muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle camera turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle camera muted
         });
 
         // Monitor audio track
         stream.getAudioTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle mic turned off
-          track.onmute = leaveChat;  // Handle mic muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle mic turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle mic muted
         });
 
         setIsStreamReady(true); // Mark stream as ready
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
-        leaveChat();
+        leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);
       });
   }
 
@@ -144,8 +143,12 @@ function Chat() {
     }
   }
 
-  function leaveChat() {
-    navigate('/'); // Redirect to home
+  function leaveChat(errorCode = null) {
+    if (errorCode) {
+      navigate(`/?error=${errorCode}`);
+    } else {
+      navigate('/'); // Redirect to home
+    }
   }
 
   return (

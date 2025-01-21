@@ -4,7 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import { sendForgotPasswordMagicLink } from '../api/magicLinkApi';
 import GuestForm from '../components/GuestForm';
 import { useModal } from '../contexts/ModalContext';
+import { ERROR_CODES } from '../utils/constants';
 import validateFields from '../utils/validateFields';
+
 function ForgotPassword() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
@@ -13,7 +15,7 @@ function ForgotPassword() {
     });
     const { showModal, hideModal } = useModal();
 
-    const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
+    const invalidToken = searchParams.get('error') === ERROR_CODES.INVALID_TOKEN;
 
     async function handleSendVerification() {
         const isValid = validateFields({
