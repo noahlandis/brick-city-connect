@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from './contexts/AuthContext';
 import { ERROR_CODES } from './utils/constants';
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button} from '@mui/material';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 
 function Chat() {
@@ -237,6 +238,21 @@ function Chat() {
           )}
         </Box>
       </Box>
+      <Button
+          variant="contained"
+          startIcon={<ShuffleIcon />}
+          onClick={() => socketRef.current.emit('next')}
+          sx={{
+            backgroundColor: '#F76902',
+            padding: '12px 40px',
+            '&:hover': {
+              backgroundColor: '#d55a02',
+            }
+          }}
+        >
+          Next
+        </Button>
+
     </Box>
   );
 }
