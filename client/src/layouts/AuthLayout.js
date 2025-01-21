@@ -4,9 +4,19 @@ import { Outlet } from 'react-router-dom';
 import Logo from '../components/Logo';
 import Footer from '../components/Footer';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { Tooltip } from '@mui/material';
+import { Tooltip, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function AuthLayout() {
+    const navigate = useNavigate();
+    const { clientLogout } = useAuth();
+
+    const handleLogout = () => {
+        clientLogout();
+        navigate('/login');
+    };
+
     return (
         <Box sx={{ 
             minHeight: '100vh',
@@ -24,7 +34,17 @@ function AuthLayout() {
             }}>
                 <Logo />
                 <Tooltip title="Logout">
-                    <LogoutIcon sx={{ color: '#F76902' }} />
+                        <IconButton 
+                            onClick={handleLogout}
+                            sx={{ 
+                                color: '#F76902',
+                                '&:hover': {
+                                    backgroundColor: 'rgba(247, 105, 2, 0.1)'
+                                }
+                            }}
+                        >
+                            <LogoutIcon />
+                    </IconButton>
                 </Tooltip>
 
             </Box>
