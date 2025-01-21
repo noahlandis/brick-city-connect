@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { Box, Button } from '@mui/material';
@@ -8,25 +8,31 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from './utils/constants';
 import { useModal } from './contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
+
 function Home() {
     const navigate = useNavigate();
     const { clientLogout } = useAuth();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
-    const isMediaPermissionDenied = searchParams.get('error') === ERROR_CODES.MEDIA_PERMISSION_DENIED;
+    const [isMediaPermissionDenied, setIsMediaPermissionDenied] = useState(
+        searchParams.get('error') === ERROR_CODES.MEDIA_PERMISSION_DENIED
+    );
 
     useEffect(() => {
+        setSearchParams({});
         if (isMediaPermissionDenied) {
             showModal({
                 title: "Camera and Microphone Access Required",
                 message: "To use the chat feature, please allow access to your camera and microphone. Make sure your device is not muted. You can update these permissions in your browser settings.",
-                showCloseButton: true,
-                closeButtonText: "OK",
-                onClose: hideModal
+                actionText: "OK",
+                useButton: true,
+                onAction: () => {
+                    setIsMediaPermissionDenied(false);
+                    hideModal();
+                }
             });
         }
-    }, [isMediaPermissionDenied, showModal, hideModal]);
+    }, [showModal, hideModal, isMediaPermissionDenied]);
 
     async function logout() {
         clientLogout();
