@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from './contexts/AuthContext';
 import { ERROR_CODES } from './utils/constants';
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button} from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 
@@ -20,7 +20,7 @@ function Chat() {
   const [isStreamReady, setIsStreamReady] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
-
+  const [showSnackbar, setShowSnackbar] = useState(false);
   useEffect(() => {
     // Start local video stream and set up chat when ready
     startLocalStream();
@@ -74,6 +74,10 @@ function Chat() {
     socketRef.current.on('leave-chat', () => {
       console.log('user left');
       leaveChat();
+    });
+
+    socketRef.current.on('waiting-to-skip', () => {
+      setShowSnackbar(true);
     });
 
     // initiate call
@@ -269,6 +273,13 @@ function Chat() {
           Next
         </Button>
       </Box>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setShowSnackbar(false)}
+        message="You'll be matched with the next available user"
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </Box>
   );
 }
