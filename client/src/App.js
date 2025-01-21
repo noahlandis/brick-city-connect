@@ -29,7 +29,13 @@ const router = createBrowserRouter([
   },
   {
     path: "/chat",
-    element: <AuthGuard><Chat /></AuthGuard>
+    element: <AuthGuard><AuthLayout /></AuthGuard>,
+    children: [
+      {
+        index: true,
+        element: <Chat />
+      }
+    ]
   },
   {
     path: "login",
