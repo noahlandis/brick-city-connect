@@ -29,7 +29,10 @@ function GuestForm({
                     color: "black",
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    fontSize: '1.4rem',
+                    fontSize: {
+                        xs: '1.2rem',
+                        sm: '1.4rem'
+                    },
                     marginTop: '0.5rem',
                     fontFamily: '"Helvetica Neue"',
                 }}
