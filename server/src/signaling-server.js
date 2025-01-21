@@ -163,6 +163,7 @@ io.on('connection', (socket) => {
     // if the user is already the waiting user or the user waiting to skip, we dont want to do anything
     if (socket === waitingUser || userWaitingToSkip == socket) {
       console.log("can't skip user, no users to match with");
+      socket.emit('waiting-to-skip');
       return;
     }
 
