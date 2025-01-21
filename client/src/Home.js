@@ -29,6 +29,20 @@ function Home() {
             >
                 Start Chatting
             </Button>
+            <Button 
+                variant="outlined"
+                onClick={logout}
+                sx={{
+                    color: 'black',
+                    borderColor: 'black',
+                    '&:hover': {
+                        borderColor: '#333',
+                        backgroundColor: '#f5f5f5'
+                    }
+                }}
+            >
+                Logout
+            </Button>
         </div>
     );
 }

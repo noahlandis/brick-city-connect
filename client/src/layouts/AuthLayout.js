@@ -39,7 +39,7 @@ function AuthLayout() {
 
             {/* Footer */}
             <Box sx={{ width: '100%', mt: 'auto', pb: 2 }}>
-                <Footer />
+                <Footer inline={true} />
             </Box>
         </Box>
     );

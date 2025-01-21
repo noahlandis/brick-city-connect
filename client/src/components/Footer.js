@@ -1,7 +1,7 @@
 import { Typography, Divider, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-function Footer() {
+function Footer({ inline = false }) {
     return (
         <Box sx={{ width: '100%' }}>
             <Divider sx={{ marginY: 2 }} />
@@ -10,8 +10,9 @@ function Footer() {
                 display: 'flex',
                 justifyContent: 'center',
                 gap: '1rem',
-                marginBottom: '0.5rem',
-                flexWrap: 'wrap'
+                marginBottom: inline ? 0 : '0.5rem',
+                flexWrap: inline ? 'nowrap' : 'wrap',
+                alignItems: 'center'
             }}>
                 <Link to="/terms" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
                     Terms & Conditions
@@ -22,19 +23,34 @@ function Footer() {
                 <Link to="/contact" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
                     Contact Us
                 </Link>
+                {inline && (
+                    <>
+                        <Typography 
+                            variant="caption" 
+                            sx={{
+                                color: '#666',
+                                fontSize: '0.7rem'
+                            }}
+                        >
+                            © {new Date().getFullYear()} Brick City Connect. All rights reserved.
+                        </Typography>
+                    </>
+                )}
             </Box>
 
-            <Typography 
-                variant="caption" 
-                sx={{
-                    color: '#666',
-                    textAlign: 'center',
-                    display: 'block',
-                    fontSize: '0.7rem'
-                }}
-            >
-                © {new Date().getFullYear()} Brick City Connect. All rights reserved.
-            </Typography>
+            {!inline && (
+                <Typography 
+                    variant="caption" 
+                    sx={{
+                        color: '#666',
+                        textAlign: 'center',
+                        display: 'block',
+                        fontSize: '0.7rem'
+                    }}
+                >
+                    © {new Date().getFullYear()} Brick City Connect. All rights reserved.
+                </Typography>
+            )}
         </Box>
     );
 }
