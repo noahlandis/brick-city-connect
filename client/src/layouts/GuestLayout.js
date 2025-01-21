@@ -9,7 +9,6 @@ function GuestLayout() {
         backgroundColor: "white",
         pt: 2,
         px: 2,
-        borderRadius: 2,
         boxShadow: 3,
         width: {
           xs: '100%',  // Full width on mobile
