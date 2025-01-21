@@ -92,7 +92,7 @@ function GuestForm({
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: '0.75rem',
+                    marginTop: '1rem',
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
