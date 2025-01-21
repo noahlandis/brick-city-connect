@@ -1,4 +1,4 @@
-import { Typography, TextField, Button, Divider, useMediaQuery } from '@mui/material';
+import { Typography, TextField, Button, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 
@@ -13,19 +13,19 @@ function GuestForm({
     footerLinkTo,
     googleAuthText 
 }) {
-    const isMobile = useMediaQuery('(max-width:600px)');
-    
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             width: '100%',
-            maxWidth: isMobile ? '100%' : '400px',
+            maxWidth: '400px',
             margin: '0 auto',
             position: 'relative',
-            minHeight: '100%',
-            padding: isMobile ? '0 1rem' : 0
+            minHeight: {
+                xs: 'calc(100vh - 200px)',
+                sm: 'auto'
+            }
         }}>
             <Typography variant="h5"
                 sx={{
@@ -33,7 +33,7 @@ function GuestForm({
                     fontWeight: 'bold',
                     textAlign: 'center',
                     fontSize: {
-                        xs: '1.2rem',
+                        xs: '1.5rem',
                         sm: '1.4rem'
                     },
                     marginTop: '0.5rem',
