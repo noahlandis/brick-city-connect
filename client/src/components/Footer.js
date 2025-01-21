@@ -20,9 +20,12 @@ function Footer({ inline = false }) {
                 <Link to="/privacy" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
                     Privacy Policy
                 </Link>
-                <Link to="/contact" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                <a 
+                    href="mailto:brickcityconnect@gmail.com" 
+                    style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}
+                >
                     Contact Us
-                </Link>
+                </a>
                 {inline && (
                     <>
                         <Typography 
