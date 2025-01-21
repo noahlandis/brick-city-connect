@@ -23,9 +23,18 @@ function AuthLayout() {
             <Box sx={{ 
                 flex: 1,
                 display: 'flex',
-                minHeight: 0
+                minHeight: 0,
+                width: '100%'
             }}>
-                <Outlet />
+                <Box sx={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <Outlet />
+                </Box>
             </Box>
 
             {/* Footer */}

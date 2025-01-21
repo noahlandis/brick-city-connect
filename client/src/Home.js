@@ -14,14 +14,7 @@ function Home() {
     }
 
     return (
-        <Box sx={{ 
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            height: '100%'
-        }}>
+        <div>
             <Button 
                 variant="contained"
                 startIcon={<ChatIcon />}
@@ -36,21 +29,7 @@ function Home() {
             >
                 Start Chatting
             </Button>
-            <Button 
-                variant="outlined"
-                onClick={logout}
-                sx={{
-                    color: 'black',
-                    borderColor: 'black',
-                    '&:hover': {
-                        borderColor: '#333',
-                        backgroundColor: '#f5f5f5'
-                    }
-                }}
-            >
-                Logout
-            </Button>
-        </Box>
+        </div>
     );
 }
 
