@@ -1,21 +1,10 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
-import Logo from '../components/Logo';
 import Footer from '../components/Footer';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { Tooltip, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
 
 function AuthLayout() {
-    const navigate = useNavigate();
-    const { clientLogout } = useAuth();
-
-    const handleLogout = () => {
-        clientLogout();
-        navigate('/login');
-    };
 
     return (
         <Box sx={{ 
@@ -25,29 +14,7 @@ function AuthLayout() {
             padding: '0 2.5rem',
         }}>
             {/* Header */}
-            <Box sx={{
-                padding: 2,
-                backgroundColor: 'white',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <Logo />
-                <Tooltip title="Logout">
-                        <IconButton 
-                            onClick={handleLogout}
-                            sx={{ 
-                                color: '#F76902',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(247, 105, 2, 0.1)'
-                                }
-                            }}
-                        >
-                            <LogoutIcon />
-                    </IconButton>
-                </Tooltip>
-
-            </Box>
+            <Header />
 
             {/* Main Content */}
             <Box sx={{ 
