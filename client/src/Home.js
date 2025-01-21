@@ -14,25 +14,33 @@ function Home() {
     const { clientLogout } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
-    const [isMediaPermissionDenied, setIsMediaPermissionDenied] = useState(
-        searchParams.get('error') === ERROR_CODES.MEDIA_PERMISSION_DENIED
-    );
+
 
     useEffect(() => {
-        setSearchParams({});
-        if (isMediaPermissionDenied) {
+        // Clear the error parameter from URL if it exists
+        if (searchParams.has('error')) {
+            searchParams.delete('error');
+            setSearchParams(searchParams);
+        }
+    }, []); // Run once when component mounts
+
+    useEffect(() => {
+        if (searchParams.get('error') === ERROR_CODES.MEDIA_PERMISSION_DENIED) {
             showModal({
                 title: "Camera and Microphone Access Required",
                 message: "To use the chat feature, please allow access to your camera and microphone. Make sure your device is not muted. You can update these permissions in your browser settings.",
                 actionText: "OK",
                 useButton: true,
                 onAction: () => {
-                    setIsMediaPermissionDenied(false);
+                    if (searchParams.has('error')) {
+                        searchParams.delete('error');
+                        setSearchParams(searchParams);
+                    }
                     hideModal();
                 }
             });
         }
-    }, [showModal, hideModal, isMediaPermissionDenied]);
+    }, [showModal, hideModal, searchParams]);
 
     async function logout() {
         clientLogout();
