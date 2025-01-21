@@ -154,7 +154,6 @@ function Chat() {
 
   return (
     <div>
-      <h1>Chat</h1>
       <video
         ref={localVideoRef}
         autoPlay
