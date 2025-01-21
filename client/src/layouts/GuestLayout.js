@@ -35,7 +35,11 @@ function GuestLayout() {
               color: "#F76902",
               fontFamily: '"Helvetica Neue"',
               fontWeight: 'bold',
-              fontSize: '1.8rem',
+              fontSize: {
+                xs: '1.4rem',
+                sm: '1.8rem'
+              },
+              whiteSpace: 'nowrap',
             }}
           >
             Brick City Connect
