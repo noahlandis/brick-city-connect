@@ -15,11 +15,17 @@ import ResetPassword from './forgot-password/ResetPassword';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GuestGuard from './guards/GuestGuard';
 import { AuthProvider } from './contexts/AuthContext';
-
+import AuthLayout from './layouts/AuthLayout';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AuthGuard><Home /></AuthGuard>
+    element: <AuthGuard><AuthLayout /></AuthGuard>,
+    children: [
+      {
+        index: true,
+        element: <Home />
+      }
+    ]
   },
   {
     path: "/chat",
