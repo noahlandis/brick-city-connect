@@ -80,7 +80,7 @@ function GuestForm({
             >{submitButtonText}</Button>
 
             {googleAuthText && (
-                <div style={{ width: '100%', marginTop: '0.75rem' }}>
+                <div style={{ width: '100%', marginTop: '1.5rem' }}>
                     <GoogleOAuth text={googleAuthText} />
                 </div>
             )}
