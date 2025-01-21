@@ -262,12 +262,13 @@ function Chat() {
           variant="contained"
           startIcon={<ShuffleIcon />}
           onClick={() => socketRef.current.emit('next')}
+          disabled={isLoadingPartner}
           sx={{
-            flex: '0.8', // Takes up 80% of the space
+            flex: '0.8',
             backgroundColor: '#F76902',
             '&:hover': {
               backgroundColor: '#d55a02',
-            }
+            },
           }}
         >
           Next
