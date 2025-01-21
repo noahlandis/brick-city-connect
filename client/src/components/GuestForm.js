@@ -29,7 +29,10 @@ function GuestForm({
                     color: "black",
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    fontSize: '1.4rem',
+                    fontSize: {
+                        xs: '1.2rem',
+                        sm: '1.4rem'
+                    },
                     marginTop: '0.5rem',
                     fontFamily: '"Helvetica Neue"',
                 }}
@@ -89,7 +92,7 @@ function GuestForm({
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: '0.75rem',
+                    marginTop: '1rem',
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
