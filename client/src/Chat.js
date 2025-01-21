@@ -18,6 +18,7 @@ function Chat() {
   const socketRef = useRef(null);
   const [isStreamReady, setIsStreamReady] = useState(false);
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [isLoadingPartner, setIsLoadingPartner] = useState(true);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -95,6 +96,7 @@ function Chat() {
     // their local stream -> our remote stream
     call.on('stream', (remoteStream) => {
       remoteVideoRef.current.srcObject = remoteStream;
+      setIsLoadingPartner(false);
     });
 
     // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
@@ -108,6 +110,7 @@ function Chat() {
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
+        setIsLoadingPartner(true);
       }
     });
 
@@ -213,7 +216,7 @@ function Chat() {
               objectFit: 'cover',
             }}
           />
-          {true && (
+          {isLoadingPartner && (
             <Box sx={{
               position: 'absolute',
               top: 0,
