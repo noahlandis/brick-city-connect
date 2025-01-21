@@ -1,4 +1,4 @@
-import { Typography, TextField, Button, Divider, useMediaQuery } from '@mui/material';
+import { Typography, TextField, Button, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 
@@ -13,19 +13,15 @@ function GuestForm({
     footerLinkTo,
     googleAuthText 
 }) {
-    const isMobile = useMediaQuery('(max-width:600px)');
-    
     return (
         <div style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             width: '100%',
-            maxWidth: isMobile ? '100%' : '400px',
+            maxWidth: '400px',
             margin: '0 auto',
             position: 'relative',
-            minHeight: '100%',
-            padding: isMobile ? '0 1rem' : 0
         }}>
             <Typography variant="h5"
                 sx={{
@@ -33,7 +29,7 @@ function GuestForm({
                     fontWeight: 'bold',
                     textAlign: 'center',
                     fontSize: {
-                        xs: '1.2rem',
+                        xs: '1.5rem',
                         sm: '1.4rem'
                     },
                     marginTop: '0.5rem',
@@ -74,7 +70,10 @@ function GuestForm({
                 onClick={onSubmit}
                 sx={{
                     width: '100%',
-                    marginTop: '1.5rem',
+                    marginTop: {
+                        xs: '2.5rem',
+                        sm: '1.5rem'
+                    },
                     backgroundColor: 'black',
                     color: 'white',
                     fontFamily: '"Helvetica Neue"',
@@ -86,7 +85,10 @@ function GuestForm({
             >{submitButtonText}</Button>
 
             {googleAuthText && (
-                <div style={{ width: '100%', marginTop: '1.5rem' }}>
+                <div style={{ width: '100%', marginTop: {
+                    xs: '2.5rem',
+                    sm: '1.5rem'
+                } }}>
                     <GoogleOAuth text={googleAuthText} />
                 </div>
             )}
@@ -95,7 +97,10 @@ function GuestForm({
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: '1rem',
+                    marginTop: {
+                        xs: '2.3rem',
+                        sm: '1.3rem'
+                    },
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
