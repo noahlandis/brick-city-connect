@@ -28,7 +28,20 @@ function GuestLayout() {
         }
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          padding: {
+            xs: '16px 16px 0 16px !important',  // Remove bottom padding on mobile and override MUI's default
+            sm: '16px !important'
+          },
+          '&:last-child': {
+            paddingBottom: {
+              xs: 0,  // Remove bottom padding on mobile
+              sm: '16px'
+            }
+          }
+        }}
+      >
         <Box
           sx={{
             display: "flex",
