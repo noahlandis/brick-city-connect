@@ -11,7 +11,10 @@ function AuthLayout() {
             minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column',
-            padding: '0 2.5rem',
+            padding: {
+                xs: '0',
+                sm: '0 2.5rem'
+            },
         }}>
             {/* Header */}
             <Header />
