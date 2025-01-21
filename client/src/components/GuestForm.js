@@ -22,7 +22,10 @@ function GuestForm({
             maxWidth: '400px',
             margin: '0 auto',
             position: 'relative',
-            minHeight: '100%'
+            minHeight: {
+                xs: 'calc(100vh - 200px)',
+                sm: 'auto'
+            }
         }}>
             <Typography variant="h5"
                 sx={{
@@ -30,7 +33,7 @@ function GuestForm({
                     fontWeight: 'bold',
                     textAlign: 'center',
                     fontSize: {
-                        xs: '1.2rem',
+                        xs: '1.5rem',
                         sm: '1.4rem'
                     },
                     marginTop: '0.5rem',

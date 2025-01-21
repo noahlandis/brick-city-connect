@@ -51,7 +51,7 @@ function GuestLayout() {
               fontFamily: '"Helvetica Neue"',
               fontWeight: 'bold',
               fontSize: {
-                xs: '1.4rem',
+                xs: '1.5rem',
                 sm: '1.8rem'
               },
               whiteSpace: 'nowrap',
