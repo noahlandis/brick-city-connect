@@ -238,13 +238,29 @@ function Chat() {
           )}
         </Box>
       </Box>
-      <Button
+      {/* Buttons Container */}
+      <Box sx={{
+        display: 'flex',
+        gap: 2,
+        width: '100%'
+      }}>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => leaveChat()}
+          sx={{
+            flex: '0.2', // Takes up 20% of the space
+          }}
+        >
+          Leave Chat
+        </Button>
+        <Button
           variant="contained"
           startIcon={<ShuffleIcon />}
           onClick={() => socketRef.current.emit('next')}
           sx={{
+            flex: '0.8', // Takes up 80% of the space
             backgroundColor: '#F76902',
-            padding: '12px 40px',
             '&:hover': {
               backgroundColor: '#d55a02',
             }
@@ -252,7 +268,7 @@ function Chat() {
         >
           Next
         </Button>
-
+      </Box>
     </Box>
   );
 }
