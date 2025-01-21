@@ -5,6 +5,7 @@ import { Box, Typography, Avatar, Button, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import ChatIcon from '@mui/icons-material/Chat';
 import Footer from './components/Footer';
+import Logo from './components/Logo';
 
 function Home() {
     const navigate = useNavigate();
@@ -23,31 +24,10 @@ function Home() {
         }}>
             {/* Header */}
             <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 2,
                 padding: 2,
                 backgroundColor: 'white'
             }}>
-                <Avatar
-                    src="/tiger.png"
-                    alt="RIT Tiger Logo"
-                    sx={{
-                        width: 60,
-                        height: 60,
-                    }}
-                />
-                <Typography
-                    variant="h5"
-                    sx={{
-                        color: "#F76902",
-                        fontFamily: '"Helvetica Neue"',
-                        fontWeight: 'bold',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    Brick City Connect
-                </Typography>
+                <Logo />
             </Box>
 
             {/* Main Content */}
