@@ -2,10 +2,11 @@ import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
 import { register } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
-import AuthForm from '../components/AuthForm';
+import GuestForm from '../components/GuestForm';
 import { useModal } from '../contexts/ModalContext';
 import validateFields from '../utils/validateFields';
 import { useAuth } from '../contexts/AuthContext';
+
 function Register() {
     const { showModal } = useModal();
     const { username } = useLoaderData();
@@ -111,7 +112,7 @@ function Register() {
     ];
     
     return (
-        <AuthForm
+        <GuestForm
             title="Sign Up"
             fields={fields}
             onSubmit={handleRegister}

@@ -21,7 +21,7 @@ function GoogleOAuth({ text }) {
     };
 
     return (
-        <div className="flex flex-col items-center mt-6" style={{ width: '100%' }}>
+        <div className="flex flex-col items-center" style={{ width: '100%' }}>
             <GoogleLogin 
                 hosted_domain="rit.edu" 
                 onSuccess={handleSuccess} 

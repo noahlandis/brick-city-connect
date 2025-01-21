@@ -1,8 +1,8 @@
-import { Typography, TextField, Button } from '@mui/material';
+import { Typography, TextField, Button, Divider } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 
-function AuthForm({ 
+function GuestForm({ 
     title, 
     errorMessage,
     fields, 
@@ -20,7 +20,9 @@ function AuthForm({
             alignItems: 'center',
             width: '100%',
             maxWidth: '400px',
-            margin: '0 auto'
+            margin: '0 auto',
+            position: 'relative',
+            minHeight: '100%'
         }}>
             <Typography variant="h5"
                 sx={{
@@ -66,27 +68,70 @@ function AuthForm({
                 onClick={onSubmit}
                 sx={{
                     width: '100%',
-                    marginTop: '2rem',
+                    marginTop: '1.5rem',
                     backgroundColor: 'black',
                     color: 'white',
                     fontFamily: '"Helvetica Neue"',
                     fontWeight: 'bold',
                     borderRadius: '8px',
                     textTransform: 'none',
+                    padding: '0.5rem 0',
                 }}
             >{submitButtonText}</Button>
 
-            {googleAuthText && <GoogleOAuth text={googleAuthText} />}
+            {googleAuthText && (
+                <div style={{ width: '100%', marginTop: '1.5rem' }}>
+                    <GoogleOAuth text={googleAuthText} />
+                </div>
+            )}
 
             <Typography variant="body2"
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: '1rem',
+                    marginTop: '0.75rem',
+                    fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
+
+            <div style={{
+                width: '100%',
+                marginTop: '1rem'
+            }}>
+                <Divider sx={{ marginY: 2 }} />
+                
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '1rem',
+                    marginBottom: '0.5rem',
+                    flexWrap: 'wrap'
+                }}>
+                    <Link to="/terms" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                        Terms & Conditions
+                    </Link>
+                    <Link to="/privacy" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                        Privacy Policy
+                    </Link>
+                    <Link to="/contact" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
+                        Contact Us
+                    </Link>
+                </div>
+
+                <Typography 
+                    variant="caption" 
+                    sx={{
+                        color: '#666',
+                        textAlign: 'center',
+                        display: 'block',
+                        fontSize: '0.7rem'
+                    }}
+                >
+                    © {new Date().getFullYear()} Brick City Connect. All rights reserved.
+                </Typography>
+            </div>
         </div>
     );
 }
 
-export default AuthForm;
+export default GuestForm;

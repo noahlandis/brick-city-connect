@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { login } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
-import AuthForm from '../components/AuthForm';
+import GuestForm from '../components/GuestForm';
 import validateFields from '../utils/validateFields';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -105,7 +105,7 @@ function Login() {
     ];
 
     return (
-        <AuthForm
+        <GuestForm
             title="Sign In"
             fields={fields}
             onSubmit={handleLogin}
