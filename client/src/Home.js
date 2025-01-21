@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { Box, Button } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
+import VideocamIcon from '@mui/icons-material/Videocam';
 
 function Home() {
     const navigate = useNavigate();
@@ -17,7 +19,7 @@ function Home() {
         <div>
             <Button 
                 variant="contained"
-                startIcon={<ChatIcon />}
+                startIcon={<VideocamIcon />}
                 onClick={() => navigate('/chat')}
                 sx={{
                     backgroundColor: '#F76902',
