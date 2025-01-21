@@ -7,7 +7,8 @@ function GuestLayout() {
        <Card
       sx={{
         backgroundColor: "white",
-        padding: 2,
+        pt: 2,
+        px: 2,
         borderRadius: 2,
         boxShadow: 3,
       }}
