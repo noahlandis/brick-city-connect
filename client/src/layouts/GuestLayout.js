@@ -18,7 +18,7 @@ function GuestLayout() {
       <Card
         sx={{
           backgroundColor: "white",
-          pt: { xs: 4, sm: 2 },  // More top padding on mobile
+          pt: { xs: 1, sm: 2 },  // More top padding on mobile
           px: { xs: 3, sm: 2 },  // More horizontal padding on mobile
           boxShadow: { xs: 0, sm: 3 }, // Remove shadow on mobile
           width: {
