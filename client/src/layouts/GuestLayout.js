@@ -11,6 +11,22 @@ function GuestLayout() {
         px: 2,
         borderRadius: 2,
         boxShadow: 3,
+        width: {
+          xs: '100%',  // Full width on mobile
+          sm: 'auto'   // Default width on larger screens
+        },
+        height: {
+          xs: '100vh', // Full height on mobile
+          sm: 'auto'   // Default height on larger screens
+        },
+        margin: {
+          xs: 0,       // No margin on mobile
+          sm: 2        // Normal margin on larger screens
+        },
+        borderRadius: {
+          xs: 0,       // No border radius on mobile
+          sm: 2        // Normal border radius on larger screens
+        }
       }}
     >
       <CardContent>
