@@ -84,7 +84,7 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <ConfigCatProvider sdkKey="configcat-sdk-1/dTrdCPqpgEeBQLJ1dnKMew/wTjQfgcLlE29DHM_Hz4PDA" options={{
+    <ConfigCatProvider sdkKey={process.env.REACT_APP_CONFIG_CAT_API_KEY} options={{
       logger: createConsoleLogger(LogLevel.Info)
     }}>
     <AuthProvider>
