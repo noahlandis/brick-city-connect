@@ -20,7 +20,7 @@ function Login() {
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.from || '/';  // Default to home if no intended destination
-
+    const [isLoading, setIsLoading] = useState(false);
     async function handleLogin() {
         const isValid = validateFields({
             username: [
@@ -39,7 +39,7 @@ function Login() {
             username: '',
             password: '',
         });
-        
+        setIsLoading(true);
         try {
             const response = await login(username, password);
             if (response.status === 200) {
@@ -59,6 +59,8 @@ function Login() {
             });
             
             setErrors(newErrors);
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -108,12 +110,13 @@ function Login() {
         <GuestForm
             title="Sign In"
             fields={fields}
-            onSubmit={handleLogin}
+            onSubmit={handleLogin}  
             submitButtonText="Sign In"
             footerText="Don't have an account?"
             footerLinkText="Sign Up"
             footerLinkTo="/register"
             googleAuthText="signin_with"
+            isLoading={isLoading}
         />
     );
 }

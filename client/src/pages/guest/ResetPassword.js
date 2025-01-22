@@ -14,7 +14,7 @@ function ResetPassword() {
         confirmPassword: ''
     });
     const { showModal } = useModal();
-
+    const [isLoading, setIsLoading] = useState(false);
     async function handleResetPassword() {
         const isValid = validateFields({
             password: [
@@ -27,6 +27,7 @@ function ResetPassword() {
             return;
         }
 
+        setIsLoading(true);
         try {
             console.log("passed username", username);
             const response = await resetPassword(username, password, confirmPassword);
@@ -50,6 +51,8 @@ function ResetPassword() {
                 if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
             });
             setErrors(newErrors);
+        } finally {
+            setIsLoading(false);
         }
     }
     

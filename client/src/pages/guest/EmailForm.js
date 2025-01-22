@@ -13,6 +13,7 @@ function EmailForm() {
         username: ''
     });
     const { showModal, hideModal } = useModal();
+    const [isLoading, setIsLoading] = useState(false);
 
     const invalidToken = searchParams.get('error') === ERROR_CODES.INVALID_TOKEN;
 
@@ -29,6 +30,7 @@ function EmailForm() {
         }
 
         setErrors({ username: '' });
+        setIsLoading(true);
         
         try {
             const response = await sendRegisterMagicLink(username);
@@ -57,6 +59,8 @@ function EmailForm() {
             } else {
                 setErrors({ username: errorMessage });
             }
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -89,6 +93,7 @@ function EmailForm() {
             footerLinkText="Sign In"
             footerLinkTo="/login"
             googleAuthText="signup_with"
+            isLoading={isLoading}
         />
     );
 }

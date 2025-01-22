@@ -12,7 +12,8 @@ function GuestForm({
     footerText, 
     footerLinkText, 
     footerLinkTo,
-    googleAuthText 
+    googleAuthText,
+    isLoading   
 }) {
     return (
         <div style={{
@@ -69,6 +70,7 @@ function GuestForm({
             <Button 
                 variant="contained"
                 onClick={onSubmit}
+                loading={isLoading}
                 sx={{
                     width: '100%',
                     marginTop: { xs: '1.5rem', sm: '1.5rem' },
