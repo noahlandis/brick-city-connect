@@ -1,4 +1,4 @@
-import { Typography, TextField, Button, Divider } from '@mui/material';
+import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 import Footer from './Footer';

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
