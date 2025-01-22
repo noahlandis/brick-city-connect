@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 function Header() {
-    const { clientLogout } = useAuth();
+    const { clientLogout, user } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -22,7 +22,8 @@ function Header() {
             alignItems: 'center'
         }}>
             <Logo />
-            <Tooltip title="Logout">
+            {user && (
+                <Tooltip title="Logout">
                     <IconButton 
                         onClick={handleLogout}
                         sx={{ 
@@ -35,6 +36,7 @@ function Header() {
                         <LogoutIcon />
                 </IconButton>
             </Tooltip>
+            )}
         </Box>
     );
 }

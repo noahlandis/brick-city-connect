@@ -84,11 +84,19 @@ const router = createBrowserRouter([
   },
   {
     path: "terms",
-    element: <Terms />
+    element: <AuthLayout />,
+    children: [{
+      index: true,
+      element: <Terms />
+    }]
   },
   {
     path: "privacy",
-    element: <PrivacyPolicy />
+    element: <AuthLayout />,
+    children: [{
+      index: true,
+      element: <PrivacyPolicy />
+    }]
   }
 ]);
 

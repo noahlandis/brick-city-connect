@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Link } from '@mui/material';
 
 function Terms() {
     return (
@@ -83,7 +83,7 @@ function Terms() {
 
             <Typography variant="h6" component="h2">7. Privacy</Typography>
             <Typography variant="body1">
-                Your use of Brick City Connect is also governed by our Privacy Policy. While we implement reasonable security measures, we cannot guarantee the security of information transmitted through our service.
+                Your use of Brick City Connect is also governed by our <Link style={{ color: '#F76902' }} href="/privacy">Privacy Policy</Link>. While we implement reasonable security measures, we cannot guarantee the security of information transmitted through our service.
             </Typography>
 
             <Typography variant="h6" component="h2">8. Modifications</Typography>
@@ -92,7 +92,7 @@ function Terms() {
             </Typography>
 
             <Typography variant="body1" sx={{ marginTop: '2rem', fontStyle: 'italic' }}>
-                Last updated: [Current Date]
+                Last updated: 1/21/2025
             </Typography>
         </Box>
     );
