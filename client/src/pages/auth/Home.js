@@ -11,7 +11,6 @@ function Home() {
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
 
-
     useEffect(() => {
         // Clear the error parameter from URL if it exists
         const errorCode = searchParams.get('error');
@@ -29,7 +28,7 @@ function Home() {
                 onAction: hideModal
             });
         }
-    }, [searchParams.get('error')]);
+    }, [searchParams, setSearchParams, showModal, hideModal]);
 
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
@@ -53,7 +52,7 @@ function Home() {
                 onAction: hideModal
             });
         }
-    }, [searchParams.get('chat-disabled')]);
+    }, [searchParams, setSearchParams, showModal, hideModal]);
 
     return (
         <div>
