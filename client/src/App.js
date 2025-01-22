@@ -16,6 +16,9 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import GuestGuard from './guards/GuestGuard';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthLayout from './layouts/AuthLayout';
+import {ConfigCatProvider, createConsoleLogger, LogLevel} from 'configcat-react';
+import ChatGuard from './guards/ChatGuard';
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -33,7 +36,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Chat />
+        element: <ChatGuard><Chat /></ChatGuard>
       }
     ]
   },
@@ -81,6 +84,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
+    <ConfigCatProvider sdkKey="configcat-sdk-1/dTrdCPqpgEeBQLJ1dnKMew/wTjQfgcLlE29DHM_Hz4PDA" options={{
+      logger: createConsoleLogger(LogLevel.Info)
+    }}>
     <AuthProvider>
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <ModalProvider>
@@ -88,6 +94,7 @@ function App() {
         </ModalProvider>
       </GoogleOAuthProvider>
     </AuthProvider>
+    </ConfigCatProvider>
   );
 }
 
