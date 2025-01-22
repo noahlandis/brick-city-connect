@@ -18,6 +18,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import AuthLayout from './layouts/AuthLayout';
 import {ConfigCatProvider, createConsoleLogger, LogLevel} from 'configcat-react';
 import ChatGuard from './guards/ChatGuard';
+import Terms from './pages/legal/Terms';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 const router = createBrowserRouter([
   {
@@ -79,6 +81,14 @@ const router = createBrowserRouter([
         loader: forgotPasswordGuard
       }
     ]
+  },
+  {
+    path: "terms",
+    element: <Terms />
+  },
+  {
+    path: "privacy",
+    element: <PrivacyPolicy />
   }
 ]);
 
