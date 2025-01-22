@@ -3,8 +3,8 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
-import { useAuth } from './contexts/AuthContext';
-import { ERROR_CODES } from './utils/constants';
+import { useAuth } from '../contexts/AuthContext';
+import { ERROR_CODES } from '../utils/constants';
 import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 
