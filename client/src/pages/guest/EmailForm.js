@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import { sendRegisterMagicLink } from '../api/magicLinkApi';
-import validateFields from '../utils/validateFields';
-import { ERROR_CODES } from '../utils/constants';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import { sendRegisterMagicLink } from '../../api/magicLinkApi';
+import validateFields from '../../utils/validateFields';
+import { ERROR_CODES } from '../../utils/constants';
 function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');

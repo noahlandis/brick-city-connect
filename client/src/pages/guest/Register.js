@@ -1,11 +1,11 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { register } from '../api/authApi';
+import { register } from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import validateFields from '../utils/validateFields';
-import { useAuth } from '../contexts/AuthContext';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import validateFields from '../../utils/validateFields';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Register() {
     const { showModal } = useModal();

@@ -1,11 +1,11 @@
 import { useSearchParams } from 'react-router-dom';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { login } from '../api/authApi';
+import { login } from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
-import GuestForm from '../components/GuestForm';
-import validateFields from '../utils/validateFields';
-import { useAuth } from '../contexts/AuthContext';
+import GuestForm from '../../components/GuestForm';
+import validateFields from '../../utils/validateFields';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Login() {
     const { clientLogin } = useAuth();

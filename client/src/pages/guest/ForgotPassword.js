@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { sendForgotPasswordMagicLink } from '../api/magicLinkApi';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import { ERROR_CODES } from '../utils/constants';
-import validateFields from '../utils/validateFields';
+import { sendForgotPasswordMagicLink } from '../../api/magicLinkApi';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import { ERROR_CODES } from '../../utils/constants';
+import validateFields from '../../utils/validateFields';
 
 function ForgotPassword() {
     const [searchParams] = useSearchParams();

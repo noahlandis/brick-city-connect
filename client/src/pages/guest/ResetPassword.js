@@ -1,9 +1,9 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { resetPassword } from '../api/authApi';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import validateFields from '../utils/validateFields';
+import { resetPassword } from '../../api/authApi';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import validateFields from '../../utils/validateFields';
 
 function ResetPassword() {
     const { username } = useLoaderData();

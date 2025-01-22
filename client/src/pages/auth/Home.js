@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import { ERROR_CODES } from '../utils/constants';
-import { useModal } from '../contexts/ModalContext';
+import { ERROR_CODES } from '../../utils/constants';
+import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
 
 function Home() {
