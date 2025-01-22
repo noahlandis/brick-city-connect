@@ -1,14 +1,16 @@
 import { useFeatureFlag } from 'configcat-react';
-
+import { Navigate } from 'react-router-dom';
 function ChatGuard({ children }) {
     const { value: isChatEnabled, loading: isChatEnabledLoading  } = useFeatureFlag("isChatEnabled", false);
+    const { value: nextChatStartTime, loading: nextChatStartTimeLoading  } = useFeatureFlag("nextChatStartTime", "");
 
-    if (isChatEnabledLoading) {
+
+    if (isChatEnabledLoading || nextChatStartTimeLoading) {
         return <div>Loading...</div>;
     }
 
     if (!isChatEnabled) {
-        return <div>You are not allowed to access this page yet. Come back later! please</div>;
+        return <Navigate to={`/?chat-disabled&next-chat-time=${encodeURIComponent(nextChatStartTime)}`} replace />;
     }
 
     return children;

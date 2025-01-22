@@ -4,7 +4,11 @@ function Modal({ open, onClose, title, message, actionText, onAction, showSignIn
     return (
         <MuiModal
             open={open}
-            onClose={onClose}
+            onClose={(event, reason) => {
+                if (reason === 'backdropClick') {
+                    onClose();
+                }
+            }}
             aria-labelledby="success-modal"
         >
             <Box sx={{
