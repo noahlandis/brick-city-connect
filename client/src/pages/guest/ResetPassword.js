@@ -92,6 +92,7 @@ function ResetPassword() {
             footerText="Remember your password?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
+            isLoading={isLoading}
         />
     );
 }
