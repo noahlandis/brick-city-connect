@@ -163,6 +163,7 @@ io.on('connection', (socket) => {
     // if the user is already the waiting user or the user waiting to skip, we dont want to do anything
     if (socket === waitingUser || userWaitingToSkip == socket) {
       console.log("can't skip user, no users to match with");
+      socket.emit('waiting-to-skip');
       return;
     }
 
@@ -174,6 +175,7 @@ io.on('connection', (socket) => {
       } else { // since we only have one user who expressed intent to skip, we'll mark them as wanting to skip. This way, they can find a new partner when either a user in a different call wants to skip, or make them wait if a new user joins
         console.log("adding ", socket.id, "is now the userWaitingToSkip");
         userWaitingToSkip = socket;
+        socket.emit('waiting-to-skip');
       }
     } else {
       // since there is no waiting user, we just make the user who pressed next the waiting user

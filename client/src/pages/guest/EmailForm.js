@@ -1,11 +1,11 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import { sendRegisterMagicLink } from '../api/magicLinkApi';
-import validateFields from '../utils/validateFields';
-
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import { sendRegisterMagicLink } from '../../api/magicLinkApi';
+import validateFields from '../../utils/validateFields';
+import { ERROR_CODES } from '../../utils/constants';
 function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
@@ -13,8 +13,9 @@ function EmailForm() {
         username: ''
     });
     const { showModal, hideModal } = useModal();
+    const [isLoading, setIsLoading] = useState(false);
 
-    const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
+    const invalidToken = searchParams.get('error') === ERROR_CODES.INVALID_TOKEN;
 
     async function handleSendVerification() {
         const isValid = validateFields({
@@ -29,6 +30,7 @@ function EmailForm() {
         }
 
         setErrors({ username: '' });
+        setIsLoading(true);
         
         try {
             const response = await sendRegisterMagicLink(username);
@@ -57,6 +59,8 @@ function EmailForm() {
             } else {
                 setErrors({ username: errorMessage });
             }
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -89,6 +93,7 @@ function EmailForm() {
             footerLinkText="Sign In"
             footerLinkTo="/login"
             googleAuthText="signup_with"
+            isLoading={isLoading}
         />
     );
 }

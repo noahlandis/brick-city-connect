@@ -1,11 +1,11 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { register } from '../api/authApi';
+import { register } from '../../api/authApi';
 import { useNavigate } from 'react-router-dom';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import validateFields from '../utils/validateFields';
-import { useAuth } from '../contexts/AuthContext';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import validateFields from '../../utils/validateFields';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Register() {
     const { showModal } = useModal();
@@ -19,6 +19,7 @@ function Register() {
     });
     const navigate = useNavigate();
     const { clientLogin } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
     async function handleRegister() {
         const isValid = validateFields({
             username: [
@@ -43,7 +44,7 @@ function Register() {
             password: '',
             confirmPassword: ''
         });
-        
+        setIsLoading(true);
         try {
             const response = await register(username, password, confirmPassword);
             if (response.status === 201) {
@@ -73,6 +74,8 @@ function Register() {
             
                 setErrors(newErrors);
             }
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -121,6 +124,7 @@ function Register() {
             footerLinkText="Sign In"
             footerLinkTo="/login"
             googleAuthText="signup_with"
+            isLoading={isLoading}
         />
 
     );

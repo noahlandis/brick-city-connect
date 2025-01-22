@@ -1,29 +1,46 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './App.css';
-import Home from './Home';
-import Chat from './Chat';
-import EmailForm from './auth/EmailForm';
-import Register from './auth/Register';
+import Home from './pages/auth/Home';
+import Chat from './pages/auth/Chat';
+import EmailForm from './pages/guest/EmailForm';
+import Register from './pages/guest/Register';
 import GuestLayout from './layouts/GuestLayout';
 import { registerLoader as registerGuard, forgotPasswordLoader as forgotPasswordGuard } from './guards/MagicLinkGuard';
 import AuthGuard from './guards/AuthGuard';
-import Login from './auth/Login';
+import Login from './pages/guest/Login';
 import { ModalProvider } from './contexts/ModalContext';
-import ForgotPassword from './forgot-password/ForgotPassword';
-import ResetPassword from './forgot-password/ResetPassword';
+import ForgotPassword from './pages/guest/ForgotPassword';
+import ResetPassword from './pages/guest/ResetPassword';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GuestGuard from './guards/GuestGuard';
 import { AuthProvider } from './contexts/AuthContext';
+import AuthLayout from './layouts/AuthLayout';
+import {ConfigCatProvider, createConsoleLogger, LogLevel} from 'configcat-react';
+import ChatGuard from './guards/ChatGuard';
+import Terms from './pages/legal/Terms';
+import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <AuthGuard><Home /></AuthGuard>
+    element: <AuthGuard><AuthLayout /></AuthGuard>,
+    children: [
+      {
+        index: true,
+        element: <Home />
+      }
+    ]
   },
   {
     path: "/chat",
-    element: <AuthGuard><Chat /></AuthGuard>
+    element: <AuthGuard><AuthLayout /></AuthGuard>,
+    children: [
+      {
+        index: true,
+        element: <ChatGuard><Chat /></ChatGuard>
+      }
+    ]
   },
   {
     path: "login",
@@ -64,11 +81,30 @@ const router = createBrowserRouter([
         loader: forgotPasswordGuard
       }
     ]
+  },
+  {
+    path: "terms",
+    element: <AuthLayout />,
+    children: [{
+      index: true,
+      element: <Terms />
+    }]
+  },
+  {
+    path: "privacy",
+    element: <AuthLayout />,
+    children: [{
+      index: true,
+      element: <PrivacyPolicy />
+    }]
   }
 ]);
 
 function App() {
   return (
+    <ConfigCatProvider sdkKey={process.env.REACT_APP_CONFIGCAT_SDK_KEY} options={{
+      logger: createConsoleLogger(LogLevel.Info)
+    }}>
     <AuthProvider>
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <ModalProvider>
@@ -76,6 +112,7 @@ function App() {
         </ModalProvider>
       </GoogleOAuthProvider>
     </AuthProvider>
+    </ConfigCatProvider>
   );
 }
 

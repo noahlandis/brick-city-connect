@@ -3,18 +3,24 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
-import { useAuth } from './contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { ERROR_CODES } from '../../utils/constants';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
+
 
 function Chat() {
   const navigate = useNavigate();
+  const theme = useTheme();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
-
   const [isStreamReady, setIsStreamReady] = useState(false);
-
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [isLoadingPartner, setIsLoadingPartner] = useState(true);
+  const [showSnackbar, setShowSnackbar] = useState(false);
   useEffect(() => {
     // Start local video stream and set up chat when ready
     startLocalStream();
@@ -70,6 +76,10 @@ function Chat() {
       leaveChat();
     });
 
+    socketRef.current.on('waiting-to-skip', () => {
+      setShowSnackbar(true);
+    });
+
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
@@ -91,6 +101,7 @@ function Chat() {
     // their local stream -> our remote stream
     call.on('stream', (remoteStream) => {
       remoteVideoRef.current.srcObject = remoteStream;
+      setIsLoadingPartner(false);
     });
 
     // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
@@ -104,6 +115,7 @@ function Chat() {
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
+        setIsLoadingPartner(true);
       }
     });
 
@@ -119,21 +131,21 @@ function Chat() {
 
         // Monitor video track
         stream.getVideoTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle camera turned off
-          track.onmute = leaveChat;  // Handle camera muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle camera turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle camera muted
         });
 
         // Monitor audio track
         stream.getAudioTracks().forEach((track) => {
-          track.onended = leaveChat; // Handle mic turned off
-          track.onmute = leaveChat;  // Handle mic muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle mic turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle mic muted
         });
 
         setIsStreamReady(true); // Mark stream as ready
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
-        leaveChat();
+        leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);
       });
   }
 
@@ -144,35 +156,132 @@ function Chat() {
     }
   }
 
-  function leaveChat() {
-    navigate('/'); // Redirect to home
+  function leaveChat(errorCode = null) {
+    if (errorCode) {
+      navigate(`/?error=${errorCode}`);
+    } else {
+      navigate('/'); // Redirect to home
+    }
   }
 
   return (
-    <div>
-      <h1>Chat</h1>
-      <video
-        ref={localVideoRef}
-        autoPlay
-        muted
-        playsInline
-        webkit-playsinline="true"
-      />
-      <video
-        ref={remoteVideoRef}
-        autoPlay
-        playsInline
-        webkit-playsinline="true"
-      />
-      <button onClick={() => {
-        socketRef.current.emit('next');
+    <Box sx={{ 
+      width: '97%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 4
+    }}>
+      {/* Video Container */}
+      <Box sx={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: 2,
+        width: '100%',
+        flex: 1,
       }}>
-        Next
-      </button>
-      <button onClick={() => {
-        leaveChat();
-      }}>Leave</button>
-    </div>
+        {/* Local Video */}
+        <Box sx={{
+          flex: 1,
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            playsInline
+            webkit-playsinline="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </Box>
+
+        {/* Remote Video */}
+        <Box sx={{
+          flex: 1,
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            webkit-playsinline="true"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+          {isLoadingPartner && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              gap: 2,
+            }}>
+              <CircularProgress sx={{ color: '#F76902' }} />
+              <Typography variant="h6">Finding a match...</Typography>
+            </Box>
+          )}
+        </Box>
+      </Box>
+      {/* Buttons Container */}
+      <Box sx={{
+        display: 'flex',
+        gap: 2,
+        width: '100%'
+      }}>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => leaveChat()}
+          sx={{
+            flex: '0.2', // Takes up 20% of the space
+          }}
+        >
+          Leave Chat
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<ShuffleIcon />}
+          onClick={() => socketRef.current.emit('next')}
+          disabled={isLoadingPartner}
+          sx={{
+            flex: '0.8',
+            backgroundColor: '#F76902',
+            '&:hover': {
+              backgroundColor: '#d55a02',
+            },
+          }}
+        >
+          Next
+        </Button>
+      </Box>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setShowSnackbar(false)}
+        message="You'll be matched with the next available user"
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
+    </Box>
   );
 }
 

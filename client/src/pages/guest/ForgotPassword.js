@@ -1,10 +1,12 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { sendForgotPasswordMagicLink } from '../api/magicLinkApi';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import validateFields from '../utils/validateFields';
+import { sendForgotPasswordMagicLink } from '../../api/magicLinkApi';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import { ERROR_CODES } from '../../utils/constants';
+import validateFields from '../../utils/validateFields';
+
 function ForgotPassword() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
@@ -13,8 +15,8 @@ function ForgotPassword() {
     });
     const { showModal, hideModal } = useModal();
 
-    const invalidToken = searchParams.get('error') === 'INVALID_TOKEN';
-
+    const invalidToken = searchParams.get('error') === ERROR_CODES.INVALID_TOKEN;
+    const [isLoading, setIsLoading] = useState(false);
     async function handleSendVerification() {
         const isValid = validateFields({
             username: [
@@ -28,6 +30,7 @@ function ForgotPassword() {
         }
 
         setErrors({ username: '' });
+        setIsLoading(true);
         try {
             const response = await sendForgotPasswordMagicLink(username);
             if (response.status === 200) {
@@ -46,6 +49,8 @@ function ForgotPassword() {
             console.log("the error is", err);
             const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
             setErrors({ username: errorMessage });
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -77,6 +82,7 @@ function ForgotPassword() {
             footerText="Remember your password?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
+            isLoading={isLoading}
         />
     );
 }

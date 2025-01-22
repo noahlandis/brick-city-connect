@@ -1,10 +1,14 @@
 import { Modal as MuiModal, Box, Typography, Button } from '@mui/material';
 
-function Modal({ open, onClose, title, message, actionText, onAction, showSignInButton, signInLink }) {
+function Modal({ open, onClose, title, message, actionText, onAction, showSignInButton, signInLink, useButton }) {
     return (
         <MuiModal
             open={open}
-            onClose={onClose}
+            onClose={(event, reason) => {
+                if (reason === 'backdropClick') {
+                    onClose();
+                }
+            }}
             aria-labelledby="success-modal"
         >
             <Box sx={{
@@ -25,7 +29,7 @@ function Modal({ open, onClose, title, message, actionText, onAction, showSignIn
                 <Typography sx={{ mt: 2 }}>
                     {message}
                 </Typography>
-                {actionText && (
+                {actionText && !useButton && (
                     <Typography sx={{ mt: 2, color: 'text.secondary', fontSize: '0.875rem' }}>
                         Not seeing the email? Check your spam folder or{' '}
                         <Box
@@ -40,6 +44,23 @@ function Modal({ open, onClose, title, message, actionText, onAction, showSignIn
                             {actionText}
                         </Box>
                     </Typography>
+                )}
+                {actionText && useButton && (
+                    <Button
+                        variant="contained"
+                        onClick={onAction}
+                        sx={{
+                            width: '100%',
+                            marginTop: '1rem',
+                            backgroundColor: 'black',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            borderRadius: '8px',
+                            textTransform: 'none',
+                        }}
+                    >
+                        {actionText}
+                    </Button>
                 )}
                 {showSignInButton && (
                     <Button

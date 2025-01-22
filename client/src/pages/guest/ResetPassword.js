@@ -1,9 +1,9 @@
 import { useLoaderData } from 'react-router-dom';
 import { useState } from 'react';
-import { resetPassword } from '../api/authApi';
-import GuestForm from '../components/GuestForm';
-import { useModal } from '../contexts/ModalContext';
-import validateFields from '../utils/validateFields';
+import { resetPassword } from '../../api/authApi';
+import GuestForm from '../../components/GuestForm';
+import { useModal } from '../../contexts/ModalContext';
+import validateFields from '../../utils/validateFields';
 
 function ResetPassword() {
     const { username } = useLoaderData();
@@ -14,7 +14,7 @@ function ResetPassword() {
         confirmPassword: ''
     });
     const { showModal } = useModal();
-
+    const [isLoading, setIsLoading] = useState(false);
     async function handleResetPassword() {
         const isValid = validateFields({
             password: [
@@ -27,6 +27,7 @@ function ResetPassword() {
             return;
         }
 
+        setIsLoading(true);
         try {
             console.log("passed username", username);
             const response = await resetPassword(username, password, confirmPassword);
@@ -50,6 +51,8 @@ function ResetPassword() {
                 if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
             });
             setErrors(newErrors);
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -89,6 +92,7 @@ function ResetPassword() {
             footerText="Remember your password?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
+            isLoading={isLoading}
         />
     );
 }

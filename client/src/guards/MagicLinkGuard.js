@@ -1,5 +1,6 @@
 import { redirect } from 'react-router-dom';
 import { verifyToken } from '../api/magicLinkApi';
+import { ERROR_CODES } from '../utils/constants';
 
 export function createMagicLinkLoader(redirectPath, tokenType) {
     return async function loader({ request }) {
@@ -14,7 +15,7 @@ export function createMagicLinkLoader(redirectPath, tokenType) {
             const response = await verifyToken(token, tokenType);
             return { username: response.data.username };
         } catch (error) {
-            throw redirect(`${redirectPath}?error=INVALID_TOKEN`);
+            throw redirect(`${redirectPath}?error=${ERROR_CODES.INVALID_TOKEN}`);
         }
     }
 }

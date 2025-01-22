@@ -1,5 +1,6 @@
-import { Card, CardContent, Box, Typography, Avatar } from '@mui/material';
+import { Card, CardContent, Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
+import Logo from '../components/Logo';
 
 function GuestLayout() {
   const isMobile = window.innerWidth <= 600; // Match MUI's 'sm' breakpoint
@@ -43,39 +44,8 @@ function GuestLayout() {
         }}
       >
         <CardContent>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 2,
-              justifyContent: "center",
-              width: "100%",
-              marginBottom: 2,
-            }}
-          >
-            <Avatar
-              src="/tiger.png"
-              alt="RIT Tiger Logo"
-              sx={{
-                width: 80,
-                height: 80,
-              }}
-            />
-            <Typography
-              variant="h5"
-              sx={{
-                color: "#F76902",
-                fontFamily: '"Helvetica Neue"',
-                fontWeight: 'bold',
-                fontSize: {
-                  xs: '1.5rem',
-                  sm: '1.8rem'
-                },
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Brick City Connect
-            </Typography>
+          <Box sx={{ marginBottom: 2 }}>
+            <Logo sx={{ justifyContent: "center" }} />
           </Box>
           <Outlet />
         </CardContent>

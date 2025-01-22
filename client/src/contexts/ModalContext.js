@@ -13,6 +13,7 @@ export function ModalProvider({ children }) {
         onAction: null,
         showSignInButton: false,
         signInLink: '',
+        useButton: false,
     });
 
     const showModal = (config) => {
@@ -24,6 +25,7 @@ export function ModalProvider({ children }) {
             onAction: null,
             showSignInButton: false,
             signInLink: '',
+            useButton: false,
             ...config,
             open: true
         });
@@ -48,6 +50,7 @@ export function ModalProvider({ children }) {
                 onAction={modalState.onAction}
                 showSignInButton={modalState.showSignInButton}
                 signInLink={modalState.signInLink}
+                useButton={modalState.useButton}
             />
         </ModalContext.Provider>
     );
