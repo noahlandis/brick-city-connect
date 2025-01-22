@@ -2,7 +2,7 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Logo from './Logo';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Header() {
     const { clientLogout, user } = useAuth();
@@ -21,7 +21,9 @@ function Header() {
             justifyContent: 'space-between',
             alignItems: 'center'
         }}>
-            <Logo />
+            <Link to="/">
+                <Logo />
+            </Link>
             {user && (
                 <Tooltip title="Logout">
                     <IconButton 
