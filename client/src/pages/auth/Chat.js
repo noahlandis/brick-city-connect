@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from '../../contexts/AuthContext';
 import { ERROR_CODES } from '../../utils/constants';
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar, Select, MenuItem} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 
 function Chat() {
@@ -20,6 +20,7 @@ function Chat() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
+  const [background, setBackground] = useState('none');
   useEffect(() => {
     // Start local video stream and set up chat when ready
     startLocalStream();
@@ -247,6 +248,16 @@ function Chat() {
         gap: 2,
         width: '100%'
       }}>
+        <Select
+          label="Background"
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+        >
+          <MenuItem value="none">None</MenuItem>
+          <MenuItem value="Beach">Beach</MenuItem>
+          <MenuItem value="Forest">Forest</MenuItem>
+          <MenuItem value="City">City</MenuItem>
+        </Select>
         <Button
           variant="outlined"
           color="error"
