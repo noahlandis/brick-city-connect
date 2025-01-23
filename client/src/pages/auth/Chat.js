@@ -7,7 +7,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ERROR_CODES } from '../../utils/constants';
 import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
-import { initializeImageSegmenter } from '../../utils/virtualBackground';
 
 function Chat() {
   const navigate = useNavigate();
@@ -45,7 +44,6 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
-      initializeImageSegmenter(localVideoRef.current);
       joinChat();
     }
     // we don't want this to run every render, just on mount so we ignore the eslint warning
