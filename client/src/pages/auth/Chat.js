@@ -22,6 +22,7 @@ function Chat() {
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -57,7 +58,7 @@ function Chat() {
   useEffect(() => {
     console.log("background changed to", background);
     if (background !== 'none' && localVideoRef.current) {
-      startSegmenting(localVideoRef.current);
+      startSegmenting(localVideoRef.current, canvasRef.current);
     } else {
       console.log("background is none, stopping segmenting");
       stopSegmenting();
@@ -211,6 +212,17 @@ function Chat() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              display: 'none',
+            }}
+          />
+          <canvas
+            ref={canvasRef}
+            width="640"
+            height="480"
+            style={{
+              width: isMobile ? '100%' : '50%',
+              height: isMobile ? 'auto' : '100%',
+              backgroundColor: 'black'
             }}
           />
         </Box>
