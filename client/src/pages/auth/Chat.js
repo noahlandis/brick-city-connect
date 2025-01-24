@@ -17,12 +17,14 @@ function Chat() {
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
+
   const [isStreamReady, setIsStreamReady] = useState(false);
+  const [originalStream, setOriginalStream] = useState(null); // store the original camera stream
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
-  const imageSegmenterRef = useRef(null); // Ref to hold the ImageSegmenter instance
+  const imageSegmenterRef = useRef(null);
 
   useEffect(() => {
     startLocalStream();
@@ -35,11 +37,10 @@ function Chat() {
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
-      stopSegmenting(); // Stop segmentation when the component unmounts
+      stopSegmenting(); // Stop segmentation when component unmounts
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   useEffect(() => {
     if (isStreamReady) {
@@ -52,13 +53,25 @@ function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStreamReady]);
 
+  // Whenever the user changes the background selection, either start or stop the segmentation pipeline
   useEffect(() => {
-    if (background !== 'none' && imageSegmenterRef.current && localVideoRef.current) {
-      segment(imageSegmenterRef.current, localVideoRef.current); // Start segmentation
+    if (!imageSegmenterRef.current || !originalStream) return;
+
+    if (background !== 'none') {
+      // Begin WebGL-based background replacement
+      const processedStream = segment(
+        imageSegmenterRef.current,
+        originalStream, // the original camera stream
+        'public/rit.jpg' // path to background image
+      );
+      // Show the composited output in localVideoRef
+      localVideoRef.current.srcObject = processedStream;
     } else {
-      stopSegmenting(); // Stop segmentation if background is set to "none"
+      // If user selects "none", revert to the original camera feed
+      stopSegmenting();
+      localVideoRef.current.srcObject = originalStream;
     }
-  }, [background]);
+  }, [background, originalStream]);
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
@@ -75,10 +88,12 @@ function Chat() {
     socketRef.current.on('leave-chat', () => leaveChat());
     socketRef.current.on('waiting-to-skip', () => setShowSnackbar(true));
     socketRef.current.on('match-found', (remotePeerID) => {
+      // Outgoing call
       const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
     localUserRef.current.on('call', (call) => {
+      // Incoming call
       call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
@@ -101,9 +116,14 @@ function Chat() {
   }
 
   function startLocalStream() {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
       .then((stream) => {
-        localVideoRef.current.srcObject = stream;
+        setOriginalStream(stream);
+        // By default, show the raw camera in localVideoRef
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
         setIsStreamReady(true);
       })
       .catch((error) => {
@@ -129,14 +149,66 @@ function Chat() {
 
   return (
     <Box sx={{ width: '97%', height: '100%', display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 2, width: '100%', flex: 1 }}>
-        <Box sx={{ flex: 1, position: 'relative', borderRadius: 2, overflow: 'hidden', backgroundColor: 'black' }}>
-          <video ref={localVideoRef} autoPlay muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 2,
+          width: '100%',
+          flex: 1,
+        }}
+      >
+        <Box
+          sx={{
+            flex: 1,
+            position: 'relative',
+            borderRadius: 2,
+            overflow: 'hidden',
+            backgroundColor: 'black',
+          }}
+        >
+          {/* This video will show either the raw camera stream (background=none) or
+              the processed WebGL composited stream (background != none). */}
+          <video
+            ref={localVideoRef}
+            autoPlay
+            muted
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         </Box>
-        <Box sx={{ flex: 1, position: 'relative', borderRadius: 2, overflow: 'hidden', backgroundColor: 'black' }}>
-          <video ref={remoteVideoRef} autoPlay playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Box
+          sx={{
+            flex: 1,
+            position: 'relative',
+            borderRadius: 2,
+            overflow: 'hidden',
+            backgroundColor: 'black',
+          }}
+        >
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
           {isLoadingPartner && (
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0, 0, 0, 0.7)', color: 'white', gap: 2 }}>
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                color: 'white',
+                gap: 2,
+              }}
+            >
               <CircularProgress sx={{ color: '#F76902' }} />
               <Typography variant="h6">Finding a match...</Typography>
             </Box>
@@ -144,20 +216,45 @@ function Chat() {
         </Box>
       </Box>
       <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
-        <Select label="Background" value={background} onChange={(e) => setBackground(e.target.value)}>
+        <Select
+          label="Background"
+          value={background}
+          onChange={(e) => setBackground(e.target.value)}
+        >
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="Beach">Beach</MenuItem>
           <MenuItem value="Forest">Forest</MenuItem>
           <MenuItem value="City">City</MenuItem>
         </Select>
-        <Button variant="outlined" color="error" onClick={() => leaveChat()} sx={{ flex: '0.2' }}>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => leaveChat()}
+          sx={{ flex: '0.2' }}
+        >
           Leave Chat
         </Button>
-        <Button variant="contained" startIcon={<ShuffleIcon />} onClick={() => socketRef.current.emit('next')} disabled={isLoadingPartner} sx={{ flex: '0.8', backgroundColor: '#F76902', '&:hover': { backgroundColor: '#d55a02' } }}>
+        <Button
+          variant="contained"
+          startIcon={<ShuffleIcon />}
+          onClick={() => socketRef.current.emit('next')}
+          disabled={isLoadingPartner}
+          sx={{
+            flex: '0.8',
+            backgroundColor: '#F76902',
+            '&:hover': { backgroundColor: '#d55a02' },
+          }}
+        >
           Next
         </Button>
       </Box>
-      <Snackbar open={showSnackbar} autoHideDuration={2000} onClose={() => setShowSnackbar(false)} message="You'll be matched with the next available user" anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setShowSnackbar(false)}
+        message="You'll be matched with the next available user"
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      />
     </Box>
   );
 }
