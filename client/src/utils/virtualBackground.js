@@ -143,46 +143,44 @@ function updateVideoTextureAndSegment(originalStream) {
  * with the confidence mask and draw the final composite to the offscreen canvas.
  */
 function handleSegmentationResult(result) {
-  if (!gl || !program || !isSegmenting) return;
-
-  const confidenceMap = result.confidenceMasks?.[0];
-  if (!confidenceMap) return;
-
-  // confidenceMap is typically a Float32Array with size width*height
-  // We can update the maskTexture with that data:
-  gl.bindTexture(gl.TEXTURE_2D, maskTexture);
-  // In older WebGL, we cannot directly use float data with texImage2D unless we have extensions.
-  // But we can do a quick hack: create an Uint8Array from the float data.
-  // We'll interpret 1.0 as 255, 0.0 as 0, etc.
-  const width = confidenceMap.width;
-  const height = confidenceMap.height;
-  const floatData = confidenceMap.getChannelData(0); // or .data if it's direct
-  // Convert float [0..1] into 8-bit
-  const u8Data = new Uint8Array(floatData.length);
-  for (let i = 0; i < floatData.length; i++) {
-    // clamp & convert
-    const val = Math.max(0, Math.min(1, floatData[i]));
-    u8Data[i] = val * 255;
+    if (!gl || !program) return;
+  
+    const confidenceMap = result.confidenceMasks?.[0];
+    if (!confidenceMap) return;
+  
+    // The raw float data is in confidenceMap.g[0]
+    // Typically it's a float in [0..1], but can be very small or near zero.
+    const floatData = confidenceMap.g[0];
+    const width = confidenceMap.width;   // 640
+    const height = confidenceMap.height; // 480
+    if (!width || !height || !floatData) return;
+  
+    // Convert [0..1] float values to 8-bit [0..255].
+    const u8Data = new Uint8Array(floatData.length);
+    for (let i = 0; i < floatData.length; i++) {
+      // clamp so we don't exceed 255 or go below 0
+      const clampedVal = Math.max(0, Math.min(1, floatData[i]));
+      u8Data[i] = Math.floor(clampedVal * 255);
+    }
+  
+    // Now bind your texture (maskTexture), and do texImage2D:
+    gl.bindTexture(gl.TEXTURE_2D, maskTexture);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.ALPHA,    // internalFormat
+      width,
+      height,
+      0,           // border
+      gl.ALPHA,    // format
+      gl.UNSIGNED_BYTE,
+      u8Data
+    );
+  
+    // Then call your draw code, update your video texture, etc.
+    updateVideoTexture();
+    drawComposite();
   }
-
-  gl.texImage2D(
-    gl.TEXTURE_2D,
-    0,
-    gl.ALPHA,
-    width,
-    height,
-    0,
-    gl.ALPHA,
-    gl.UNSIGNED_BYTE,
-    u8Data
-  );
-
-  // Update the video texture with the latest video frame from our hidden <video>
-  updateVideoTexture();
-
-  // Now draw to the offscreen canvas
-  drawComposite();
-}
 
 /**
  * Initialize minimal WebGL resources: buffers, shaders, program, textures.

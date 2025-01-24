@@ -62,7 +62,7 @@ function Chat() {
       const processedStream = segment(
         imageSegmenterRef.current,
         originalStream, // the original camera stream
-        'public/rit.jpg' // path to background image
+        'rit.jpg' // path to background image
       );
       // Show the composited output in localVideoRef
       localVideoRef.current.srcObject = processedStream;
