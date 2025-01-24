@@ -21,6 +21,22 @@ let animationFrameId = null;
 let segmenter = null;
 let isSegmenting = false;
 
+/**
+ * Helper to check if a numeric value is a power of two.
+ */
+function isPowerOfTwo(value) {
+  // 0,1 => special cases. Usually, we want strictly >1, but
+  // for standard usage, this will do the basic bit trick:
+  return (value & (value - 1)) === 0;
+}
+
+/**
+ * Checks if an Image instance has power-of-two dimensions.
+ */
+function isImagePowerOfTwo(image) {
+  return isPowerOfTwo(image.width) && isPowerOfTwo(image.height);
+}
+
 /** 
  * Returns a promise that resolves to a MediaPipe `ImageSegmenter` instance. 
  */
@@ -149,9 +165,7 @@ function handleSegmentationResult(result) {
   // Convert float [0..1] => 8-bit [0..255]
   const u8Data = new Uint8Array(floatData.length);
   for (let i = 0; i < floatData.length; i++) {
-    // A little trick to feather edges:
-    // Instead of direct clamp, do some mild power or threshold.
-    // e.g. mask^0.8 or clamp near edges, etc. (Optional)
+    // Example of feathering the edges by applying a slight exponent
     const val = Math.pow(Math.max(0, Math.min(1, floatData[i])), 0.8);
     u8Data[i] = Math.floor(val * 255);
   }
@@ -195,10 +209,10 @@ function initWebGLResources() {
   texCoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
   const texCoords = new Float32Array([
-    0, 0,
-    1, 0,
     0, 1,
-    1, 1
+    1, 1,
+    0, 0,
+    1, 0
   ]);
   gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
 
@@ -234,21 +248,30 @@ function initWebGLResources() {
   const fs = createShader(gl, gl.FRAGMENT_SHADER, fragmentSrc);
   program = createProgram(gl, vs, fs);
 
-  // 3) Create textures
+  // 3) Create textures with proper parameters
   videoTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, videoTexture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  // Important for NPOT textures:
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   backgroundTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  // Important for NPOT textures:
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   maskTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, maskTexture);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  // Also must clamp for NPOT
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
   // Unbind
   gl.bindTexture(gl.TEXTURE_2D, null);
@@ -262,6 +285,7 @@ function loadBackgroundImage(path) {
   backgroundImage.crossOrigin = 'anonymous';
   backgroundImage.src = path;
   backgroundImage.onload = function () {
+    // Bind background texture and upload image
     gl.bindTexture(gl.TEXTURE_2D, backgroundTexture);
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -271,8 +295,13 @@ function loadBackgroundImage(path) {
       gl.UNSIGNED_BYTE,
       backgroundImage
     );
-    // Optionally generate mipmaps if you want better scaling
-    gl.generateMipmap(gl.TEXTURE_2D);
+
+    // If the image is power-of-two, we can generate mipmaps
+    if (isImagePowerOfTwo(backgroundImage)) {
+      gl.generateMipmap(gl.TEXTURE_2D);
+    } 
+    // If not POT, we simply do not call generateMipmap
+
     backgroundLoaded = true;
   };
   backgroundImage.onerror = function (err) {
