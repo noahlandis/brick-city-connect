@@ -33,7 +33,6 @@ function Chat() {
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
-  const [isMetadataLoaded, setIsMetadataLoaded] = useState(false);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -66,7 +65,7 @@ function Chat() {
   // Whenever background changes, start or stop segmentation accordingly
   useEffect(() => {
     console.log('background changed to', background);
-    if (background !== 'none' && localVideoRef.current && localCanvasRef.current && isMetadataLoaded) {
+    if (background !== 'none' && localVideoRef.current && localCanvasRef.current) {
       // Start segmentation and pass the video, the canvas, and path to the background image
       startSegmenting(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
     } else {
@@ -74,7 +73,7 @@ function Chat() {
       console.log('background is none, stopping segmenting');
       stopSegmenting();
     }
-  }, [background, isMetadataLoaded]);
+  }, [background]);
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
@@ -160,12 +159,7 @@ function Chat() {
           track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // mic muted
         });
 
-        // Once metadata is loaded, we know the video has dimensions
-        localVideoRef.current.addEventListener('loadedmetadata', () => {
-          localVideoRef.current.play();
-          setIsMetadataLoaded(true);
-        });
-
+        localVideoRef.current.play();
         setIsStreamReady(true);
       })
       .catch((error) => {
