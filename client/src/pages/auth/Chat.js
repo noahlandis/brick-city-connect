@@ -24,6 +24,7 @@ function Chat() {
   const theme = useTheme();
   const localVideoRef = useRef(null);
   const localCanvasRef = useRef(null);
+  const remoteCanvasRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const { user } = useAuth();
   const localUserRef = useRef(null);
@@ -33,6 +34,7 @@ function Chat() {
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
+  const peerConnectionRef = useRef(null);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -67,13 +69,24 @@ function Chat() {
     console.log('background changed to', background);
     if (background !== 'none' && localVideoRef.current && localCanvasRef.current) {
       // Start segmentation and pass the video, the canvas, and path to the background image
-      startSegmenting(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
+      changeBackground(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
+      // Send background change through peer connection
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.send({
+          type: 'background-change',
+          background: background
+        });
+      }
     } else {
       // No background => show raw video, stop segmentation
       console.log('background is none, stopping segmenting');
       stopSegmenting();
     }
   }, [background]);
+
+  function changeBackground(video, canvas, background) {
+    startSegmenting(video, canvas, '/rit.jpg');
+  }
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
@@ -87,6 +100,12 @@ function Chat() {
     localUserRef.current.on('open', (localPeerID) => {
       console.log('local user id', localPeerID);
       socketRef.current.emit('join-chat', localPeerID, user.username);
+    });
+
+    // Handle incoming connections
+    localUserRef.current.on('connection', (conn) => {
+      peerConnectionRef.current = conn;
+      conn.on('data', handlePeerData);
     });
 
     localUserRef.current.on('error', (error) => {
@@ -105,6 +124,15 @@ function Chat() {
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log('call initiated');
+      // Create data connection with remote peer
+      const conn = localUserRef.current.connect(remotePeerID);
+      peerConnectionRef.current = conn;
+      
+      conn.on('open', () => {
+        conn.on('data', handlePeerData);
+      });
+
+      // Make the video call
       const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
@@ -115,6 +143,13 @@ function Chat() {
       call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
+  }
+
+  function handlePeerData(data) {
+    if (data.type === 'background-change') {
+      console.log('partner changed their background');
+      changeBackground(remoteVideoRef.current, remoteCanvasRef.current, data.background);
+    }
   }
 
   function handleRemoteCall(call) {
@@ -159,7 +194,9 @@ function Chat() {
           track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // mic muted
         });
 
-        localVideoRef.current.play();
+        localVideoRef.current.addEventListener('loadedmetadata', () => {
+          localVideoRef.current.play();
+        });
         setIsStreamReady(true);
       })
       .catch((error) => {
@@ -256,6 +293,19 @@ function Chat() {
             autoPlay
             playsInline
             style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+          <canvas
+            ref={remoteCanvasRef}
+            width={640}
+            height={480}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
