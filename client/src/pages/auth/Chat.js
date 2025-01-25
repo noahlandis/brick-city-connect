@@ -23,7 +23,7 @@ function Chat() {
   const navigate = useNavigate();
   const theme = useTheme();
   const localVideoRef = useRef(null);
-  const localCanvasRef = useRef(null); // <--- new canvas for composited video
+  const localCanvasRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const { user } = useAuth();
   const localUserRef = useRef(null);
@@ -33,6 +33,7 @@ function Chat() {
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
+  const [isMetadataLoaded, setIsMetadataLoaded] = useState(false);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -62,18 +63,18 @@ function Chat() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStreamReady]);
 
-  // Whenever background changes, toggle segmentation or stop it
+  // Whenever background changes, start or stop segmentation accordingly
   useEffect(() => {
     console.log('background changed to', background);
-    if (background !== 'none' && localVideoRef.current && localCanvasRef.current) {
-      // Start segmentation and pass both the video element and the canvas
-      startSegmenting(localVideoRef.current, localCanvasRef.current);
+    if (background !== 'none' && localVideoRef.current && localCanvasRef.current && isMetadataLoaded) {
+      // Start segmentation and pass the video, the canvas, and path to the background image
+      startSegmenting(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
     } else {
       // No background => show raw video, stop segmentation
       console.log('background is none, stopping segmenting');
       stopSegmenting();
     }
-  }, [background]);
+  }, [background, isMetadataLoaded]);
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
@@ -159,6 +160,12 @@ function Chat() {
           track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // mic muted
         });
 
+        // Once metadata is loaded, we know the video has dimensions
+        localVideoRef.current.addEventListener('loadedmetadata', () => {
+          localVideoRef.current.play();
+          setIsMetadataLoaded(true);
+        });
+
         setIsStreamReady(true);
       })
       .catch((error) => {
@@ -224,19 +231,21 @@ function Chat() {
               display: background === 'none' ? 'block' : 'none',
             }}
           />
-          <canvas
-            ref={localCanvasRef}
-            width={640}
-            height={480}
+          {isMetadataLoaded && (
+            <canvas
+              ref={localCanvasRef}  
+              width={localVideoRef.current.videoWidth}
+            height={localVideoRef.current.videoHeight}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
-              display: background !== 'none' ? 'block' : 'none',
-            }}
-          />
+                display: background !== 'none' ? 'block' : 'none',
+              }}
+            />
+          )}
         </Box>
 
         {/* Remote Video */}
@@ -294,7 +303,6 @@ function Chat() {
         <Select label="Background" value={background} onChange={(e) => setBackground(e.target.value)}>
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="Any">Any (Use rit.jpg)</MenuItem>
-          {/* You could add more choices if desired, but each will use rit.jpg */}
         </Select>
         <Button
           variant="outlined"
