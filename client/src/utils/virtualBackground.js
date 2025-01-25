@@ -4,6 +4,7 @@ let animationFrameId = null;  // Store the animation frame ID to allow cancellat
 let imageSegmenter = null;    // Store the single ImageSegmenter instance
 let backgroundImage = null;   // Will hold the loaded background image
 let backgroundSrcCached = null; // Track what background was last loaded
+let previousMaskData = null;  // Store the previous frame's mask for temporal smoothing
 
 /**
  * Loads and returns an HTMLImageElement for the specified src.
@@ -131,12 +132,51 @@ function handleSegmentationResult(result, videoElement, canvasElement, bgImage) 
 
   // Access the mask data as a Float32Array
   const maskData = mask.getAsFloat32Array();
-  // Pixel-by-pixel, we set alpha=0 for background
-  for (let i = 0; i < maskData.length; i++) {
-    const personConfidence = maskData[i]; // typically 0..1
-    // If confidence < 0.5, treat as background => transparent
-    if (personConfidence < 0.5) {
-      frameData[i * 4 + 3] = 0; // set alpha channel to 0
+  
+  // Create a smoothed version of the mask with temporal smoothing
+  const smoothedMask = new Float32Array(maskData.length);
+  
+  // Apply temporal smoothing if we have a previous frame
+  if (previousMaskData) {
+    const smoothingFactor = 0.2; // Reduced from 0.3 to make it more responsive
+    for (let i = 0; i < maskData.length; i++) {
+      smoothedMask[i] = maskData[i] * (1 - smoothingFactor) + previousMaskData[i] * smoothingFactor;
+    }
+  } else {
+    smoothedMask.set(maskData);
+  }
+  
+  // Store current mask for next frame
+  previousMaskData = new Float32Array(smoothedMask);
+
+  // Apply spatial smoothing to reduce edge artifacts
+  const spatialSmoothing = (x, y) => {
+    if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) return smoothedMask[y * width + x];
+    
+    let sum = 0;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        sum += smoothedMask[(y + dy) * width + (x + dx)];
+      }
+    }
+    return sum / 9;
+  };
+
+  // Apply the smoothed mask with anti-aliased edges
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = y * width + x;
+      const smoothedValue = spatialSmoothing(x, y);
+      
+      // Adjusted thresholds to be more aggressive about keeping person visible
+      let alpha = 0;
+      if (smoothedValue > 0.5) {  // Lowered from 0.7
+        alpha = 255;
+      } else if (smoothedValue > 0.2) {  // Lowered from 0.3
+        alpha = (smoothedValue - 0.2) / 0.3 * 255;  // Adjusted range
+      }
+      
+      frameData[i * 4 + 3] = alpha;
     }
   }
 
