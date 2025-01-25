@@ -231,21 +231,19 @@ function Chat() {
               display: background === 'none' ? 'block' : 'none',
             }}
           />
-          {isMetadataLoaded && (
-            <canvas
-              ref={localCanvasRef}  
-              width={localVideoRef.current.videoWidth}
-            height={localVideoRef.current.videoHeight}
+          <canvas
+            ref={localCanvasRef}
+            width={640}
+            height={480}
             style={{
               position: 'absolute',
               top: 0,
               left: 0,
               width: '100%',
               height: '100%',
-                display: background !== 'none' ? 'block' : 'none',
-              }}
-            />
-          )}
+              display: background !== 'none' ? 'block' : 'none',
+            }}
+          />
         </Box>
 
         {/* Remote Video */}
