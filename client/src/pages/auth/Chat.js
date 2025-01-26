@@ -65,7 +65,7 @@ function Chat() {
   // Whenever background changes, start or stop segmentation accordingly
   useEffect(() => {
     console.log('background changed to', background);
-    if (background !== 'none' && localVideoRef.current && localCanvasRef.current) {
+    if (background !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       // Start segmentation and pass the video, the canvas, and path to the background image
       startSegmenting(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
     } else {
@@ -73,7 +73,7 @@ function Chat() {
       console.log('background is none, stopping segmenting');
       stopSegmenting();
     }
-  }, [background]);
+  }, [background, isStreamReady]);
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
