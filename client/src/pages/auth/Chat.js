@@ -33,6 +33,7 @@ function Chat() {
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [background, setBackground] = useState('none');
+  const dataConnectionRef = useRef(null);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -73,7 +74,22 @@ function Chat() {
       console.log('background is none, stopping segmenting');
       stopSegmenting();
     }
+
+    if (dataConnectionRef.current && dataConnectionRef.current.open) {
+      dataConnectionRef.current.send('/rit.jpg');
+    }
   }, [background, isStreamReady]);
+
+  function handleDataConnection(conn) {
+    dataConnectionRef.current = conn;
+    conn.on('open', () => {
+      console.log('Data connection opened with peer:', conn.peer);
+    });
+    conn.on('data', (data) => {
+      console.log('Data received:', data);
+    });
+  }
+
 
   function joinChat() {
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
@@ -87,6 +103,11 @@ function Chat() {
     localUserRef.current.on('open', (localPeerID) => {
       console.log('local user id', localPeerID);
       socketRef.current.emit('join-chat', localPeerID, user.username);
+    });
+
+    localUserRef.current.on('connection', (conn) => {
+      console.log('Data connection received');
+      handleDataConnection(conn);
     });
 
     localUserRef.current.on('error', (error) => {
@@ -105,6 +126,11 @@ function Chat() {
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log('call initiated');
+
+      console.log("Data connection initiated");
+      const dataConn = localUserRef.current.connect(remotePeerID);
+      handleDataConnection(dataConn);
+
       const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
