@@ -81,6 +81,7 @@ function Chat() {
   }, [background, isStreamReady]);
 
   function handleDataConnection(conn) {
+    console.log("your current connections are", localUserRef.current.connections);
     dataConnectionRef.current = conn;
     conn.on('open', () => {
       console.log('Data connection opened with peer:', conn.peer);
@@ -151,6 +152,9 @@ function Chat() {
 
     socketRef.current.on('close-connection', () => {
       call.close();
+      if (dataConnectionRef.current) {
+        dataConnectionRef.current.close();
+      }
     });
 
     call.on('close', function () {
