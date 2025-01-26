@@ -25,6 +25,7 @@ function Chat() {
   const localVideoRef = useRef(null);
   const localCanvasRef = useRef(null);
   const remoteVideoRef = useRef(null);
+  const remoteCanvasRef = useRef(null);
   const { user } = useAuth();
   const localUserRef = useRef(null);
   const socketRef = useRef(null);
@@ -32,7 +33,8 @@ function Chat() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const [background, setBackground] = useState('none');
+  const [localBackground, setLocalBackground] = useState('none');
+  const [remoteBackground, setRemoteBackground] = useState('none');
   const dataConnectionRef = useRef(null);
 
   useEffect(() => {
@@ -65,10 +67,10 @@ function Chat() {
 
   // Whenever background changes, start or stop segmentation accordingly
   useEffect(() => {
-    console.log('background changed to', background);
-    if (background !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
+    console.log('background changed to', localBackground);
+    if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       // Start segmentation and pass the video, the canvas, and path to the background image
-      startSegmenting(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
+      applyBackground(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
     } else {
       // No background => show raw video, stop segmentation
       console.log('background is none, stopping segmenting');
@@ -78,7 +80,11 @@ function Chat() {
     if (dataConnectionRef.current && dataConnectionRef.current.open) {
       dataConnectionRef.current.send('/rit.jpg');
     }
-  }, [background, isStreamReady]);
+  }, [localBackground, isStreamReady]);
+
+  function applyBackground(video, canvas, background) {
+    startSegmenting(video, canvas, background);
+  }
 
   function handleDataConnection(conn) {
     console.log("your current connections are", localUserRef.current.connections);
@@ -86,8 +92,8 @@ function Chat() {
     conn.on('open', () => {
       console.log('Data connection opened with peer:', conn.peer);
     });
-    conn.on('data', (data) => {
-      console.log('Data received:', data);
+    conn.on('data', (background) => {
+      applyBackground(remoteVideoRef.current, remoteCanvasRef.current, background);
     });
   }
 
@@ -255,7 +261,7 @@ function Chat() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              display: background === 'none' ? 'block' : 'none',
+              display: localBackground === 'none' ? 'block' : 'none',
             }}
           />
           <canvas
@@ -269,7 +275,7 @@ function Chat() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              display: background !== 'none' ? 'block' : 'none',
+              display: localBackground !== 'none' ? 'block' : 'none',
             }}
           />
         </Box>
@@ -289,6 +295,19 @@ function Chat() {
             autoPlay
             playsInline
             style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+          <canvas
+            ref={remoteCanvasRef}
+            width={640}
+            height={480}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
@@ -326,7 +345,7 @@ function Chat() {
           width: '100%',
         }}
       >
-        <Select label="Background" value={background} onChange={(e) => setBackground(e.target.value)}>
+        <Select label="Background" value={localBackground} onChange={(e) => setLocalBackground(e.target.value)}>
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="Any">Any (Use rit.jpg)</MenuItem>
         </Select>
