@@ -1,23 +1,44 @@
 import { FilesetResolver, ImageSegmenter } from '@mediapipe/tasks-vision';
 
-let animationFrameId = null;  // Store the animation frame ID to allow cancellation if needed
-let imageSegmenter = null;    // Store the single ImageSegmenter instance
-let backgroundImage = null;   // Will hold the loaded background image
-let backgroundSrcCached = null; // Track what background was last loaded
-let previousMaskData = null;  // Store the previous frame's mask for temporal smoothing
+/**
+ * Keep track of separate segmentation states for local and remote
+ * so that we don't collide or overwrite mask data or animationFrameIds.
+ */
+const segmentationState = {
+  local: {
+    segmenter: null,
+    animationFrameId: null,
+    previousMaskData: null,
+    backgroundImage: null
+  },
+  remote: {
+    segmenter: null,
+    animationFrameId: null,
+    previousMaskData: null,
+    backgroundImage: null
+  }
+};
+
+/**
+ * Simple helper to get the correct state object.
+ */
+function getState(isLocal) {
+  return isLocal ? segmentationState.local : segmentationState.remote;
+}
 
 /**
  * Loads and returns an HTMLImageElement for the specified src.
  */
 function loadImage(src) {
   return new Promise((resolve, reject) => {
+    if (!src) {
+      return reject(new Error('Background source is null or undefined.'));
+    }
     const img = new Image();
-    // In React with a "public" folder, the correct path might be "/rit.jpg" if in public root
     img.src = src;
-    // If needed, set crossOrigin if the resource is from a different domain
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
-    img.onerror = reject;
+    img.onerror = (err) => reject(new Error('Failed to load image: ' + src));
   });
 }
 
@@ -26,43 +47,42 @@ function loadImage(src) {
  *
  * @param {HTMLVideoElement} videoElement
  * @param {HTMLCanvasElement} canvasElement
- * @param {string|null} backgroundSrc  e.g. "/rit.jpg" or null for none
+ * @param {string|null} backgroundSrc  e.g. "/rit.jpg" or null for 'none'
+ * @param {boolean} isLocal           Indicates whether this is a local stream
  */
-export async function startSegmenting(videoElement, canvasElement, backgroundSrc = null) {
-  // First, stop any existing segmentation loop
-  stopSegmenting();
+export async function startSegmenting(videoElement, canvasElement, backgroundSrc = null, isLocal = true) {
+  const state = getState(isLocal);
 
-  // Load or clear the background image if needed
-  if (backgroundSrc) {
-    // Only load if the src has changed or we haven't loaded anything yet
-    if (!backgroundImage || backgroundSrcCached !== backgroundSrc) {
-      try {
-        backgroundImage = await loadImage(backgroundSrc);
-        backgroundSrcCached = backgroundSrc;
-      } catch (err) {
-        console.error('Failed to load background image:', err);
-        backgroundImage = null;
-      }
-    }
-  } else {
-    // No background
-    backgroundImage = null;
-    backgroundSrcCached = null;
+  // Stop any existing segmentation loop first
+  stopSegmenting(isLocal);
+
+  // If background is 'none' or null, do not even start segmentation
+  if (!backgroundSrc || backgroundSrc === 'none') {
+    return;
   }
 
-  // If we have not yet created the segmenter, create it once
-  if (!imageSegmenter) {
+  // Load the background image
+  try {
+    state.backgroundImage = await loadImage(backgroundSrc);
+  } catch (err) {
+    console.error(err);
+    // fallback: no background
+    state.backgroundImage = null;
+  }
+
+  // If we have not created a segmenter yet, do so now
+  if (!state.segmenter) {
     try {
       const vision = await FilesetResolver.forVisionTasks(
         'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
       );
-      imageSegmenter = await ImageSegmenter.createFromOptions(vision, {
+      state.segmenter = await ImageSegmenter.createFromOptions(vision, {
         baseOptions: {
-          modelAssetPath: '/model/selfie_segmenter_landscape.tflite',
+          modelAssetPath: '/model/selfie_segmenter_landscape.tflite'
         },
         runningMode: 'LIVE_STREAM',
         outputCategoryMask: false,
-        outputConfidenceMasks: true,
+        outputConfidenceMasks: true
       });
     } catch (error) {
       console.error('Error creating image segmenter:', error);
@@ -71,88 +91,101 @@ export async function startSegmenting(videoElement, canvasElement, backgroundSrc
   }
 
   // Begin the segmentation loop
-  segmentLoop(imageSegmenter, videoElement, canvasElement);
+  segmentLoop(state, videoElement, canvasElement);
 }
 
 /**
  * Continuously run segmentation on each video frame using requestAnimationFrame.
  */
-function segmentLoop(imageSegmenter, videoElement, canvasElement) {
-  if (!imageSegmenter || !videoElement || !canvasElement) {
+function segmentLoop(state, videoElement, canvasElement) {
+  const { segmenter } = state;
+  if (!segmenter || !videoElement || !canvasElement) {
     console.warn('segmentLoop() missing a required element or segmenter.');
     return;
   }
 
   function processFrame() {
     const nowInMs = performance.now();
-    imageSegmenter.segmentForVideo(videoElement, nowInMs, (result) => {
-      handleSegmentationResult(result, videoElement, canvasElement, backgroundImage);
+    segmenter.segmentForVideo(videoElement, nowInMs, (result) => {
+      handleSegmentationResult(
+        state,
+        result,
+        videoElement,
+        canvasElement
+      );
     });
-    animationFrameId = requestAnimationFrame(processFrame);
+    state.animationFrameId = requestAnimationFrame(processFrame);
   }
 
-  animationFrameId = requestAnimationFrame(processFrame);
+  state.animationFrameId = requestAnimationFrame(processFrame);
 }
 
 /**
  * Handle each segmentation result by compositing the person over the background, if any.
  */
-function handleSegmentationResult(result, videoElement, canvasElement, bgImage) {
+function handleSegmentationResult(state, result, videoElement, canvasElement) {
   const ctx = canvasElement.getContext('2d');
   const width = canvasElement.width;
   const height = canvasElement.height;
 
-  // If no background is chosen, just draw the raw video frame
+  // If the video size has changed, update the canvas
+  if (videoElement.videoWidth !== width || videoElement.videoHeight !== height) {
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+  }
+
+  const bgImage = state.backgroundImage;
   if (!bgImage) {
+    // No background => just draw raw video
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(videoElement, 0, 0, width, height);
     return;
   }
 
-  // Get the confidence mask (0 or 1 channels, likely 1 in this case)
   const mask = result?.confidenceMasks?.[0];
   if (!mask) {
-    // fallback: no mask => just draw the video
+    // fallback: no mask => just draw the raw video
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(videoElement, 0, 0, width, height);
     return;
   }
 
-  // Draw the background first
+  // 1) Draw background first
   ctx.drawImage(bgImage, 0, 0, width, height);
 
-  // Create an offscreen canvas to draw the video
+  // 2) Draw the person on top, using the mask as alpha
+  // Use an offscreen canvas to extract the person
   const offscreen = new OffscreenCanvas(width, height);
   const offCtx = offscreen.getContext('2d');
   offCtx.drawImage(videoElement, 0, 0, width, height);
 
-  // Get the video frame pixels
   const videoFrame = offCtx.getImageData(0, 0, width, height);
   const frameData = videoFrame.data;
 
-  // Access the mask data as a Float32Array
+  // Access mask data
   const maskData = mask.getAsFloat32Array();
-  
-  // Create a smoothed version of the mask with temporal smoothing
+
+  // Create a new Float32Array for smoothing
   const smoothedMask = new Float32Array(maskData.length);
-  
-  // Apply temporal smoothing if we have a previous frame
-  if (previousMaskData) {
-    const smoothingFactor = 0.2; // Reduced from 0.3 to make it more responsive
+
+  if (state.previousMaskData) {
+    // Temporal smoothing: blend old mask with new mask
+    const smoothingFactor = 0.2; 
     for (let i = 0; i < maskData.length; i++) {
-      smoothedMask[i] = maskData[i] * (1 - smoothingFactor) + previousMaskData[i] * smoothingFactor;
+      smoothedMask[i] = maskData[i] * (1 - smoothingFactor) + state.previousMaskData[i] * smoothingFactor;
     }
   } else {
     smoothedMask.set(maskData);
   }
-  
-  // Store current mask for next frame
-  previousMaskData = new Float32Array(smoothedMask);
 
-  // Apply spatial smoothing to reduce edge artifacts
+  // Keep a copy for next frame
+  state.previousMaskData = new Float32Array(smoothedMask);
+
+  // Spatial smoothing (simple 3x3 blur around each pixel)
   const spatialSmoothing = (x, y) => {
-    if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) return smoothedMask[y * width + x];
-    
+    if (x < 1 || y < 1 || x >= width - 1 || y >= height - 1) {
+      return smoothedMask[y * width + x];
+    }
     let sum = 0;
     for (let dy = -1; dy <= 1; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
@@ -162,37 +195,54 @@ function handleSegmentationResult(result, videoElement, canvasElement, bgImage) 
     return sum / 9;
   };
 
-  // Apply the smoothed mask with anti-aliased edges
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const smoothedValue = spatialSmoothing(x, y);
-      
-      // Adjusted thresholds to be more aggressive about keeping person visible
+      const smValue = spatialSmoothing(x, y);
+
       let alpha = 0;
-      if (smoothedValue > 0.5) {  // Lowered from 0.7
+      if (smValue > 0.5) {
         alpha = 255;
-      } else if (smoothedValue > 0.2) {  // Lowered from 0.3
-        alpha = (smoothedValue - 0.2) / 0.3 * 255;  // Adjusted range
+      } else if (smValue > 0.2) {
+        alpha = ((smValue - 0.2) / 0.3) * 255;
       }
-      
       frameData[i * 4 + 3] = alpha;
     }
   }
 
-  // Put the updated video frame back
   offCtx.putImageData(videoFrame, 0, 0);
 
-  // Draw the person (with masked alpha) on top of the background
+  // Finally, draw the masked person over the background
   ctx.drawImage(offscreen, 0, 0, width, height);
 }
 
 /**
- * Stop segmenting the video (cancels the animation loop).
+ * Stop segmenting the video (cancels the animation loop, resets state).
+ * @param {boolean} isLocal
  */
-export function stopSegmenting() {
+export function stopSegmenting(isLocal = true) {
+  const state = getState(isLocal);
+  const { animationFrameId, segmenter } = state;
+
+  // Cancel any ongoing requestAnimationFrame
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
+    state.animationFrameId = null;
   }
+
+  // Clear out previous mask data
+  state.previousMaskData = null;
+
+  // Optional: If you want to fully reset the segmenter each time,
+  // you can close it. This will free memory, but you'll need to
+  // create a new one next time.
+  //
+  // if (segmenter) {
+  //   segmenter.close();
+  //   state.segmenter = null;
+  // }
+
+  // Retain the segmenter if you want to reuse it without reloading,
+  // but set the backgroundImage to null so it doesn't try to composite.
+  state.backgroundImage = null;
 }

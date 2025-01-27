@@ -70,20 +70,21 @@ function Chat() {
     console.log('background changed to', localBackground);
     if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       // Start segmentation and pass the video, the canvas, and path to the background image
-      applyBackground(localVideoRef.current, localCanvasRef.current, '/rit.jpg');
+      applyBackground(localVideoRef.current, localCanvasRef.current, localBackground);
     } else {
       // No background => show raw video, stop segmentation
       console.log('background is none, stopping segmenting');
+      setLocalBackground('none');
       stopSegmenting();
     }
 
     if (dataConnectionRef.current && dataConnectionRef.current.open) {
-      dataConnectionRef.current.send('/rit.jpg');
+      dataConnectionRef.current.send(localBackground);
     }
   }, [localBackground, isStreamReady]);
 
-  function applyBackground(video, canvas, background) {
-    startSegmenting(video, canvas, background);
+  function applyBackground(video, canvas, background, isLocal = true) {
+    startSegmenting(video, canvas, background, isLocal);
   }
 
   function handleDataConnection(conn) {
@@ -93,7 +94,15 @@ function Chat() {
       console.log('Data connection opened with peer:', conn.peer);
     });
     conn.on('data', (background) => {
-      applyBackground(remoteVideoRef.current, remoteCanvasRef.current, background);
+      if (background !== 'none') {
+        console.log('received background', background);
+        applyBackground(remoteVideoRef.current, remoteCanvasRef.current, background, false);
+        setRemoteBackground(background);
+      } else {
+        console.log("we should stop segmenting");
+        setRemoteBackground('none');
+        stopSegmenting(false);
+      }
     });
   }
 
@@ -153,6 +162,9 @@ function Chat() {
   function handleRemoteCall(call) {
     call.on('stream', (remoteStream) => {
       remoteVideoRef.current.srcObject = remoteStream;
+      remoteVideoRef.current.addEventListener('loadedmetadata', () => {
+        remoteVideoRef.current.play();
+      });
       setIsLoadingPartner(false);
     });
 
@@ -160,6 +172,8 @@ function Chat() {
       call.close();
       if (dataConnectionRef.current) {
         dataConnectionRef.current.close();
+        stopSegmenting(false);
+        setRemoteBackground('none');
       }
     });
 
@@ -298,6 +312,7 @@ function Chat() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              display: remoteBackground === 'none' ? 'block' : 'none',
             }}
           />
           <canvas
@@ -311,6 +326,7 @@ function Chat() {
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              display: remoteBackground !== 'none' ? 'block' : 'none',
             }}
           />
           {isLoadingPartner && (
@@ -347,7 +363,7 @@ function Chat() {
       >
         <Select label="Background" value={localBackground} onChange={(e) => setLocalBackground(e.target.value)}>
           <MenuItem value="none">None</MenuItem>
-          <MenuItem value="Any">Any (Use rit.jpg)</MenuItem>
+          <MenuItem value="/rit.jpg">Any (Use rit.jpg)</MenuItem>
         </Select>
         <Button
           variant="outlined"
