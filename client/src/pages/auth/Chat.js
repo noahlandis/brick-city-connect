@@ -363,7 +363,9 @@ function Chat() {
       >
         <Select label="Background" value={localBackground} onChange={(e) => setLocalBackground(e.target.value)}>
           <MenuItem value="none">None</MenuItem>
-          <MenuItem value="/rit.jpg">Any (Use rit.jpg)</MenuItem>
+          <MenuItem value="/rit.jpg">Rit</MenuItem>
+          <MenuItem value="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">Beach</MenuItem>
+          <MenuItem value="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0">Mountains</MenuItem>
         </Select>
         <Button
           variant="outlined"
