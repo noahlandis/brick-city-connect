@@ -94,7 +94,7 @@ function Chat() {
       console.log('Data connection opened with peer:', conn.peer);
     });
     conn.on('data', (background) => {
-      if (background !== 'none') {
+      if (background !== 'none' && remoteVideoRef.current && remoteCanvasRef.current && dataConnectionRef.current) {
         console.log('received background', background);
         applyBackground(remoteVideoRef.current, remoteCanvasRef.current, background, false);
         setRemoteBackground(background);
