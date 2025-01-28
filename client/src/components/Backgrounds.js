@@ -11,6 +11,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
         { id: 1, url: '/rit.jpg', name: 'Rit', locked: false },
         { id: 2, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach', locked: true },
         { id: 3, url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', name: 'Mountains', locked: false },
+        { id: 4, url: 'https://cdn.rit.edu/images/news/2021-02/dining_ASW2512a.jpg', name: 'Dining Hall', locked: false },
     ];
 
     return (

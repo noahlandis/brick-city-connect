@@ -274,7 +274,7 @@ function Chat() {
       height: '100%',
       display: 'flex',
       flexDirection: 'column',
-      gap: 4
+      gap: 2
     }}>
       {/* Video Container */}
       <Box sx={{
@@ -381,6 +381,7 @@ function Chat() {
       {/* Buttons Container */}
       <Box sx={{
         display: 'flex',
+        marginTop: 2,
         gap: 2,
         width: '100%'
       }}>
