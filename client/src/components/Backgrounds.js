@@ -1,18 +1,16 @@
 import { useTheme, useMediaQuery, Box } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
+import LockIcon from '@mui/icons-material/Lock';
 
 function Backgrounds() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const mockBackgrounds = [
-        { id: 0, url: null, name: 'None' },
-        { id: 1, url: '/rit.jpg', name: 'Rit' },
-        { id: 2, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach' },
-        { id: 3, url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', name: 'Mountains' },
-        { id: 4, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach' },
-        { id: 5, url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', name: 'Mountains' },
-        { id: 6, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach' },
+        { id: 0, url: null, name: 'None', locked: false },
+        { id: 1, url: '/rit.jpg', name: 'Rit', locked: false },
+        { id: 2, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach', locked: true },
+        { id: 3, url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', name: 'Mountains', locked: false },
     ];
 
     return (
@@ -42,7 +40,7 @@ function Backgrounds() {
                         aspectRatio: '16/9',
                         borderRadius: 2,
                         overflow: 'hidden',
-                        cursor: 'pointer',
+                        cursor: background.locked ? 'not-allowed' : 'pointer',
                         backgroundColor: background.url ? 'transparent' : 'rgba(0, 0, 0, 0.1)', // Background color for 'None'
                         display: 'flex',
                         alignItems: 'center',
@@ -59,15 +57,31 @@ function Backgrounds() {
                                 objectFit: 'cover',
                             }}
                         />
-                    ) : (
-                        <BlockIcon
+                    ) : null}
+                    {background.locked && (
+                        <Box
                             sx={{
-                                fontSize: '3rem',
-                                color: theme.palette.grey[600],
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1,
                             }}
-                        />
+                        >
+                            <LockIcon
+                                sx={{
+                                    fontSize: '3rem',
+                                    color: 'white',
+                                }}
+                            />
+                        </Box>
                     )}
-                    {background.url && (
+                    {!background.locked && background.url && (
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -78,10 +92,19 @@ function Backgrounds() {
                                 color: 'white',
                                 fontSize: '0.875rem',
                                 textAlign: 'center',
+                                zIndex: 2,
                             }}
                         >
                             {background.name}
                         </Box>
+                    )}
+                    {!background.url && !background.locked && (
+                        <BlockIcon
+                            sx={{
+                                fontSize: '3rem',
+                                color: theme.palette.grey[600],
+                            }}
+                        />
                     )}
                 </Box>
             ))}
