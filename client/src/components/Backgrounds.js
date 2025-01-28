@@ -2,7 +2,7 @@ import { useTheme, useMediaQuery, Box } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
 import LockIcon from '@mui/icons-material/Lock';
 
-function Backgrounds() {
+function Backgrounds({ onSelect, selectedBackground }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -19,7 +19,6 @@ function Backgrounds() {
                 display: 'flex',
                 gap: isMobile ? 1.5 : 2,
                 overflowX: 'auto',
-                padding: isMobile ? '8px' : '16px',
                 scrollBehavior: 'smooth',
                 '&::-webkit-scrollbar': {
                     height: '8px',
@@ -33,6 +32,7 @@ function Backgrounds() {
             {mockBackgrounds.map((background) => (
                 <Box
                     key={background.id}
+                    onClick={() => onSelect(background)}
                     sx={{
                         flex: '0 0 auto',
                         width: isMobile ? '140px' : '200px',
@@ -41,10 +41,11 @@ function Backgrounds() {
                         borderRadius: 2,
                         overflow: 'hidden',
                         cursor: background.locked ? 'not-allowed' : 'pointer',
-                        backgroundColor: background.url ? 'transparent' : 'rgba(0, 0, 0, 0.1)', // Background color for 'None'
+                        backgroundColor: background.url ? 'transparent' : 'rgba(0, 0, 0, 0.1)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : 'none',
                     }}
                 >
                     {background.url ? (
@@ -66,7 +67,7 @@ function Backgrounds() {
                                 left: 0,
                                 width: '100%',
                                 height: '100%',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',

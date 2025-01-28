@@ -8,6 +8,7 @@ import { ERROR_CODES } from '../../utils/constants';
 import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar, Select, MenuItem} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { startSegmenting, stopSegmenting } from '../../utils/virtualBackground';
+import Backgrounds from '../../components/Backgrounds';
 
 function Chat() {
   const navigate = useNavigate();
@@ -260,6 +261,13 @@ function Chat() {
     }
   }
 
+  // Add a function to handle background selection
+  const handleBackgroundSelect = (selectedBackground) => {
+    if (!selectedBackground.locked) {
+      setLocalBackground(selectedBackground.url || 'none');
+    }
+  };
+
   return (
     <Box sx={{ 
       width: '97%',
@@ -321,7 +329,7 @@ function Chat() {
           overflow: 'hidden',
           backgroundColor: 'black',
         }}>
-                   <video
+          <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
@@ -367,18 +375,15 @@ function Chat() {
           )}
         </Box>
       </Box>
+      {/* Background Selector */}
+    
+        <Backgrounds onSelect={handleBackgroundSelect} selectedBackground={localBackground} />
       {/* Buttons Container */}
       <Box sx={{
         display: 'flex',
         gap: 2,
         width: '100%'
       }}>
-        <Select label="Background" value={localBackground} onChange={(e) => setLocalBackground(e.target.value)}>
-          <MenuItem value="none">None</MenuItem>
-          <MenuItem value="/rit.jpg">Rit</MenuItem>
-          <MenuItem value="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">Beach</MenuItem>
-          <MenuItem value="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0">Mountains</MenuItem>
-        </Select>
         <Button
           variant="outlined"
           color="error"
