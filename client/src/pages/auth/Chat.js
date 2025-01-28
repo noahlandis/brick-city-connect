@@ -24,11 +24,13 @@ function Chat() {
   const localVideoRef = useRef(null);
   const localCanvasRef = useRef(null);
   const [localBackground, setLocalBackground] = useState('none');
+  const localBackgroundRef = useRef('none');
 
   // video and background state for remote user
   const remoteVideoRef = useRef(null);
   const remoteCanvasRef = useRef(null);
   const [remoteBackground, setRemoteBackground] = useState('none');
+
 
 
   useEffect(() => {
@@ -65,10 +67,10 @@ function Chat() {
   // whenever the local background changes, we start or stop segmenting accordingly
   useEffect(() => {
     console.log("background changed to", localBackground);
+    localBackgroundRef.current = localBackground;
     if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       startSegmenting(localVideoRef.current, localCanvasRef.current, localBackground);
     } else {
-      setLocalBackground('none');
       stopSegmenting();
     }
 
@@ -116,6 +118,7 @@ function Chat() {
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
       console.log("call initiated");
+      console.log("local background ref", localBackgroundRef.current);
 
       // we also open a data connection so we can tell the remote user what background we're currently using
       const dataConn = localUserRef.current.connect(remotePeerID);
@@ -172,10 +175,10 @@ function Chat() {
   }
 
   function handleDataConnection(conn) {
-    console.log("your current connections are", localUserRef.current.connections);
     dataConnectionRef.current = conn;
     conn.on('open', () => {
       console.log('Data connection opened with peer:', conn.peer);
+      console.log("your background is ", localBackgroundRef.current);
     });
     conn.on('data', (background) => {
       if (background !== 'none' && remoteVideoRef.current && remoteCanvasRef.current && dataConnectionRef.current) {
