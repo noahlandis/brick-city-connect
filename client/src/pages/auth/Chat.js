@@ -32,15 +32,18 @@ function Chat() {
   const [remoteBackground, setRemoteBackground] = useState('none');
 
 
+  // we track if remote video is actually ready (has width/height > 0)
+  const [isRemoteStreamReady, setIsRemoteStreamReady] = useState(false);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
     startLocalStream();
 
     return () => {
-      // Stop stream on cleanup, **check if this is needed before pushing to staging**
+      // Stop stream on cleanup, **check if this is needed**
       stopLocalStream();
       stopSegmenting();
+      stopSegmenting(false);
 
       // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
       if (localUserRef.current) {
@@ -79,6 +82,25 @@ function Chat() {
       dataConnectionRef.current.send(localBackground);
     }
   }, [localBackground, isStreamReady]);
+
+
+  // whenever the remoteBackground changes, attempt to (re)start remote segmentation
+  useEffect(() => {
+    console.log("Remote background changed to", remoteBackground);
+    // Only start segmenting if we actually have a loaded remote video
+    if (
+      remoteBackground !== 'none' &&
+      isRemoteStreamReady && 
+      remoteVideoRef.current && 
+      remoteCanvasRef.current
+    ) {
+      startSegmenting(remoteVideoRef.current, remoteCanvasRef.current, remoteBackground, false);
+    } else {
+      // if it's "none" or stream not ready yet, just stop
+      stopSegmenting(false);
+    }
+  }, [remoteBackground, isRemoteStreamReady]);
+
 
   function joinChat() {
     // Initialize socket
@@ -145,6 +167,12 @@ function Chat() {
       remoteVideoRef.current.srcObject = remoteStream;
       remoteVideoRef.current.addEventListener('loadedmetadata', () => {
         remoteVideoRef.current.play();
+        if (
+          remoteVideoRef.current.videoWidth > 0 && 
+          remoteVideoRef.current.videoHeight > 0
+        ) {
+          setIsRemoteStreamReady(true);
+        }
       });
       setIsLoadingPartner(false);
     });
@@ -166,6 +194,7 @@ function Chat() {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
         setIsLoadingPartner(true);
+        setIsRemoteStreamReady(false);
       }
     });
 
@@ -179,17 +208,10 @@ function Chat() {
     conn.on('open', () => {
       console.log('Data connection opened with peer:', conn.peer);
       console.log("your background is ", localBackgroundRef.current);
+      conn.send(localBackgroundRef.current);
     });
     conn.on('data', (background) => {
-      if (background !== 'none' && remoteVideoRef.current && remoteCanvasRef.current && dataConnectionRef.current) {
-        console.log('received background', background);
-        startSegmenting(remoteVideoRef.current, remoteCanvasRef.current, background, false);
-        setRemoteBackground(background);
-      } else {
-        console.log("we should stop segmenting");
-        setRemoteBackground('none');
-        stopSegmenting(false);
-      }
+      setRemoteBackground(background);
     });
   }
 
