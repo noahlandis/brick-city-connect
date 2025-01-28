@@ -36,7 +36,9 @@ function Backgrounds({ onSelect, selectedBackground }) {
                     onClick={() => onSelect(background)}
                     sx={{
                         flex: '0 0 auto',
-                        width: isMobile ? '140px' : '200px',
+                        // make mobile same ratio but smaller
+                        width: isMobile ? '106px' : '150px',
+                        height: isMobile ? '80px' : '112px',
                         position: 'relative',
                         aspectRatio: '16/9',
                         borderRadius: 2,
