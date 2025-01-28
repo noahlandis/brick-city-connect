@@ -5,56 +5,52 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from '../../contexts/AuthContext';
 import { ERROR_CODES } from '../../utils/constants';
-import {
-  Box,
-  Typography,
-  CircularProgress,
-  useTheme,
-  useMediaQuery,
-  Button,
-  Snackbar,
-  Select,
-  MenuItem
-} from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar, Select, MenuItem} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { startSegmenting, stopSegmenting } from '../../utils/virtualBackground';
 
 function Chat() {
   const navigate = useNavigate();
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const { user } = useAuth();
+  const socketRef = useRef(null);
+  const localUserRef = useRef(null);
+  const [isLoadingPartner, setIsLoadingPartner] = useState(true);
+  const [isStreamReady, setIsStreamReady] = useState(false);
+  const dataConnectionRef = useRef(null);
+  // video and background state for local user
   const localVideoRef = useRef(null);
   const localCanvasRef = useRef(null);
+  const [localBackground, setLocalBackground] = useState('none');
+
+  // video and background state for remote user
   const remoteVideoRef = useRef(null);
   const remoteCanvasRef = useRef(null);
-  const { user } = useAuth();
-  const localUserRef = useRef(null);
-  const socketRef = useRef(null);
-  const [isStreamReady, setIsStreamReady] = useState(false);
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [isLoadingPartner, setIsLoadingPartner] = useState(true);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [localBackground, setLocalBackground] = useState('none');
   const [remoteBackground, setRemoteBackground] = useState('none');
-  const dataConnectionRef = useRef(null);
+
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
     startLocalStream();
 
     return () => {
-      // Stop stream on cleanup
+      // Stop stream on cleanup, **check if this is needed before pushing to staging**
       stopLocalStream();
-      stopSegmenting(); // Stop any ongoing segmentation
+      stopSegmenting();
 
-      // Destroy the peer
+      // When a user leaves the page, we destroy the peer. This has the side effect of executing call.close(), so we don't need to manually call it here
       if (localUserRef.current) {
         localUserRef.current.destroy();
       }
-      // Disconnect socket if needed
+
+      // This ensures we tell the server that we've disconnected if we leave the page
       if (socketRef.current) {
         socketRef.current.disconnect();
       }
     };
+    // we don't want this to run every render, just on mount so we ignore the eslint warning
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -62,57 +58,34 @@ function Chat() {
     if (isStreamReady) {
       joinChat();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // we don't want this to run every render, just on mount so we ignore the eslint warning
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStreamReady]);
 
-  // Whenever background changes, start or stop segmentation accordingly
+  // whenever the local background changes, we start or stop segmenting accordingly
   useEffect(() => {
-    console.log('background changed to', localBackground);
+    console.log("background changed to", localBackground);
     if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
-      // Start segmentation and pass the video, the canvas, and path to the background image
-      applyBackground(localVideoRef.current, localCanvasRef.current, localBackground);
+      startSegmenting(localVideoRef.current, localCanvasRef.current, localBackground);
     } else {
-      // No background => show raw video, stop segmentation
-      console.log('background is none, stopping segmenting');
       setLocalBackground('none');
       stopSegmenting();
     }
 
+    // send the background to the remote user
     if (dataConnectionRef.current && dataConnectionRef.current.open) {
       dataConnectionRef.current.send(localBackground);
     }
   }, [localBackground, isStreamReady]);
 
-  function applyBackground(video, canvas, background, isLocal = true) {
-    startSegmenting(video, canvas, background, isLocal);
-  }
-
-  function handleDataConnection(conn) {
-    console.log("your current connections are", localUserRef.current.connections);
-    dataConnectionRef.current = conn;
-    conn.on('open', () => {
-      console.log('Data connection opened with peer:', conn.peer);
-    });
-    conn.on('data', (background) => {
-      if (background !== 'none' && remoteVideoRef.current && remoteCanvasRef.current && dataConnectionRef.current) {
-        console.log('received background', background);
-        applyBackground(remoteVideoRef.current, remoteCanvasRef.current, background, false);
-        setRemoteBackground(background);
-      } else {
-        console.log("we should stop segmenting");
-        setRemoteBackground('none');
-        stopSegmenting(false);
-      }
-    });
-  }
-
-
   function joinChat() {
+    // Initialize socket
     socketRef.current = io(process.env.REACT_APP_SERVER_URL, {
       transports: ['websocket'],
       upgrade: false,
     });
 
+    // Initialize peer
     localUserRef.current = new Peer();
 
     // Once the peer is open, we join the chat
@@ -122,7 +95,8 @@ function Chat() {
     });
 
     localUserRef.current.on('connection', (conn) => {
-      console.log('Data connection received');
+      // this is when we are the reciever of the data connection from the remote user
+      console.log("Data connection recieved");
       handleDataConnection(conn);
     });
 
@@ -141,25 +115,29 @@ function Chat() {
 
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
-      console.log('call initiated');
+      console.log("call initiated");
 
-      console.log("Data connection initiated");
+      // we also open a data connection so we can tell the remote user what background we're currently using
       const dataConn = localUserRef.current.connect(remotePeerID);
       handleDataConnection(dataConn);
 
+      // call the remote user with our local stream
       const call = localUserRef.current.call(remotePeerID, localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
 
     // answer call
     localUserRef.current.on('call', (call) => {
-      console.log('call received');
+      console.log("call recieved");
       call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
   }
 
+  // handle call events
   function handleRemoteCall(call) {
+
+    // their local stream -> our remote stream
     call.on('stream', (remoteStream) => {
       remoteVideoRef.current.srcObject = remoteStream;
       remoteVideoRef.current.addEventListener('loadedmetadata', () => {
@@ -168,6 +146,7 @@ function Chat() {
       setIsLoadingPartner(false);
     });
 
+    // this fires when a user presses 'next' and the user gets put in the waiting room. We do this to stop the remote video stream, and so we're not storing a stale connection in our peer object 
     socketRef.current.on('close-connection', () => {
       call.close();
       if (dataConnectionRef.current) {
@@ -178,7 +157,8 @@ function Chat() {
     });
 
     call.on('close', function () {
-      console.log('closing call');
+      console.log("closing call");
+      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
@@ -191,29 +171,48 @@ function Chat() {
     });
   }
 
+  function handleDataConnection(conn) {
+    console.log("your current connections are", localUserRef.current.connections);
+    dataConnectionRef.current = conn;
+    conn.on('open', () => {
+      console.log('Data connection opened with peer:', conn.peer);
+    });
+    conn.on('data', (background) => {
+      if (background !== 'none' && remoteVideoRef.current && remoteCanvasRef.current && dataConnectionRef.current) {
+        console.log('received background', background);
+        startSegmenting(remoteVideoRef.current, remoteCanvasRef.current, background, false);
+        setRemoteBackground(background);
+      } else {
+        console.log("we should stop segmenting");
+        setRemoteBackground('none');
+        stopSegmenting(false);
+      }
+    });
+  }
+
+
   function startLocalStream() {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
       .then((stream) => {
         localVideoRef.current.srcObject = stream;
 
         // Monitor video track
         stream.getVideoTracks().forEach((track) => {
-          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // camera turned off
-          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // camera muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle camera turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle camera muted
         });
 
         // Monitor audio track
         stream.getAudioTracks().forEach((track) => {
-          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // mic turned off
-          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // mic muted
+          track.onended = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED); // Handle mic turned off
+          track.onmute = () => leaveChat(ERROR_CODES.MEDIA_PERMISSION_DENIED);  // Handle mic muted
         });
 
         localVideoRef.current.addEventListener('loadedmetadata', () => {
           localVideoRef.current.play();
         });
-        
-        setIsStreamReady(true);
+
+        setIsStreamReady(true); // Mark stream as ready
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
@@ -237,40 +236,35 @@ function Chat() {
   }
 
   return (
-    <Box
-      sx={{
-        width: '97%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-      }}
-    >
+    <Box sx={{ 
+      width: '97%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 4
+    }}>
       {/* Video Container */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: 2,
-          width: '100%',
+      <Box sx={{
+        display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: 2,
+        width: '100%',
+        flex: 1,
+      }}>
+        {/* Local Video */}
+        <Box sx={{
           flex: 1,
-        }}
-      >
-        {/* Local Video + Canvas for compositing */}
-        <Box
-          sx={{
-            flex: 1,
-            position: 'relative',
-            borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: 'black',
-          }}
-        >
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
           <video
             ref={localVideoRef}
             autoPlay
             muted
             playsInline
+            webkit-playsinline="true"
             style={{
               width: '100%',
               height: '100%',
@@ -295,16 +289,14 @@ function Chat() {
         </Box>
 
         {/* Remote Video */}
-        <Box
-          sx={{
-            flex: 1,
-            position: 'relative',
-            borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: 'black',
-          }}
-        >
-          <video
+        <Box sx={{
+          flex: 1,
+          position: 'relative',
+          borderRadius: 2,
+          overflow: 'hidden',
+          backgroundColor: 'black',
+        }}>
+                   <video
             ref={remoteVideoRef}
             autoPlay
             playsInline
@@ -330,37 +322,32 @@ function Chat() {
             }}
           />
           {isLoadingPartner && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                gap: 2,
-              }}
-            >
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              gap: 2,
+            }}>
               <CircularProgress sx={{ color: '#F76902' }} />
               <Typography variant="h6">Finding a match...</Typography>
             </Box>
           )}
         </Box>
       </Box>
-
       {/* Buttons Container */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 2,
-          width: '100%',
-        }}
-      >
+      <Box sx={{
+        display: 'flex',
+        gap: 2,
+        width: '100%'
+      }}>
         <Select label="Background" value={localBackground} onChange={(e) => setLocalBackground(e.target.value)}>
           <MenuItem value="none">None</MenuItem>
           <MenuItem value="/rit.jpg">Rit</MenuItem>
@@ -393,7 +380,6 @@ function Chat() {
           Next
         </Button>
       </Box>
-
       <Snackbar
         open={showSnackbar}
         autoHideDuration={2000}
