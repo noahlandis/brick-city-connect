@@ -291,7 +291,7 @@ function Chat() {
           borderRadius: 2,
           overflow: 'hidden',
           backgroundColor: 'black',
-          aspectRatio: '16/9',
+          aspectRatio: isMobile ? '4/3' : '16/9',
         }}>
           <video
             ref={localVideoRef}
@@ -329,7 +329,7 @@ function Chat() {
           borderRadius: 2,
           overflow: 'hidden',
           backgroundColor: 'black',
-          aspectRatio: '16/9'
+          aspectRatio: isMobile ? '4/3' : '16/9'
         }}>
           <video
             ref={remoteVideoRef}
