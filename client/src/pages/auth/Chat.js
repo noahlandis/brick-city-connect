@@ -291,6 +291,7 @@ function Chat() {
           borderRadius: 2,
           overflow: 'hidden',
           backgroundColor: 'black',
+          aspectRatio: isMobile ? '1' : '16/9',
         }}>
           <video
             ref={localVideoRef}
