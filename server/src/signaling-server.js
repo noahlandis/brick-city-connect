@@ -129,7 +129,7 @@ io.on('connection', (socket) => {
     // we always store the peerID as this identifies the peer to call to start the video stream
     socket.peerID = peerID;
     socket.username = username;
-    handleExistingUserConnection(socket);
+    // handleExistingUserConnection(socket);
     console.log("user joined chat. The username is", username);
     handleUserLeaveAndJoin(socket);
   });
