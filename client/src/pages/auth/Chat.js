@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from '../../contexts/AuthContext';
 import { ERROR_CODES } from '../../utils/constants';
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar, Select, MenuItem} from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { startSegmenting, stopSegmenting } from '../../utils/virtualBackground';
 import Backgrounds from '../../components/Backgrounds';
