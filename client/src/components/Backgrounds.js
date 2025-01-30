@@ -48,7 +48,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : 'none',
+                        border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : '3px solid transparent',
                     }}
                 >
                     {background.url ? (
