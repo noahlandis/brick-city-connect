@@ -48,10 +48,6 @@ const User = sequelize.define('user', {
       if (user.password && user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 10);
       }
-
-      if (user.xp && user.changed('xp')) {
-        user.level = Math.floor(user.xp / 100) + 1;
-      }
     }
   }
 });
@@ -59,5 +55,14 @@ const User = sequelize.define('user', {
 User.prototype.validatePassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };
+
+User.prototype.addXP = function(duration) {
+  const xpPerSecond = 1000 / 1800; // Adjust XP per level if needed
+  const xp = Math.floor(xpPerSecond * (duration / 1000)); // Convert ms to seconds
+  this.xp += xp;
+  this.save();
+
+};
+
 
 module.exports = User;

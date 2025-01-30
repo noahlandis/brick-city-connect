@@ -1,5 +1,7 @@
 const { Server } = require('socket.io');
 const Bugsnag = require('./config/bugsnag');
+const { rewardUser } = require('./services/level-service');
+
 let io;
 
 let waitingUser = null; 
@@ -138,10 +140,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     
     console.log('User disconnected:', socket.id);
-    const endTime = Date.now();
-    console.log("The user started the call at", socket.startTime);
-    const duration = endTime - socket.startTime;
-    console.log("User disconnected in", duration, "ms");
+    rewardUser(socket.userID, Date.now() - socket.startTime);
     delete connectedUsers[socket.userID];
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
