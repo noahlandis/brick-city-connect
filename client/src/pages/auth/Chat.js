@@ -320,6 +320,24 @@ function Chat() {
               display: localBackground !== 'none' ? 'block' : 'none',
             }}
           />
+          {!isStreamReady && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              gap: 2,
+            }}>
+              <CircularProgress sx={{ color: '#F76902' }} />
+            </Box>
+          )}
         </Box>
 
         {/* Remote Video */}
