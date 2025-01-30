@@ -89,14 +89,15 @@ function Backgrounds({ onSelect, selectedBackground }) {
                         <Box
                             sx={{
                                 position: 'absolute',
-                                bottom: 0,
+                                bottom: '-3px',
                                 width: '100%',
                                 padding: '8px',
-                                background: 'linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0))',
+                                background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
                                 color: 'white',
                                 fontSize: '0.875rem',
                                 textAlign: 'center',
                                 zIndex: 2,
+                                fontWeight: 'bold',
                             }}
                         >
                             {background.name}
