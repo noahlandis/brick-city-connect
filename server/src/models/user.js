@@ -19,6 +19,16 @@ const User = sequelize.define('user', {
     type: DataTypes.STRING,
     allowNull: true,
     unique: true
+  },
+  xp: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  level: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
   }
 }, {
   validate: {
@@ -37,6 +47,10 @@ const User = sequelize.define('user', {
     beforeUpdate: async (user) => {
       if (user.password && user.changed('password')) {
         user.password = await bcrypt.hash(user.password, 10);
+      }
+
+      if (user.xp && user.changed('xp')) {
+        user.level = Math.floor(user.xp / 100) + 1;
       }
     }
   }
