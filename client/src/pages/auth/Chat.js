@@ -308,7 +308,8 @@ function Chat() {
           />
           <canvas
             ref={localCanvasRef}
-    
+            width={640}
+            height={480}
             style={{
               position: 'absolute',
               top: 0,
@@ -343,7 +344,8 @@ function Chat() {
           />
           <canvas
             ref={remoteCanvasRef}
-         
+            width={640}
+            height={480}
             style={{
               position: 'absolute',
               top: 0,
