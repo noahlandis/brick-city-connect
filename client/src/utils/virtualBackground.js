@@ -38,7 +38,6 @@ function loadImage(src) {
     img.src = src;
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
-    img.onerror = (err) => reject(new Error('Failed to load image: ' + src));
   });
 }
 
@@ -222,7 +221,7 @@ function handleSegmentationResult(state, result, videoElement, canvasElement) {
  */
 export function stopSegmenting(isLocal = true) {
   const state = getState(isLocal);
-  const { animationFrameId, segmenter } = state;
+  const { animationFrameId } = state;
 
   // Cancel any ongoing requestAnimationFrame
   if (animationFrameId) {
