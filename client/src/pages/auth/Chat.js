@@ -294,6 +294,8 @@ function Chat() {
         }}>
           <video
             ref={localVideoRef}
+            width={640}
+            height={480}
             autoPlay
             muted
             playsInline
@@ -331,6 +333,8 @@ function Chat() {
         }}>
           <video
             ref={remoteVideoRef}
+            width={640}
+            height={480}
             autoPlay
             playsInline
             style={{
