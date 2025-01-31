@@ -2,10 +2,8 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const bcrypt = require('bcrypt');
 
-
-const XP_PER_LEVEL = 1000; 
+const XP_PER_LEVEL = 1000;
 const XP_PER_SECOND = XP_PER_LEVEL / 1800;
-const MILLISECONDS_PER_SECOND = 1000;
 
 const User = sequelize.define('user', {
   username: {
@@ -61,17 +59,7 @@ User.prototype.validatePassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// User.prototype.addXP = async function(millisecondsActive) {
-//   const xp = Math.floor(XP_PER_SECOND * (millisecondsActive / MILLISECONDS_PER_SECOND)); // Convert ms to seconds
-//   this.xp += 1000;
-
-//   // if the user has enough xp to level up, we update the level and reset the xp (and carry over the remainder)
-//   if (this.xp >= XP_PER_LEVEL) {
-//     this.level += Math.floor(this.xp / XP_PER_LEVEL);
-//     this.xp = this.xp % XP_PER_LEVEL;
-//   }
-//   await this.save(); 
-// };
-
+User.XP_PER_LEVEL = XP_PER_LEVEL;
+User.XP_PER_SECOND = XP_PER_SECOND;
 
 module.exports = User;

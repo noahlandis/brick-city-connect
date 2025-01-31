@@ -2,8 +2,6 @@ const { User } = require('../models/index');
 const { Background } = require('../models/index');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
-const XP_PER_LEVEL = 1000;
-const XP_PER_SECOND = XP_PER_LEVEL / 1800;
 const MILLISECONDS_PER_SECOND = 1000;
 
 /**
@@ -15,13 +13,13 @@ async function rewardUser(userID, millisecondsActive) {
   await sequelize.transaction(async (transaction) => {
 
     const user = await User.findByPk(userID, { transaction });
-    const xp = Math.floor(XP_PER_SECOND * (millisecondsActive / MILLISECONDS_PER_SECOND)); // Convert ms to seconds
+    const xp = Math.floor(User.XP_PER_SECOND * (millisecondsActive / MILLISECONDS_PER_SECOND)); // Convert ms to seconds
     user.xp += 1000;
 
     // if the user has enough xp to level up, we update the level and reset the xp (and carry over the remainder)
-    if (user.xp >= XP_PER_LEVEL) {
-      user.level += Math.floor(user.xp / XP_PER_LEVEL);
-      user.xp = user.xp % XP_PER_LEVEL;
+    if (user.xp >= User.XP_PER_LEVEL) {
+      user.level += Math.floor(user.xp / User.XP_PER_LEVEL);
+      user.xp = user.xp % User.XP_PER_LEVEL;
 
       // get all backgrounds that are now available to the user
       const backgroundsToAdd = await Background.findAll({
