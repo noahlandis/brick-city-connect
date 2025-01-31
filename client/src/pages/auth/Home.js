@@ -163,7 +163,7 @@ function Home() {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(4, 1fr)',
+                        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
                         gap: isMobile ? 1.5 : 2,
                     }}
                 >
