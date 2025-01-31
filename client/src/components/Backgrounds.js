@@ -1,4 +1,4 @@
-import { useTheme, useMediaQuery, Box, Typography } from '@mui/material';
+import { useTheme, useMediaQuery, Box } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
 import LockIcon from '@mui/icons-material/Lock';
 import { getBackgrounds } from '../api/userApi';
@@ -10,14 +10,15 @@ function Backgrounds({ onSelect, selectedBackground }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { user } = useAuth();
-    const [backgrounds, setBackgrounds] = useState([]);
+    const defaultBackground = { id: 0, url: null, name: 'None', locked: false };
+    const [backgrounds, setBackgrounds] = useState([defaultBackground]);
   
     useEffect(() => {
         const fetchBackgrounds = async () => {
         const backgrounds = await getBackgrounds(user.id);
         console.log("Here are the backgrounds");
         console.log(backgrounds.data);
-        setBackgrounds(backgrounds.data);
+        setBackgrounds([defaultBackground, ...backgrounds.data]);
         };
         fetchBackgrounds();
     }, []);
