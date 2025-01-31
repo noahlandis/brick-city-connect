@@ -21,3 +21,7 @@ Follow these steps to set up and run the project:
 5. **Linting (Optional):**
    - To check for code style issues: `npm run lint`
    - To automatically fix code style issues: `npm run lint:fix`
+
+6. **Seed Backgrounds:**
+   - To seed backgrounds: `docker exec -it server node src/scripts/seed-backgrounds.js`
+
