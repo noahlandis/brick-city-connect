@@ -196,22 +196,21 @@ function Home() {
                                 }}
                             />
                             <Box
-                                className="background-name"
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    padding: isMobile ? 1 : 1.5,
-                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                                    color: 'white',
-                                    opacity: 0,
-                                    transition: 'opacity 0.2s ease-in-out',
-                                    fontSize: isMobile ? '0.875rem' : '1rem'
-                                }}
-                            >
-                                {background.name}
-                            </Box>
+                            sx={{
+                                position: 'absolute',
+                                bottom: '-3px',
+                                width: '100%',
+                                padding: '8px',
+                                background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
+                                color: 'white',
+                                fontSize: '0.875rem',
+                                textAlign: 'center',
+                                zIndex: 2,
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            {background.name}
+                        </Box>
                         </Box>
                     ))}
                 </Box>
