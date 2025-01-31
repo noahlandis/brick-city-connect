@@ -1,19 +1,19 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Button, Box } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-
+import { useTheme, useMediaQuery } from '@mui/material';
 function Home() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
     const { user } = useAuth();
-
-    console.log(user);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
@@ -58,23 +58,197 @@ function Home() {
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
 
+    const mockBackgrounds = [
+        { id: 1, name: 'Mountain View', url: 'https://picsum.photos/800/450?random=1' },
+        { id: 2, name: 'Beach Sunset', url: 'https://picsum.photos/800/450?random=2' },
+        { id: 3, name: 'City Night', url: 'https://picsum.photos/800/450?random=3' },
+        { id: 4, name: 'Forest', url: 'https://picsum.photos/800/450?random=4' },
+        { id: 5, name: 'Desert', url: 'https://picsum.photos/800/450?random=5' },
+        { id: 6, name: 'Ocean', url: 'https://picsum.photos/800/450?random=6' },
+    ];
+
     return (
-        <div>
-            <Button 
-                variant="contained"
-                startIcon={<VideocamIcon />}
-                onClick={() => navigate('/chat')}
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                width: '80%',
+                margin: '0 auto',
+                height: '80%',
+            }}
+        >
+            {/* Top Section with Avatar, Level, and Button */}
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? 3 : 6,
+                width: '100%',
+            }}>
+                {/* Left side - Avatar and User Info */}
+                <Box sx={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 3,
+                    flex: isMobile ? 'unset' : 1,
+                }}>
+                    {/* Avatar */}
+                 
+
+                    {/* User Info */}
+                    <Box>
+                        <Box sx={{ 
+                            fontSize: isMobile ? '1.25rem' : '1.75rem',
+                            fontWeight: '600',
+                            color: '#2c3e50',
+                            mb: 1
+                        }}>
+                            {user.username}
+                        </Box>
+                        <Box sx={{ 
+                            display: 'flex', 
+                            alignItems: 'center',
+                            gap: 2,
+                            flexWrap: 'wrap'
+                        }}>
+                            <Box sx={{ 
+                                fontSize: isMobile ? '0.875rem' : '1rem',
+                                fontWeight: '500',
+                                color: '#2c3e50',
+                            }}>
+                                Level {user.level} 
+                            </Box>
+                            <Box sx={{ 
+                                fontSize: '0.875rem',
+                                backgroundColor: '#F76902',
+                                color: 'white',
+                                padding: '2px 8px',
+                                borderRadius: 10,
+                            }}>
+                                {user.xp} / 1000 XP
+                            </Box>
+                        </Box>
+                    </Box>
+                </Box>
+
+                {/* Chat Button */}
+                <Button 
+                    variant="contained"
+                    fullWidth={isMobile}
+                    startIcon={<VideocamIcon sx={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} />}
+                    onClick={() => navigate('/chat')}
+                    sx={{
+                        backgroundColor: '#F76902',
+                        padding: isMobile ? '12px 24px' : '16px 40px',
+                        borderRadius: 3,
+                        fontSize: isMobile ? '1rem' : '1.25rem',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        transition: 'all 0.2s ease-in-out',
+                        minWidth: isMobile ? 'unset' : '240px',
+                        '&:hover': {
+                            backgroundColor: '#d55a02',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 15px rgba(247, 105, 2, 0.25)',
+                        }
+                    }}
+                >
+                    Start Chatting
+                </Button>
+            </Box>
+
+            {/* XP Bar */}
+            <Box
                 sx={{
-                    backgroundColor: '#F76902',
-                    '&:hover': {
-                        backgroundColor: '#d55a02',
-                    },
-                    padding: '12px'
+                    width: '100%',
+                    height: 6,
+                    backgroundColor: '#f0f2f5',
+                    borderRadius: 3,
+                    position: 'relative',
+                    overflow: 'hidden'
                 }}
             >
-                Start Chatting
-            </Button>
-        </div>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, #F76902, #ff9248)',
+                        width: `${(user.currentXP / 1000) * 100}%`,
+                        borderRadius: 3,
+                        transition: 'width 0.3s ease-in-out'
+                    }}
+                />
+            </Box>
+
+            {/* Backgrounds Section */}
+            <Box sx={{ flex: 1 }}>
+                <Box sx={{ 
+                    fontSize: isMobile ? '1.1rem' : '1.25rem',
+                    fontWeight: '600',
+                    color: '#2c3e50',
+                    mb: 2
+                }}>
+                    Your Backgrounds
+                </Box>
+                <Box
+                    sx={{
+                        display: 'grid',
+                        gridTemplateColumns: isMobile 
+                            ? 'repeat(auto-fit, minmax(140px, 1fr))'
+                            : 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: isMobile ? 1.5 : 2,
+                    }}
+                >
+                    {mockBackgrounds.map((background) => (
+                        <Box
+                            key={background.id}
+                            sx={{
+                                position: 'relative',
+                                aspectRatio: '16/9',
+                                borderRadius: 2,
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s ease-in-out',
+                                '&:hover': {
+                                    transform: 'scale(1.02)',
+                                    '& .background-name': {
+                                        opacity: 1,
+                                    }
+                                },
+                            }}
+                        >
+                            <img
+                                src={background.url}
+                                alt={background.name}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                }}
+                            />
+                            <Box
+                                className="background-name"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    padding: isMobile ? 1 : 1.5,
+                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                                    color: 'white',
+                                    opacity: 0,
+                                    transition: 'opacity 0.2s ease-in-out',
+                                    fontSize: isMobile ? '0.875rem' : '1rem'
+                                }}
+                            >
+                                {background.name}
+                            </Box>
+                        </Box>
+                    ))}
+                </Box>
+            </Box>
+        </Box>
     );
 }
 
