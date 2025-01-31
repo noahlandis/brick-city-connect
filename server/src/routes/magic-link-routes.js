@@ -12,7 +12,6 @@ router.post('/send-register-magic-link',
     .withMessage('RIT Username is required')
     .bail()
     .customSanitizer(value => {
-      console.log("process.env.WHITELIST_EMAILS", process.env.WHITELIST_EMAILS);
       if (process.env.WHITELIST_EMAILS.split(',').includes(value)) {
         return value;
       }
