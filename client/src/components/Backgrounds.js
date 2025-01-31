@@ -5,122 +5,123 @@ import { getBackgrounds } from '../api/userApi';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
+
 function Backgrounds({ onSelect, selectedBackground }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const { user } = useAuth();
-
-  useEffect(() => {
-    const fetchBackgrounds = async () => {
-      const backgrounds = await getBackgrounds(user.id);
-      console.log(backgrounds);
-    };
-    fetchBackgrounds();
-  });
+    const [backgrounds, setBackgrounds] = useState([]);
+  
+    useEffect(() => {
+        const fetchBackgrounds = async () => {
+        const backgrounds = await getBackgrounds(user.id);
+        console.log("Here are the backgrounds");
+        console.log(backgrounds.data);
+        setBackgrounds(backgrounds.data);
+        };
+        fetchBackgrounds();
+    }, []);
 
     return (
-        <Box>
-            <Typography>Backgrounds</Typography>
+        <Box
+            sx={{
+                display: 'flex',
+                gap: isMobile ? 1.5 : 2,
+                overflowX: 'auto',
+                scrollBehavior: 'smooth',
+                '&::-webkit-scrollbar': {
+                    height: '8px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                    backgroundColor: theme.palette.grey[400],
+                    borderRadius: '4px',
+                },
+            }}
+        >
+            {backgrounds.map((background) => (
+                <Box
+                    key={background.id}
+                    onClick={() => onSelect(background)}
+                    sx={{
+                        flex: '0 0 auto',
+                        // make mobile same ratio but smaller
+                        width: isMobile ? '106px' : '150px',
+                        height: isMobile ? '80px' : '112px',
+                        position: 'relative',
+                        aspectRatio: '16/9',
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        cursor: background.locked ? 'not-allowed' : 'pointer',
+                        backgroundColor: background.url ? 'transparent' : 'rgba(0, 0, 0, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : '3px solid transparent',
+                    }}
+                >
+                    {background.url ? (
+                        <img
+                            src={background.url}
+                            alt={background.name}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                            }}
+                        />
+                    ) : null}
+                    {background.locked && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1,
+                            }}
+                        >
+                            <LockIcon
+                                sx={{
+                                    fontSize: '3rem',
+                                    color: 'white',
+                                }}
+                            />
+                        </Box>
+                    )}
+                    {!background.locked && background.url && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: '-3px',
+                                width: '100%',
+                                padding: '8px',
+                                background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
+                                color: 'white',
+                                fontSize: '0.875rem',
+                                textAlign: 'center',
+                                zIndex: 2,
+                                fontWeight: 'bold',
+                            }}
+                        >
+                            {background.name}
+                        </Box>
+                    )}
+                    {!background.url && !background.locked && (
+                        <BlockIcon
+                            sx={{
+                                fontSize: '3rem',
+                                color: theme.palette.grey[600],
+                            }}
+                        />
+                    )}
+                </Box>
+            ))}
         </Box>
-        // <Box
-        //     sx={{
-        //         display: 'flex',
-        //         gap: isMobile ? 1.5 : 2,
-        //         overflowX: 'auto',
-        //         scrollBehavior: 'smooth',
-        //         '&::-webkit-scrollbar': {
-        //             height: '8px',
-        //         },
-        //         '&::-webkit-scrollbar-thumb': {
-        //             backgroundColor: theme.palette.grey[400],
-        //             borderRadius: '4px',
-        //         },
-        //     }}
-        // >
-        //     {mockBackgrounds.map((background) => (
-        //         <Box
-        //             key={background.id}
-        //             onClick={() => onSelect(background)}
-        //             sx={{
-        //                 flex: '0 0 auto',
-        //                 // make mobile same ratio but smaller
-        //                 width: isMobile ? '106px' : '150px',
-        //                 height: isMobile ? '80px' : '112px',
-        //                 position: 'relative',
-        //                 aspectRatio: '16/9',
-        //                 borderRadius: 2,
-        //                 overflow: 'hidden',
-        //                 cursor: background.locked ? 'not-allowed' : 'pointer',
-        //                 backgroundColor: background.url ? 'transparent' : 'rgba(0, 0, 0, 0.1)',
-        //                 display: 'flex',
-        //                 alignItems: 'center',
-        //                 justifyContent: 'center',
-        //                 border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : '3px solid transparent',
-        //             }}
-        //         >
-        //             {background.url ? (
-        //                 <img
-        //                     src={background.url}
-        //                     alt={background.name}
-        //                     style={{
-        //                         width: '100%',
-        //                         height: '100%',
-        //                         objectFit: 'cover',
-        //                     }}
-        //                 />
-        //             ) : null}
-        //             {background.locked && (
-        //                 <Box
-        //                     sx={{
-        //                         position: 'absolute',
-        //                         top: 0,
-        //                         left: 0,
-        //                         width: '100%',
-        //                         height: '100%',
-        //                         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        //                         display: 'flex',
-        //                         alignItems: 'center',
-        //                         justifyContent: 'center',
-        //                         zIndex: 1,
-        //                     }}
-        //                 >
-        //                     <LockIcon
-        //                         sx={{
-        //                             fontSize: '3rem',
-        //                             color: 'white',
-        //                         }}
-        //                     />
-        //                 </Box>
-        //             )}
-        //             {!background.locked && background.url && (
-        //                 <Box
-        //                     sx={{
-        //                         position: 'absolute',
-        //                         bottom: '-3px',
-        //                         width: '100%',
-        //                         padding: '8px',
-        //                         background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
-        //                         color: 'white',
-        //                         fontSize: '0.875rem',
-        //                         textAlign: 'center',
-        //                         zIndex: 2,
-        //                         fontWeight: 'bold',
-        //                     }}
-        //                 >
-        //                     {background.name}
-        //                 </Box>
-        //             )}
-        //             {!background.url && !background.locked && (
-        //                 <BlockIcon
-        //                     sx={{
-        //                         fontSize: '3rem',
-        //                         color: theme.palette.grey[600],
-        //                     }}
-        //                 />
-        //             )}
-        //         </Box>
-        //     ))}
-        // </Box>
     );
 }
 
