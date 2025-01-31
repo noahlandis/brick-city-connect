@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Box, useMediaQuery, useTheme } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -6,6 +6,7 @@ import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { getBackgrounds } from '../../api/userApi';
 
 function Home() {
     const navigate = useNavigate();
@@ -14,6 +15,7 @@ function Home() {
     const { user } = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [backgrounds, setBackgrounds] = useState([]);
 
     console.log(user);
 
@@ -36,14 +38,13 @@ function Home() {
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
 
-    const mockBackgrounds = [
-        { id: 1, name: 'Mountain View', url: 'https://picsum.photos/800/450?random=1' },
-        { id: 2, name: 'Beach Sunset', url: 'https://picsum.photos/800/450?random=2' },
-        { id: 3, name: 'City Night', url: 'https://picsum.photos/800/450?random=3' },
-        { id: 4, name: 'Forest', url: 'https://picsum.photos/800/450?random=4' },
-        { id: 5, name: 'Desert', url: 'https://picsum.photos/800/450?random=5' },
-        { id: 6, name: 'Ocean', url: 'https://picsum.photos/800/450?random=6' },
-    ];
+    useEffect(() => {
+        const fetchBackgrounds = async () => {
+            const backgrounds = await getBackgrounds(user.id);
+            setBackgrounds(backgrounds.data);
+        };
+        fetchBackgrounds();
+    }, [user]);
 
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
@@ -167,7 +168,7 @@ function Home() {
                         gap: isMobile ? 1.5 : 2,
                     }}
                 >
-                    {mockBackgrounds.map((background) => (
+                    {backgrounds.map(background => (
                         <Box
                             key={background.id}
                             sx={{
