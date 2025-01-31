@@ -19,10 +19,9 @@ export function AuthProvider({ children }) {
     return null;
   });
 
-  const clientLogin = (token) => {
-    localStorage.setItem('token', token);
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    setUser(payload);
+  const clientLogin = (data) => {
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
   };
 
   const clientLogout = () => {

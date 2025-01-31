@@ -15,7 +15,7 @@ const authController = {
             password: password
         });
         const token = generateToken(user);
-        return res.status(201).json({ message: 'User created successfully', token });
+        return res.status(201).json({ message: 'User created successfully', token, user });
     },
 
     login: async (req, res) => {
@@ -30,7 +30,7 @@ const authController = {
             });
         }
         const token = generateToken(user);
-        return res.status(200).json({ message: 'Login successful', token });
+        return res.status(200).json({ message: 'Login successful', token, user });
     },
 
     resetPassword: async (req, res) => {
@@ -76,7 +76,7 @@ const authController = {
             });
         }
         const token = generateToken(user);
-        return res.status(200).json({ message: 'Google callback successful', token });
+        return res.status(200).json({ message: 'Google callback successful', token, user });
     }
 }
 

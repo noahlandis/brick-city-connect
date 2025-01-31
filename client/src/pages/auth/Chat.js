@@ -62,6 +62,7 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
+      console.log(user);
       joinChat();
     }
     // we don't want this to run every render, just on mount so we ignore the eslint warning
