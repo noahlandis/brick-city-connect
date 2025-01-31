@@ -1,10 +1,6 @@
 import { useTheme, useMediaQuery, Box } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
 import LockIcon from '@mui/icons-material/Lock';
-import { getBackgrounds } from '../api/userApi';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-
 
 function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
     const theme = useTheme();

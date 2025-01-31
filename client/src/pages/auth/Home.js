@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Box, useMediaQuery, useTheme } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
@@ -6,7 +6,6 @@ import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getBackgrounds } from '../../api/userApi';
 
 function Home() {
     const navigate = useNavigate();
@@ -63,7 +62,7 @@ function Home() {
 
     useEffect(() => {
         fetchUser();
-    }, []);
+    }, [fetchUser]);
 
     return (
         <Box

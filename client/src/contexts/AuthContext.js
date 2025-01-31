@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { getUser } from '../api/userApi';
 
 const AuthContext = createContext(null);
@@ -20,10 +20,10 @@ export function AuthProvider({ children }) {
     return null;
   });
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     const fetchedUser = await getUser(user.id);
     setUser(fetchedUser.data);
-  };
+  }, [user?.id]);
 
   const clientLogin = (data) => {
     localStorage.setItem('token', data.token);
