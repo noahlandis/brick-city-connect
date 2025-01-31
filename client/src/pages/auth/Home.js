@@ -78,107 +78,73 @@ function Home() {
                 height: '80%',
             }}
         >
-            {/* Top Section with Avatar, Level, and Button */}
+            {/* Top Section */}
             <Box sx={{ 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'stretch' : 'center',
-                gap: isMobile ? 3 : 6,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
                 width: '100%',
             }}>
-                {/* Left side - Avatar and User Info */}
+                {/* Username */}
                 <Box sx={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 3,
-                    flex: isMobile ? 'unset' : 1,
+                    fontSize: isMobile ? '1.25rem' : '1.75rem',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    color: '#2c3e50',
                 }}>
-                    {/* Avatar */}
-                 
-
-                    {/* User Info */}
-                    <Box>
-                        <Box sx={{ 
-                            fontSize: isMobile ? '1.25rem' : '1.75rem',
-                            fontWeight: '600',
-                            color: '#2c3e50',
-                            mb: 1
-                        }}>
-                            {user.username}
-                        </Box>
-                        <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center',
-                            gap: 2,
-                            flexWrap: 'wrap'
-                        }}>
-                            <Box sx={{ 
-                                fontSize: isMobile ? '0.875rem' : '1rem',
-                                fontWeight: '500',
-                                color: '#2c3e50',
-                            }}>
-                                Level {user.level} 
-                            </Box>
-                            <Box sx={{ 
-                                fontSize: '0.875rem',
-                                backgroundColor: '#F76902',
-                                color: 'white',
-                                padding: '2px 8px',
-                                borderRadius: 10,
-                            }}>
-                                {user.xp} / 1000 XP
-                            </Box>
-                        </Box>
-                    </Box>
+                    Welcome, {user.username}!
                 </Box>
 
-                {/* Chat Button */}
-                <Button 
-                    variant="contained"
-                    fullWidth={isMobile}
-                    startIcon={<VideocamIcon sx={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} />}
-                    onClick={() => navigate('/chat')}
-                    sx={{
-                        backgroundColor: '#F76902',
-                        padding: isMobile ? '12px 24px' : '16px 40px',
-                        borderRadius: 3,
-                        fontSize: isMobile ? '1rem' : '1.25rem',
-                        fontWeight: '600',
-                        textTransform: 'none',
-                        transition: 'all 0.2s ease-in-out',
-                        minWidth: isMobile ? 'unset' : '240px',
-                        '&:hover': {
-                            backgroundColor: '#d55a02',
-                            transform: 'translateY(-2px)',
-                            boxShadow: '0 4px 15px rgba(247, 105, 2, 0.25)',
-                        }
-                    }}
-                >
-                    Start Chatting
-                </Button>
-            </Box>
-
-            {/* XP Bar */}
-            <Box
-                sx={{
+                {/* Level Progress Section */}
+                <Box sx={{ 
                     width: '100%',
-                    height: 6,
-                    backgroundColor: '#f0f2f5',
-                    borderRadius: 3,
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}
-            >
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        height: '100%',
-                        background: 'linear-gradient(90deg, #F76902, #ff9248)',
-                        width: `${(user.currentXP / 1000) * 100}%`,
-                        borderRadius: 3,
-                        transition: 'width 0.3s ease-in-out'
-                    }}
-                />
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1,
+                }}>
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                        <Box sx={{ 
+                            fontSize: isMobile ? '0.875rem' : '1rem',
+                            fontWeight: '500',
+                            color: '#2c3e50',
+                        }}>
+                            Level {user.level}
+                        </Box>
+                        <Box sx={{ 
+                            fontSize: '0.875rem',
+                            color: '#666',
+                        }}>
+                            {user.xp} / 1000 XP
+                        </Box>
+                    </Box>
+                    
+                    {/* XP Progress Bar */}
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: 8,
+                            backgroundColor: '#f0f2f5',
+                            borderRadius: 4,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                height: '100%',
+                                background: 'linear-gradient(90deg, #F76902, #ff9248)',
+                                width: `${(user.xp / 1000) * 100}%`,
+                                borderRadius: 4,
+                                transition: 'width 0.3s ease-in-out'
+                            }}
+                        />
+                    </Box>
+                </Box>
             </Box>
 
             {/* Backgrounds Section */}
@@ -247,6 +213,38 @@ function Home() {
                         </Box>
                     ))}
                 </Box>
+            </Box>
+
+            {/* Bottom Chat Button */}
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
+                mt: 2
+            }}>
+                <Button 
+                    variant="contained"
+                    startIcon={<VideocamIcon sx={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} />}
+                    onClick={() => navigate('/chat')}
+                    sx={{
+                        backgroundColor: '#F76902',
+                        padding: isMobile ? '12px 24px' : '16px 40px',
+                        borderRadius: 3,
+                        fontSize: isMobile ? '1rem' : '1.25rem',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        transition: 'all 0.2s ease-in-out',
+                        width: isMobile ? '100%' : 'auto',
+                        minWidth: isMobile ? 'unset' : '300px',
+                        '&:hover': {
+                            backgroundColor: '#d55a02',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 15px rgba(247, 105, 2, 0.25)',
+                        }
+                    }}
+                >
+                    Start Chatting
+                </Button>
             </Box>
         </Box>
     );
