@@ -20,18 +20,10 @@ export function AuthProvider({ children }) {
     return null;
   });
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (user?.id && token && !user.level) {
-
-        console.log("fetch again, refresh");
-        const fetchedUser = await getUser(user.id);
-        setUser(fetchedUser.data);
-      }
-    };
-    fetchUser();
-  }, [user?.id]);
+  const fetchUser = async () => {
+    const fetchedUser = await getUser(user.id);
+    setUser(fetchedUser.data);
+  };
 
   const clientLogin = (data) => {
     localStorage.setItem('token', data.token);
@@ -44,7 +36,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, clientLogin, clientLogout }}>
+    <AuthContext.Provider value={{ user, clientLogin, clientLogout, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );

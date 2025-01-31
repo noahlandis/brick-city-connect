@@ -12,7 +12,7 @@ function Home() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
-    const { user } = useAuth();
+    const { user, fetchUser } = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -60,6 +60,10 @@ function Home() {
             });
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
+
+    useEffect(() => {
+        fetchUser();
+    }, []);
 
     return (
         <Box
@@ -150,7 +154,7 @@ function Home() {
                 }}>
                     Your Backgrounds
                 </Box>
-                {user?.backgrounds?.length === 0 ? (
+                {user?.backgrounds?.filter(bg => !bg.locked).length === 0 ? (
                     <Box sx={{
                         textAlign: 'center',
                         color: 'black',
@@ -170,7 +174,7 @@ function Home() {
                             gap: isMobile ? 1.5 : 2,
                         }}
                     >
-                        {user?.backgrounds?.map(background => (
+                        {user?.backgrounds?.filter(bg => !bg.locked).map(background => (
                             <Box
                                 key={background.id}
                                 sx={{
