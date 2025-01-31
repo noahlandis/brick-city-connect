@@ -3,6 +3,7 @@ const router = express.Router();
 const { magicLinkController } = require('../controllers/magic-link-controller');
 const { body, query } = require('express-validator');
 const validateRequest = require('../middleware/validate-request');
+require('dotenv').config({ path: '../.env' });
 
 router.post('/send-register-magic-link', 
   body('username')
@@ -10,7 +11,13 @@ router.post('/send-register-magic-link',
     .notEmpty()
     .withMessage('RIT Username is required')
     .bail()
-    .customSanitizer(value => `${value}@rit.edu`)
+    .customSanitizer(value => {
+      console.log("process.env.WHITELIST_EMAILS", process.env.WHITELIST_EMAILS);
+      if (process.env.WHITELIST_EMAILS.split(',').includes(value)) {
+        return value;
+      }
+      return `${value}@rit.edu`;
+    })
     .bail()
     .isEmail()
     .withMessage("We didn't recognize that email"),

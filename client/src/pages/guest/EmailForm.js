@@ -21,7 +21,6 @@ function EmailForm() {
         const isValid = validateFields({
             username: [
                 { condition: !username, message: 'RIT Username is required' },
-                { condition: username.endsWith('@rit.edu'), message: `We didn't recognize ${username}@rit.edu as a valid RIT email address` },
             ],
         }, setErrors);
 
