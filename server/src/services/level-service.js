@@ -14,7 +14,7 @@ async function rewardUser(userID, millisecondsActive) {
 
     const user = await User.findByPk(userID, { transaction });
     const xp = Math.floor(User.XP_PER_SECOND * (millisecondsActive / MILLISECONDS_PER_SECOND)); // Convert ms to seconds
-    user.xp += 1000;
+    user.xp += xp;
 
     // if the user has enough xp to level up, we update the level and reset the xp (and carry over the remainder)
     if (user.xp >= User.XP_PER_LEVEL) {
