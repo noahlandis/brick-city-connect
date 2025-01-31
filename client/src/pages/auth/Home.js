@@ -5,11 +5,15 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Home() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
+    const { user } = useAuth();
+
+    console.log(user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists

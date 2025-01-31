@@ -5,4 +5,6 @@ const userController = require('../controllers/user-controller'); // Fix the imp
 
 router.get('/users/:id/backgrounds', userController.getBackgrounds);
 
+router.get('/users/:id', userController.getUser);
+
 module.exports = router;
