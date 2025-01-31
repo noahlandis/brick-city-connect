@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const User = require('../models/user');
+const { User } = require('../models/index');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { generateToken } = require('../services/jwt-service');

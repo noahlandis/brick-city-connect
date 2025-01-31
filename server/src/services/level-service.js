@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const { User } = require('../models/index');
 
 /**
  * Reward the user with xp based on the duration of the time they spent in the video chat lobby

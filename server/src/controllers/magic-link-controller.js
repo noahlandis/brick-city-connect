@@ -1,6 +1,6 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { User } = require('../models/index');
 const { getEmailTemplate } = require('../services/email-service');
 
 // register-magic-link-controller.js
