@@ -1,6 +1,6 @@
 const { sendEmail } = require('../services/email-service');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { User } = require('../models/index');
 const { getEmailTemplate } = require('../services/email-service');
 
 // register-magic-link-controller.js
@@ -15,7 +15,7 @@ const magicLinkController = {
         const token = jwt.sign(
             { username: username, type: 'register' }, // we include the type to make sure the token is only used for register
             process.env.JWT_SECRET, 
-            { expiresIn: '5m' }  // Token expires in 5 minutes
+            { expiresIn: '30m' }  // Token expires in 30 minutes
         );
         const url = `${process.env.FRONTEND_URL}/register/callback?token=${token}`;
         const html = await getEmailTemplate('register-email', { url });

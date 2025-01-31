@@ -43,7 +43,7 @@ function Login() {
         try {
             const response = await login(username, password);
             if (response.status === 200) {
-                clientLogin(response.data.token);
+                clientLogin(response.data);
                 // Navigate to the intended destination
                 navigate(from);
             }

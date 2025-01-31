@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { getUser } from '../api/userApi';
 
 const AuthContext = createContext(null);
 
@@ -19,10 +20,14 @@ export function AuthProvider({ children }) {
     return null;
   });
 
-  const clientLogin = (token) => {
-    localStorage.setItem('token', token);
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    setUser(payload);
+  const fetchUser = useCallback(async () => {
+    const fetchedUser = await getUser(user.id);
+    setUser(fetchedUser.data);
+  }, [user?.id]);
+
+  const clientLogin = (data) => {
+    localStorage.setItem('token', data.token);
+    setUser(data.user);
   };
 
   const clientLogout = () => {
@@ -31,7 +36,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, clientLogin, clientLogout }}>
+    <AuthContext.Provider value={{ user, clientLogin, clientLogout, fetchUser }}>
       {children}
     </AuthContext.Provider>
   );

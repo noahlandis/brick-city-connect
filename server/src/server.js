@@ -23,10 +23,12 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const magicLinkRoutes = require('./routes/magic-link-routes');
 const authRoutes = require('./routes/auth-routes');
+const userRoutes = require('./routes/user-routes');
 
 // prepend 'api' to all routes
 app.use('/api', magicLinkRoutes);
 app.use('/api', authRoutes);
+app.use('/api', userRoutes);
 
 // Apply Bugsnag middleware
 app.use(middleware.requestHandler);

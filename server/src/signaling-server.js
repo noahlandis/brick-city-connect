@@ -1,5 +1,7 @@
 const { Server } = require('socket.io');
 const Bugsnag = require('./config/bugsnag');
+const { rewardUser } = require('./services/level-service');
+
 let io;
 
 let waitingUser = null; 
@@ -101,13 +103,13 @@ function handleUserLeaveAndJoin(socket) {
  * @param {*} socket - The socket of the new user joining the chat.
  */
 function handleExistingUserConnection(socket) {
-  const currentUserSocket = connectedUsers[socket.username];
+  const currentUserSocket = connectedUsers[socket.userID];
   if (currentUserSocket) {
     console.log("user already connected. Removing ", currentUserSocket.id, "from the chat");
     currentUserSocket.emit('leave-chat');
     currentUserSocket.disconnect();
   }
-  connectedUsers[socket.username] = socket;
+  connectedUsers[socket.userID] = socket;
 }
 
 
@@ -125,18 +127,21 @@ function initializeSignalingServer(httpServer) {
     
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
-  socket.on('join-chat', (peerID, username) => {
+  socket.on('join-chat', (peerID, userID) => {
     // we always store the peerID as this identifies the peer to call to start the video stream
     socket.peerID = peerID;
-    socket.username = username;
+    socket.userID = userID;
+    socket.startTime = Date.now();
     // handleExistingUserConnection(socket);
-    console.log("user joined chat. The username is", username);
+    console.log("user joined chat. The id is", userID);
     handleUserLeaveAndJoin(socket);
   });
 
   socket.on('disconnect', () => {
+    
     console.log('User disconnected:', socket.id);
-    delete connectedUsers[socket.username];
+    rewardUser(socket.userID, Date.now() - socket.startTime);
+    delete connectedUsers[socket.userID];
     if (socket === userWaitingToSkip) {
       userWaitingToSkip = null;
     }
@@ -152,7 +157,7 @@ io.on('connection', (socket) => {
         event.addMetadata('user', {
           id: socket.id,
           peerID: socket.peerID,
-          username: socket.username,
+          userID: socket.userID,
         });
       });
     }

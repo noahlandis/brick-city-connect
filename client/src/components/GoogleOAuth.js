@@ -12,7 +12,7 @@ function GoogleOAuth({ text }) {
         try {
             const response = await googleCallback(successResponse.credential);
             if (response.status === 200) {
-                clientLogin(response.data.token);
+                clientLogin(response.data);
                 navigate('/');
             }
         } catch (error) {

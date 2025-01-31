@@ -62,6 +62,7 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
+      console.log(user);
       joinChat();
     }
     // we don't want this to run every render, just on mount so we ignore the eslint warning
@@ -116,7 +117,7 @@ function Chat() {
     // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localPeerID) => {
       console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID, user.username);
+      socketRef.current.emit('join-chat', localPeerID, user.id);
     });
 
     localUserRef.current.on('connection', (conn) => {
@@ -320,6 +321,24 @@ function Chat() {
               display: localBackground !== 'none' ? 'block' : 'none',
             }}
           />
+          {!isStreamReady && (
+            <Box sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              gap: 2,
+            }}>
+              <CircularProgress sx={{ color: '#F76902' }} />
+            </Box>
+          )}
         </Box>
 
         {/* Remote Video */}
@@ -379,7 +398,11 @@ function Chat() {
       </Box>
       {/* Background Selector */}
     
-        <Backgrounds onSelect={handleBackgroundSelect} selectedBackground={localBackground} />
+        <Backgrounds 
+          onSelect={handleBackgroundSelect} 
+          selectedBackground={localBackground} 
+          backgrounds={user.backgrounds}
+        />
       {/* Buttons Container */}
       <Box sx={{
         display: 'flex',

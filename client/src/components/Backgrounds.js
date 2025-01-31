@@ -2,17 +2,11 @@ import { useTheme, useMediaQuery, Box } from '@mui/material';
 import BlockIcon from '@mui/icons-material/Block';
 import LockIcon from '@mui/icons-material/Lock';
 
-function Backgrounds({ onSelect, selectedBackground }) {
+function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-    const mockBackgrounds = [
-        { id: 0, url: null, name: 'None', locked: false },
-        { id: 1, url: '/rit.jpg', name: 'Rit', locked: false },
-        { id: 2, url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', name: 'Beach', locked: false },
-        { id: 3, url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', name: 'Mountains', locked: false },
-        { id: 4, url: 'https://cdn.rit.edu/images/news/2021-02/dining_ASW2512a.jpg', name: 'Dining Hall', locked: true },
-    ];
+    const defaultBackground = { id: 0, url: null, name: 'None', locked: false };
+    backgrounds = [defaultBackground, ...backgrounds];
 
     return (
         <Box
@@ -30,7 +24,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                 },
             }}
         >
-            {mockBackgrounds.map((background) => (
+            {backgrounds?.map((background) => (
                 <Box
                     key={background.id}
                     onClick={() => onSelect(background)}
@@ -51,7 +45,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                         border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : '3px solid transparent',
                     }}
                 >
-                    {background.url ? (
+                    {background?.url ? (
                         <img
                             src={background.url}
                             alt={background.name}
@@ -62,7 +56,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                             }}
                         />
                     ) : null}
-                    {background.locked && (
+                    {background?.locked && (
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -85,7 +79,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                             />
                         </Box>
                     )}
-                    {!background.locked && background.url && (
+                    {!background?.locked && background?.url && (
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -100,10 +94,10 @@ function Backgrounds({ onSelect, selectedBackground }) {
                                 fontWeight: 'bold',
                             }}
                         >
-                            {background.name}
+                            {background?.name}
                         </Box>
                     )}
-                    {!background.url && !background.locked && (
+                    {!background?.url && !background?.locked && (
                         <BlockIcon
                             sx={{
                                 fontSize: '3rem',

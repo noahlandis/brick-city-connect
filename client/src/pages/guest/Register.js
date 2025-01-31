@@ -48,7 +48,7 @@ function Register() {
         try {
             const response = await register(username, password, confirmPassword);
             if (response.status === 201) {
-                clientLogin(response.data.token);
+                clientLogin(response.data);
                 navigate('/');
             }
         } catch (err) {

@@ -1,15 +1,21 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Button, Box, useMediaQuery, useTheme } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Home() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showModal, hideModal } = useModal();
+    const { user, fetchUser } = useAuth();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    console.log("Here is the user", user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
@@ -54,23 +60,200 @@ function Home() {
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
 
+    useEffect(() => {
+        fetchUser();
+    }, [fetchUser]);
+
     return (
-        <div>
-            <Button 
-                variant="contained"
-                startIcon={<VideocamIcon />}
-                onClick={() => navigate('/chat')}
-                sx={{
-                    backgroundColor: '#F76902',
-                    '&:hover': {
-                        backgroundColor: '#d55a02',
-                    },
-                    padding: '12px'
-                }}
-            >
-                Start Chatting
-            </Button>
-        </div>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                width: '80%',
+                marginBottom: 4
+            }}
+        >
+            {/* Top Section */}
+            <Box sx={{ 
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '100%',
+            }}>
+                {/* Username */}
+                <Box sx={{ 
+                    fontSize: isMobile ? '1.25rem' : '1.75rem',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    color: '#2c3e50',
+                }}>
+                    Welcome, {user.username}!
+                </Box>
+
+                {/* Level Progress Section */}
+                <Box sx={{ 
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 1,
+                }}>
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                        <Box sx={{ 
+                            fontSize: isMobile ? '0.875rem' : '1rem',
+                            fontWeight: '500',
+                            color: '#2c3e50',
+                        }}>
+                            Level {user.level}
+                        </Box>
+                        <Box sx={{ 
+                            fontSize: '0.875rem',
+                            color: '#666',
+                        }}>
+                            {user.xp} / 1000 XP
+                        </Box>
+                    </Box>
+                    
+                    {/* XP Progress Bar */}
+                    <Box
+                        sx={{
+                            width: '100%',
+                            height: 8,
+                            backgroundColor: '#f0f2f5',
+                            borderRadius: 4,
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                height: '100%',
+                                background: 'linear-gradient(90deg, #F76902, #ff9248)',
+                                width: `${(user.xp / 1000) * 100}%`,
+                                borderRadius: 4,
+                                transition: 'width 0.3s ease-in-out'
+                            }}
+                        />
+                    </Box>
+                </Box>
+            </Box>
+
+            {/* Backgrounds Section */}
+            <Box sx={{ flex: 1 }}>
+                <Box sx={{ 
+                    fontSize: isMobile ? '1.1rem' : '1.25rem',
+                    fontWeight: '600',
+                    color: '#2c3e50',
+                    mb: 2
+                }}>
+                    Your Backgrounds
+                </Box>
+                {user?.backgrounds?.filter(bg => !bg.locked).length === 0 ? (
+                    <Box sx={{
+                        textAlign: 'center',
+                        color: 'black',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        padding: 3,
+                        fontWeight: '600',
+                        backgroundColor: '#f0f2f5',
+                        borderRadius: 2
+                    }}>
+                        No backgrounds yet. Start chatting to level up and unlock more backgrounds!
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+                            gap: isMobile ? 1.5 : 2,
+                        }}
+                    >
+                        {user?.backgrounds?.filter(bg => !bg.locked).map(background => (
+                            <Box
+                                key={background.id}
+                                sx={{
+                                    position: 'relative',
+                                    aspectRatio: '16/9',
+                                    borderRadius: 2,
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s ease-in-out',
+                                    '&:hover': {
+                                        transform: 'scale(1.02)',
+                                        '& .background-name': {
+                                            opacity: 1,
+                                        }
+                                    },
+                                }}
+                            >
+                                <img
+                                    src={background.url}
+                                    alt={background.name}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                                <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: '-3px',
+                                    width: '100%',
+                                    padding: '8px',
+                                    background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
+                                    color: 'white',
+                                    fontSize: '0.875rem',
+                                    textAlign: 'center',
+                                    zIndex: 2,
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                {background.name}
+                            </Box>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
+            </Box>
+
+            {/* Bottom Chat Button */}
+            <Box sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                width: '100%',
+                mt: 2
+            }}>
+                <Button 
+                    variant="contained"
+                    startIcon={<VideocamIcon sx={{ width: isMobile ? '2rem' : '2.1rem', height: isMobile ? '2rem' : '2.1rem' }} />}
+                    onClick={() => navigate('/chat')}
+                    sx={{
+                        backgroundColor: '#F76902',
+                        padding: isMobile ? '12px 24px' : '16px 40px',
+                        borderRadius: 3,
+                        fontSize: isMobile ? '1rem' : '1.25rem',
+                        fontWeight: '600',
+                        textTransform: 'none',
+                        transition: 'all 0.2s ease-in-out',
+                        width: isMobile ? '100%' : 'auto',
+                        minWidth: isMobile ? 'unset' : '300px',
+                        '&:hover': {
+                            backgroundColor: '#d55a02',
+                            transform: 'translateY(-2px)',
+                            boxShadow: '0 4px 15px rgba(247, 105, 2, 0.25)',
+                        }
+                    }}
+                >
+                    Start Chatting
+                </Button>
+            </Box>
+        </Box>
     );
 }
 

@@ -1,8 +1,10 @@
 const { validationResult } = require('express-validator');
-const User = require('../models/user');
+const { User } = require('../models/index');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { generateToken } = require('../services/jwt-service');
+const { getUserWithBackgrounds } = require('../services/user-service');
+
 const authController = {
     register: async (req, res) => {
         const { username, password } = req.body;
@@ -15,7 +17,8 @@ const authController = {
             password: password
         });
         const token = generateToken(user);
-        return res.status(201).json({ message: 'User created successfully', token });
+        const userWithBackgrounds = await getUserWithBackgrounds(user);
+        return res.status(201).json({ message: 'User created successfully', token, user: userWithBackgrounds });
     },
 
     login: async (req, res) => {
@@ -30,7 +33,8 @@ const authController = {
             });
         }
         const token = generateToken(user);
-        return res.status(200).json({ message: 'Login successful', token });
+        const userWithBackgrounds = await getUserWithBackgrounds(user);
+        return res.status(200).json({ message: 'Login successful', token, user: userWithBackgrounds });
     },
 
     resetPassword: async (req, res) => {
@@ -76,7 +80,8 @@ const authController = {
             });
         }
         const token = generateToken(user);
-        return res.status(200).json({ message: 'Google callback successful', token });
+        const userWithBackgrounds = await getUserWithBackgrounds(user);
+        return res.status(200).json({ message: 'Google callback successful', token, user: userWithBackgrounds });
     }
 }
 
