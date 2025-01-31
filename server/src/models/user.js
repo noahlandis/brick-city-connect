@@ -59,7 +59,9 @@ User.prototype.validatePassword = async function(password) {
 User.prototype.addXP = function(duration) {
   const xpPerSecond = 1000 / 1800; // Adjust XP per level if needed
   const xp = Math.floor(xpPerSecond * (duration / 1000)); // Convert ms to seconds
-  this.xp += 2020;
+  this.xp += xp;
+
+  // if the user has enough xp to level up, we update the level and reset the xp (and carry over the remainder)
   if (this.xp >= 1000) {
     this.level += Math.floor(this.xp / 1000);
     this.xp = this.xp % 1000;
