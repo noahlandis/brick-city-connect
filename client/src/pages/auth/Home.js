@@ -41,7 +41,8 @@ function Home() {
     useEffect(() => {
         const fetchBackgrounds = async () => {
             const backgrounds = await getBackgrounds(user.id);
-            setBackgrounds(backgrounds.data);
+            const unlockedBackgrounds = backgrounds.data.filter(background => background.locked === false);
+            setBackgrounds(unlockedBackgrounds);
         };
         fetchBackgrounds();
     }, [user]);
@@ -162,9 +163,7 @@ function Home() {
                 <Box
                     sx={{
                         display: 'grid',
-                        gridTemplateColumns: isMobile 
-                            ? 'repeat(auto-fit, minmax(140px, 1fr))'
-                            : 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gridTemplateColumns: 'repeat(4, 1fr)',
                         gap: isMobile ? 1.5 : 2,
                     }}
                 >
