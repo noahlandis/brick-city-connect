@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Box } from '@mui/material';
+import { Button, Box, useMediaQuery, useTheme } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { ERROR_CODES } from '../../utils/constants';
 import { useModal } from '../../contexts/ModalContext';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme, useMediaQuery } from '@mui/material';
+
 function Home() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -14,6 +14,8 @@ function Home() {
     const { user } = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+    console.log(user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
@@ -33,6 +35,15 @@ function Home() {
             });
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
+
+    const mockBackgrounds = [
+        { id: 1, name: 'Mountain View', url: 'https://picsum.photos/800/450?random=1' },
+        { id: 2, name: 'Beach Sunset', url: 'https://picsum.photos/800/450?random=2' },
+        { id: 3, name: 'City Night', url: 'https://picsum.photos/800/450?random=3' },
+        { id: 4, name: 'Forest', url: 'https://picsum.photos/800/450?random=4' },
+        { id: 5, name: 'Desert', url: 'https://picsum.photos/800/450?random=5' },
+        { id: 6, name: 'Ocean', url: 'https://picsum.photos/800/450?random=6' },
+    ];
 
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
@@ -57,15 +68,6 @@ function Home() {
             });
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
-
-    const mockBackgrounds = [
-        { id: 1, name: 'Mountain View', url: 'https://picsum.photos/800/450?random=1' },
-        { id: 2, name: 'Beach Sunset', url: 'https://picsum.photos/800/450?random=2' },
-        { id: 3, name: 'City Night', url: 'https://picsum.photos/800/450?random=3' },
-        { id: 4, name: 'Forest', url: 'https://picsum.photos/800/450?random=4' },
-        { id: 5, name: 'Desert', url: 'https://picsum.photos/800/450?random=5' },
-        { id: 6, name: 'Ocean', url: 'https://picsum.photos/800/450?random=6' },
-    ];
 
     return (
         <Box
