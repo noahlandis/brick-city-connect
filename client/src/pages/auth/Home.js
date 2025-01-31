@@ -226,7 +226,7 @@ function Home() {
             }}>
                 <Button 
                     variant="contained"
-                    startIcon={<VideocamIcon sx={{ fontSize: isMobile ? '1.25rem' : '1.5rem' }} />}
+                    startIcon={<VideocamIcon sx={{ width: isMobile ? '2rem' : '2.1rem', height: isMobile ? '2rem' : '2.1rem' }} />}
                     onClick={() => navigate('/chat')}
                     sx={{
                         backgroundColor: '#F76902',
