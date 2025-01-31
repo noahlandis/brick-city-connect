@@ -160,59 +160,73 @@ function Home() {
                 }}>
                     Your Backgrounds
                 </Box>
-                <Box
-                    sx={{
-                        display: 'grid',
-                        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-                        gap: isMobile ? 1.5 : 2,
-                    }}
-                >
-                    {backgrounds.map(background => (
-                        <Box
-                            key={background.id}
-                            sx={{
-                                position: 'relative',
-                                aspectRatio: '16/9',
-                                borderRadius: 2,
-                                overflow: 'hidden',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s ease-in-out',
-                                '&:hover': {
-                                    transform: 'scale(1.02)',
-                                    '& .background-name': {
-                                        opacity: 1,
-                                    }
-                                },
-                            }}
-                        >
-                            <img
-                                src={background.url}
-                                alt={background.name}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'cover',
-                                }}
-                            />
+                {backgrounds.length === 0 ? (
+                    <Box sx={{
+                        textAlign: 'center',
+                        color: 'black',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        padding: 3,
+                        fontWeight: '600',
+                        backgroundColor: '#f0f2f5',
+                        borderRadius: 2
+                    }}>
+                        No backgrounds yet. Start chatting to level up and unlock more backgrounds!
+                    </Box>
+                ) : (
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+                            gap: isMobile ? 1.5 : 2,
+                        }}
+                    >
+                        {backgrounds.map(background => (
                             <Box
-                            sx={{
-                                position: 'absolute',
-                                bottom: '-3px',
-                                width: '100%',
-                                padding: '8px',
-                                background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
-                                color: 'white',
-                                fontSize: '0.875rem',
-                                textAlign: 'center',
-                                zIndex: 2,
-                                fontWeight: 'bold',
-                            }}
-                        >
-                            {background.name}
-                        </Box>
-                        </Box>
-                    ))}
-                </Box>
+                                key={background.id}
+                                sx={{
+                                    position: 'relative',
+                                    aspectRatio: '16/9',
+                                    borderRadius: 2,
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    transition: 'transform 0.2s ease-in-out',
+                                    '&:hover': {
+                                        transform: 'scale(1.02)',
+                                        '& .background-name': {
+                                            opacity: 1,
+                                        }
+                                    },
+                                }}
+                            >
+                                <img
+                                    src={background.url}
+                                    alt={background.name}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                                <Box
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: '-3px',
+                                    width: '100%',
+                                    padding: '8px',
+                                    background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
+                                    color: 'white',
+                                    fontSize: '0.875rem',
+                                    textAlign: 'center',
+                                    zIndex: 2,
+                                    fontWeight: 'bold',
+                                }}
+                            >
+                                {background.name}
+                            </Box>
+                            </Box>
+                        ))}
+                    </Box>
+                )}
             </Box>
 
             {/* Bottom Chat Button */}
