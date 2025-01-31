@@ -6,22 +6,13 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 
-function Backgrounds({ onSelect, selectedBackground }) {
+function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const { user } = useAuth();
     const defaultBackground = { id: 0, url: null, name: 'None', locked: false };
-    const [backgrounds, setBackgrounds] = useState([defaultBackground]);
+     backgrounds = [defaultBackground, ...backgrounds];
   
-    useEffect(() => {
-        const fetchBackgrounds = async () => {
-        const backgrounds = await getBackgrounds(user.id);
-        console.log("Here are the backgrounds");
-        console.log(backgrounds.data);
-        setBackgrounds([defaultBackground, ...backgrounds.data]);
-        };
-        fetchBackgrounds();
-    }, []);
+  
 
     return (
         <Box
@@ -39,7 +30,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                 },
             }}
         >
-            {backgrounds.map((background) => (
+            {backgrounds?.map((background) => (
                 <Box
                     key={background.id}
                     onClick={() => onSelect(background)}
@@ -60,7 +51,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                         border: selectedBackground === (background.url || 'none') ? '3px solid #F76902' : '3px solid transparent',
                     }}
                 >
-                    {background.url ? (
+                    {background?.url ? (
                         <img
                             src={background.url}
                             alt={background.name}
@@ -71,7 +62,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                             }}
                         />
                     ) : null}
-                    {background.locked && (
+                    {background?.locked && (
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -94,7 +85,7 @@ function Backgrounds({ onSelect, selectedBackground }) {
                             />
                         </Box>
                     )}
-                    {!background.locked && background.url && (
+                    {!background?.locked && background?.url && (
                         <Box
                             sx={{
                                 position: 'absolute',
@@ -109,10 +100,10 @@ function Backgrounds({ onSelect, selectedBackground }) {
                                 fontWeight: 'bold',
                             }}
                         >
-                            {background.name}
+                            {background?.name}
                         </Box>
                     )}
-                    {!background.url && !background.locked && (
+                    {!background?.url && !background?.locked && (
                         <BlockIcon
                             sx={{
                                 fontSize: '3rem',

@@ -398,7 +398,11 @@ function Chat() {
       </Box>
       {/* Background Selector */}
     
-        <Backgrounds onSelect={handleBackgroundSelect} selectedBackground={localBackground} />
+        <Backgrounds 
+          onSelect={handleBackgroundSelect} 
+          selectedBackground={localBackground} 
+          backgrounds={user.backgrounds}
+        />
       {/* Buttons Container */}
       <Box sx={{
         display: 'flex',

@@ -15,9 +15,8 @@ function Home() {
     const { user } = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [backgrounds, setBackgrounds] = useState([]);
 
-    console.log("Here is the user. It should have the attribute attached", user);
+    console.log("Here is the user", user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
@@ -37,15 +36,6 @@ function Home() {
             });
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
-
-    useEffect(() => {
-        const fetchBackgrounds = async () => {
-            const backgrounds = await getBackgrounds(user.id);
-            const unlockedBackgrounds = backgrounds.data.filter(background => background.locked === false);
-            setBackgrounds(unlockedBackgrounds);
-        };
-        fetchBackgrounds();
-    }, [user]);
 
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
@@ -160,7 +150,7 @@ function Home() {
                 }}>
                     Your Backgrounds
                 </Box>
-                {backgrounds.length === 0 ? (
+                {user?.backgrounds?.length === 0 ? (
                     <Box sx={{
                         textAlign: 'center',
                         color: 'black',
@@ -180,7 +170,7 @@ function Home() {
                             gap: isMobile ? 1.5 : 2,
                         }}
                     >
-                        {backgrounds.map(background => (
+                        {user?.backgrounds?.map(background => (
                             <Box
                                 key={background.id}
                                 sx={{
