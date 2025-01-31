@@ -6,7 +6,12 @@ const userController = {
         console.log("Getting backgrounds for user", id);
         const user = await User.findByPk(id, { include: Background });
           // we get all the backgrounds
-          const allBackgrounds = await Background.findAll();
+          const allBackgrounds = await Background.findAll(
+            {
+              order: [['requiredLevel', 'ASC']],
+              attributes: ['id', 'name', 'url'] // we exclude createdAt and updatedAt
+            }
+          );
 
           // we get the user's unlocked backgrounds
           const userBackgrounds = await user.getBackgrounds();
