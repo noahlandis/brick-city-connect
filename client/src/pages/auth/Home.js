@@ -76,8 +76,7 @@ function Home() {
                 flexDirection: 'column',
                 gap: 4,
                 width: '80%',
-                margin: '0 auto',
-                height: '80%',
+                marginBottom: 4
             }}
         >
             {/* Top Section */}
