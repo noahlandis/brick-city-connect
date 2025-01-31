@@ -17,7 +17,7 @@ function Home() {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [backgrounds, setBackgrounds] = useState([]);
 
-    console.log(user);
+    console.log("Here is the user. It should have the attribute attached", user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
