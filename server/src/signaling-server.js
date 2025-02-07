@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
     socket.peerID = peerID;
     socket.userID = userID;
     socket.startTime = Date.now();
-    // handleExistingUserConnection(socket);
+    handleExistingUserConnection(socket);
     console.log("user joined chat. The id is", userID);
     handleUserLeaveAndJoin(socket);
   });

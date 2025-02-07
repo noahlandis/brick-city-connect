@@ -15,7 +15,6 @@ function Home() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    console.log("Here is the user", user);
 
     useEffect(() => {
         // Clear the error parameter from URL if it exists
@@ -35,6 +34,7 @@ function Home() {
             });
         }
     }, [searchParams, setSearchParams, showModal, hideModal]);
+
 
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
@@ -58,11 +58,11 @@ function Home() {
                 onAction: hideModal
             });
         }
-    }, [searchParams, setSearchParams, showModal, hideModal]);
+    }, [searchParams, setSearchParams, showModal, hideModal])
 
     useEffect(() => {
         fetchUser();
-    }, [fetchUser]);
+      }, [fetchUser]);
 
     return (
         <Box

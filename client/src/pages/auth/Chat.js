@@ -15,7 +15,7 @@ function Chat() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const { user } = useAuth();
+  const { user, fetchUser } = useAuth();
   const socketRef = useRef(null);
   const localUserRef = useRef(null);
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
@@ -35,6 +35,10 @@ function Chat() {
 
   // we track if remote video is actually ready (has width/height > 0)
   const [isRemoteStreamReady, setIsRemoteStreamReady] = useState(false);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -401,7 +405,7 @@ function Chat() {
         <Backgrounds 
           onSelect={handleBackgroundSelect} 
           selectedBackground={localBackground} 
-          backgrounds={user.backgrounds}
+          backgrounds={user.backgrounds ?? []}
         />
       {/* Buttons Container */}
       <Box sx={{
