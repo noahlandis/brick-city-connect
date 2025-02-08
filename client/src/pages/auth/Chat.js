@@ -253,9 +253,9 @@ function Chat() {
 
         localVideoRef.current.addEventListener('loadedmetadata', () => {
           localVideoRef.current.play();
-        });
+          setIsStreamReady(true); // Mark stream as ready
 
-        setIsStreamReady(true); // Mark stream as ready
+        });
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
