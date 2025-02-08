@@ -11,14 +11,13 @@ function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
     backgrounds.push({ id: 1, url: 'fountain.png', name: 'Fountain', locked: false });
     backgrounds.push({ id: 2, url: 'shed.png', name: 'Shed', locked: false });
     backgrounds.push({ id: 3, url: 'magic.png', name: 'Magic', locked: false });
-
-    backgrounds.push({ id: 4, url: 'gene_polisseni.jpeg', name: 'Gene Polisseni', locked: false });
+    backgrounds.push({ id: 4, url: 'gene_polisseni.png', name: 'Gene Polisseni', locked: false });
     backgrounds.push({ id: 5, url: 'crossroads.png', name: 'Crossroads', locked: false });
     backgrounds.push({ id: 6, url: 'global_village.png', name: 'Global Village', locked: false });
-    backgrounds.push({ id: 7, url: 'tiger_statue.jpg', name: 'Tiger Statue', locked: false });
-    backgrounds.push({ id: 8, url: 'library.jpg', name: 'Library', locked: false });
-    backgrounds.push({ id: 9, url: 'infinity_quad.jpeg', name: 'Infinity Quad', locked: false });
-    backgrounds.push({ id: 10, url: 'sau.jpg', name: 'SAU', locked: false });
+    backgrounds.push({ id: 7, url: 'tiger_statue.png', name: 'Tiger Statue', locked: false });
+    backgrounds.push({ id: 8, url: 'library.png', name: 'Library', locked: false });
+    backgrounds.push({ id: 9, url: 'infinity_quad.png', name: 'Infinity Quad', locked: false });
+    backgrounds.push({ id: 10, url: 'sau.png', name: 'SAU', locked: false });
     
 
 
