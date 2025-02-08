@@ -131,7 +131,13 @@ function Chat() {
     });
 
     localUserRef.current.on('error', (error) => {
-      Bugsnag.notify(error);
+      Bugsnag.notify('An error occurred in Chat.js with the peer', event => {
+        event.addMetadata('user', {
+          peerID: localUserRef.current?.id ?? 'unknown',
+          username: user?.username ?? 'anonymous',
+          error: error,
+        });
+      });
     });
 
     socketRef.current.on('leave-chat', () => {
@@ -205,7 +211,13 @@ function Chat() {
     });
 
     call.on('error', (error) => {
-      Bugsnag.notify(error);
+      Bugsnag.notify('An error occurred in Chat.js with the call', event => {
+        event.addMetadata('user', {
+          peerID: localUserRef.current?.id ?? 'unknown',
+          username: user?.username ?? 'anonymous',
+          error: error,
+        });
+      });
     });
   }
 
