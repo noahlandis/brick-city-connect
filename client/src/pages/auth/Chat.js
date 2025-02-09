@@ -280,12 +280,6 @@ function Chat() {
 
   // Add a function to handle background selection
   const handleBackgroundSelect = (selectedBackground) => {
-    Bugsnag.notify('Background selected staging test', event => {
-      event.addMetadata('user', {
-        username: user?.username ?? 'anonymous',
-        background: selectedBackground,
-      });
-    });
     if (!selectedBackground.locked) {
       setLocalBackground(selectedBackground.url || 'none');
     }
