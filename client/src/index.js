@@ -9,11 +9,6 @@ var BugsnagPluginReact = require('@bugsnag/plugin-react');
 
 ReactGA.initialize(process.env.REACT_APP_GA_TRACKING_ID);
 
-ReactGA.event({
-  category: 'Test number 2 event from Noah',
-  action: 'Test number 2 event from Noah',
-});
-
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,
   releaseStage: process.env.REACT_APP_ENV,

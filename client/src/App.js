@@ -1,5 +1,5 @@
 import React from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import './App.css';
 import Home from './pages/auth/Home';
 import Chat from './pages/auth/Chat';
@@ -20,83 +20,94 @@ import {ConfigCatProvider, createConsoleLogger, LogLevel} from 'configcat-react'
 import ChatGuard from './guards/ChatGuard';
 import Terms from './pages/legal/Terms';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
+import { usePageTracking } from './utils/usePageTracking';
+
+const RootLayout = () => {
+  usePageTracking();
+  return <Outlet />
+}
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: <AuthGuard><AuthLayout /></AuthGuard>,
+    element: <RootLayout />,
     children: [
       {
+        path: "/",
+        element: <AuthGuard><AuthLayout /></AuthGuard>,
+        children: [
+          {
+          index: true,
+          element: <Home />
+        }
+      ]
+    },
+    {
+      path: "/chat",
+      element: <AuthGuard><AuthLayout /></AuthGuard>,
+      children: [
+        {
+          index: true,
+          element: <ChatGuard><Chat /></ChatGuard>
+        }
+      ]
+    },
+    {
+      path: "login",
+      element: <GuestGuard><GuestLayout /></GuestGuard>,
+      children: [
+        {
+          index: true,
+          element: <Login />
+        }
+      ]
+    },
+    {
+      path: "register",
+      element: <GuestGuard><GuestLayout /></GuestGuard>,
+      children: [
+        {
+          index: true,
+          element: <EmailForm />
+        },
+        {
+          path: "callback",
+          element: <Register />,
+          loader: registerGuard
+        }
+      ]
+    },
+    {
+      path: "forgot-password",
+      element: <GuestGuard><GuestLayout /></GuestGuard>,
+      children: [
+        {
+          index: true,
+          element: <ForgotPassword />
+        },
+        {
+          path: "callback",
+          element: <ResetPassword />,
+          loader: forgotPasswordGuard
+        }
+      ]
+    },
+    {
+      path: "terms",
+      element: <AuthLayout />,
+      children: [{
         index: true,
-        element: <Home />
-      }
-    ]
-  },
-  {
-    path: "/chat",
-    element: <AuthGuard><AuthLayout /></AuthGuard>,
-    children: [
-      {
+        element: <Terms />
+      }]
+    },
+    {
+      path: "privacy",
+      element: <AuthLayout />,
+      children: [{
         index: true,
-        element: <ChatGuard><Chat /></ChatGuard>
-      }
+        element: <PrivacyPolicy />
+      }]
+    }
     ]
-  },
-  {
-    path: "login",
-    element: <GuestGuard><GuestLayout /></GuestGuard>,
-    children: [
-      {
-        index: true,
-        element: <Login />
-      }
-    ]
-  },
-  {
-    path: "register",
-    element: <GuestGuard><GuestLayout /></GuestGuard>,
-    children: [
-      {
-        index: true,
-        element: <EmailForm />
-      },
-      {
-        path: "callback",
-        element: <Register />,
-        loader: registerGuard
-      }
-    ]
-  },
-  {
-    path: "forgot-password",
-    element: <GuestGuard><GuestLayout /></GuestGuard>,
-    children: [
-      {
-        index: true,
-        element: <ForgotPassword />
-      },
-      {
-        path: "callback",
-        element: <ResetPassword />,
-        loader: forgotPasswordGuard
-      }
-    ]
-  },
-  {
-    path: "terms",
-    element: <AuthLayout />,
-    children: [{
-      index: true,
-      element: <Terms />
-    }]
-  },
-  {
-    path: "privacy",
-    element: <AuthLayout />,
-    children: [{
-      index: true,
-      element: <PrivacyPolicy />
-    }]
   }
 ]);
 
