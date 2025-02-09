@@ -9,7 +9,10 @@ const { Background } = require('../models/index');
       { url: 'gene_polisseni.png', name: 'Gene Polisseni', requiredLevel: 5 },
       { url: 'global_village.png', name: 'Global Village', requiredLevel: 6 },
       { url: 'infinity_quad.png', name: 'Infinity Quad', requiredLevel: 7 },
-      { url: 'crossroads.png', name: 'Crossroads', requiredLevel: 8 },
+
+
+      // exclusive backgrounds
+      { url: 'crossroads.png', name: 'Crossroads', requiredLevel: 0, isExclusive: true },
 
       // future backgrounds
       // { url: 'library.png', name: 'Library', requiredLevel: 9 },
