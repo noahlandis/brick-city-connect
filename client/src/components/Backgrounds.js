@@ -25,7 +25,6 @@ function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
             }}
         >
             {backgrounds?.map((background) => (
-                console.log(background),
                 <Box
                     key={background.id}
                     onClick={() => onSelect(background)}
