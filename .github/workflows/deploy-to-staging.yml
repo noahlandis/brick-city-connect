@@ -40,6 +40,7 @@ jobs:
           REACT_APP_ENV: "staging"
           REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
           REACT_APP_CONFIGCAT_SDK_KEY: ${{ secrets.REACT_APP_CONFIGCAT_SDK_KEY }}
+          REACT_APP_GA_TRACKING_ID: ${{ secrets.REACT_APP_GA_TRACKING_ID }}
         run: |
           npm install
           npm run build
