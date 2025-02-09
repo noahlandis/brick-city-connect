@@ -37,6 +37,12 @@ async function getUserWithBackgrounds(user) {
  * @param {*} user the user to give the sign up background to
  */
 async function giveUserSignUpBackground(user) {
+    const cutOffDate = new Date('2025-02-15T00:00:00Z');
+    if (user.createdAt > cutOffDate) {
+        console.log('User signed up after the cut off date, so they are not eligible for the sign up background');
+        return;
+    }
+    console.log('User signed up before the cut off date, so they are eligible for the sign up background');
     const signUpBackground = await Background.findOne({
         where: {
             isExclusive: true
