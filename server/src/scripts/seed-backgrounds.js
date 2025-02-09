@@ -3,10 +3,24 @@ const { Background } = require('../models/index');
 (async () => {
   try {
     await Background.bulkCreate([
-      { name: 'RIT', url: '/rit.jpg', requiredLevel: 5 },
-      { name: 'Beach', url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e', requiredLevel: 2 },
-      { name: 'Mountains', url: 'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0', requiredLevel: 5 },
-      { name: 'Dining Hall', url: 'https://cdn.rit.edu/images/news/2021-02/dining_ASW2512a.jpg', requiredLevel: 5 },
+      { url: 'sau.png', name: 'SAU', requiredLevel: 2 },
+      { url: 'shed.png', name: 'Shed', requiredLevel: 3 },
+      { url: 'magic.png', name: 'Magic', requiredLevel: 4 },
+      { url: 'gene_polisseni.png', name: 'Gene Polisseni', requiredLevel: 5 },
+      { url: 'global_village.png', name: 'Global Village', requiredLevel: 6 },
+      { url: 'infinity_quad.png', name: 'Infinity Quad', requiredLevel: 7 },
+
+
+      // exclusive backgrounds
+      { url: 'crossroads.png', name: 'Crossroads', requiredLevel: 0, isExclusive: true },
+
+      // future backgrounds
+      // { url: 'library.png', name: 'Library', requiredLevel: 9 },
+      // { url: 'fountain.png', name: 'Fountain', requiredLevel: 10 },
+      // { url: 'tiger_statue.png', name: 'Tiger Statue', requiredLevel: 11 },
+
+
+
     ], {
       ignoreDuplicates: true,
     });

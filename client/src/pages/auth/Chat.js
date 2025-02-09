@@ -15,7 +15,7 @@ function Chat() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [showSnackbar, setShowSnackbar] = useState(false);
-  const { user } = useAuth();
+  const { user, fetchUser } = useAuth();
   const socketRef = useRef(null);
   const localUserRef = useRef(null);
   const [isLoadingPartner, setIsLoadingPartner] = useState(true);
@@ -35,6 +35,10 @@ function Chat() {
 
   // we track if remote video is actually ready (has width/height > 0)
   const [isRemoteStreamReady, setIsRemoteStreamReady] = useState(false);
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   useEffect(() => {
     // Start local video stream and set up chat when ready
@@ -127,7 +131,13 @@ function Chat() {
     });
 
     localUserRef.current.on('error', (error) => {
-      Bugsnag.notify(error);
+      Bugsnag.notify('An error occurred in Chat.js with the peer', event => {
+        event.addMetadata('user', {
+          peerID: localUserRef.current?.id ?? 'unknown',
+          username: user?.username ?? 'anonymous',
+          error: error,
+        });
+      });
     });
 
     socketRef.current.on('leave-chat', () => {
@@ -201,7 +211,13 @@ function Chat() {
     });
 
     call.on('error', (error) => {
-      Bugsnag.notify(error);
+      Bugsnag.notify('An error occurred in Chat.js with the call', event => {
+        event.addMetadata('user', {
+          peerID: localUserRef.current?.id ?? 'unknown',
+          username: user?.username ?? 'anonymous',
+          error: error,
+        });
+      });
     });
   }
 
@@ -237,9 +253,9 @@ function Chat() {
 
         localVideoRef.current.addEventListener('loadedmetadata', () => {
           localVideoRef.current.play();
-        });
+          setIsStreamReady(true); // Mark stream as ready
 
-        setIsStreamReady(true); // Mark stream as ready
+        });
       })
       .catch((error) => {
         console.error('Error accessing media devices:', error);
@@ -264,6 +280,12 @@ function Chat() {
 
   // Add a function to handle background selection
   const handleBackgroundSelect = (selectedBackground) => {
+    Bugsnag.notify('Background selected staging test', event => {
+      event.addMetadata('user', {
+        username: user?.username ?? 'anonymous',
+        background: selectedBackground,
+      });
+    });
     if (!selectedBackground.locked) {
       setLocalBackground(selectedBackground.url || 'none');
     }
@@ -401,7 +423,7 @@ function Chat() {
         <Backgrounds 
           onSelect={handleBackgroundSelect} 
           selectedBackground={localBackground} 
-          backgrounds={user.backgrounds}
+          backgrounds={user.backgrounds ?? []}
         />
       {/* Buttons Container */}
       <Box sx={{

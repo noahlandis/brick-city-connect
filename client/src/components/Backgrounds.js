@@ -6,7 +6,7 @@ function Backgrounds({ onSelect, selectedBackground, backgrounds }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const defaultBackground = { id: 0, url: null, name: 'None', locked: false };
-    backgrounds = [defaultBackground, ...backgrounds];
+    backgrounds = [defaultBackground, ...backgrounds.filter(background => !(background.isExclusive && background.locked))];
 
     return (
         <Box

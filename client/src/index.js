@@ -3,8 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import ReactGA from 'react-ga4';
 var Bugsnag = require('@bugsnag/js');
 var BugsnagPluginReact = require('@bugsnag/plugin-react');
+
+ReactGA.initialize(process.env.REACT_APP_GA_TRACKING_ID);
 
 Bugsnag.start({
   apiKey: process.env.REACT_APP_BUGSNAG_API_KEY,

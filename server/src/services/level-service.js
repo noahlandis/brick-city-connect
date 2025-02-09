@@ -27,6 +27,7 @@ async function rewardUser(userID, millisecondsActive) {
           requiredLevel: {
             [Op.lte]: user.level,
           },
+          isExclusive: false,
         },
         transaction,
       });

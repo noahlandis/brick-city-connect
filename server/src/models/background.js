@@ -15,6 +15,11 @@ const Background = sequelize.define('background', {
     allowNull: false,
     defaultValue: 0,
   },
+  isExclusive: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  }
 });
 
 module.exports = Background;

@@ -6,6 +6,8 @@ import { useModal } from '../../contexts/ModalContext';
 import { sendRegisterMagicLink } from '../../api/magicLinkApi';
 import validateFields from '../../utils/validateFields';
 import { ERROR_CODES } from '../../utils/constants';
+import ReactGA from 'react-ga4';
+
 function EmailForm() {
     const [searchParams] = useSearchParams();
     const [username, setUsername] = useState('');
@@ -34,6 +36,11 @@ function EmailForm() {
         try {
             const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
+                ReactGA.event({
+                    category: 'Auth',
+                    action: 'email_verification_sent',
+                    label: `username: ${username}, type: email`
+                });
                 showModal({
                     title: 'Check Your Inbox',
                     message: `Click the link we've sent to ${username}@rit.edu to finish creating your account.`,

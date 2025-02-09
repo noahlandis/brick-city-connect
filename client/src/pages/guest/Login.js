@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import GuestForm from '../../components/GuestForm';
 import validateFields from '../../utils/validateFields';
 import { useAuth } from '../../contexts/AuthContext';
-
+import ReactGA from 'react-ga4';
 function Login() {
     const { clientLogin } = useAuth();
     const [searchParams] = useSearchParams();
@@ -46,6 +46,11 @@ function Login() {
                 clientLogin(response.data);
                 // Navigate to the intended destination
                 navigate(from);
+                ReactGA.event({
+                    category: 'Auth',
+                    action: 'user_logged_in',
+                    label: `username: ${username}, type: email`
+                });
             }
         } catch (err) {
             console.log(err);
