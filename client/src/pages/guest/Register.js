@@ -6,6 +6,7 @@ import GuestForm from '../../components/GuestForm';
 import { useModal } from '../../contexts/ModalContext';
 import validateFields from '../../utils/validateFields';
 import { useAuth } from '../../contexts/AuthContext';
+import ReactGA from 'react-ga4';
 
 function Register() {
     const { showModal } = useModal();
@@ -50,6 +51,11 @@ function Register() {
             if (response.status === 201) {
                 clientLogin(response.data);
                 navigate('/');
+                ReactGA.event({
+                    category: 'Auth',
+                    action: 'user_registered',
+                    label: `username: ${username}, type: email`
+                });
             }
         } catch (err) {
             if (err?.response?.data?.errors?.[0]?.msg === 'Account already exists') {
