@@ -46,8 +46,7 @@ function ForgotPassword() {
                 });
             }
         } catch (err) {
-            console.log("the error is", err);
-            const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
+                         const errorMessage = err?.response?.data?.errors?.[0]?.msg || 'Something went wrong';
             setErrors({ username: errorMessage });
         } finally {
             setIsLoading(false);
