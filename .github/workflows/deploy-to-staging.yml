@@ -23,12 +23,29 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > staging-bcc-key.pem
           chmod 600 staging-bcc-key.pem
 
-      # Step 3: Build and Deploy React Frontend
+      # Step 3: Add Host Key to Known Hosts
+      - name: Add Host Key to Known Hosts
+        env:
+          SERVER_HOST: "staging.brickcityconnect.com"  # Replace with your server's domain or IP
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+      # Step 4: Build React Frontend
       - name: Build React Frontend
         working-directory: ./client
+        env:
+          REACT_APP_SERVER_URL: "https://staging.brickcityconnect.com"
+          REACT_APP_BUGSNAG_API_KEY: ${{ secrets.REACT_APP_BUGSNAG_API_KEY }}
+          REACT_APP_ENV: "staging"
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_CONFIGCAT_SDK_KEY: ${{ secrets.REACT_APP_CONFIGCAT_SDK_KEY }}
+          REACT_APP_GA_TRACKING_ID: ${{ secrets.REACT_APP_GA_TRACKING_ID }}
         run: |
           npm install
           npm run build
+
+      # Step 5: Deploy React Frontend
       - name: Deploy React Frontend
         env:
           SERVER_USER: "ec2-user"
@@ -37,7 +54,7 @@ jobs:
         run: |
           rsync -avz -e "ssh -i staging-bcc-key.pem" ./client/build/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
-      # Step 4: Deploy Node.js Backend
+      # Step 6: Deploy Node.js Backend
       - name: Deploy Node.js Backend
         env:
           SERVER_USER: "ec2-user"
@@ -46,7 +63,7 @@ jobs:
         run: |
           rsync -avz -e "ssh -i staging-bcc-key.pem" ./server/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
 
-      # Step 5: Install Backend Dependencies and Restart
+      # Step 7: Install Backend Dependencies and Restart
       - name: Install Backend Dependencies and Restart
         env:
           SERVER_USER: "ec2-user"
@@ -58,6 +75,6 @@ jobs:
           pm2 restart src/server.js
           EOF
 
-      # Step 6: Cleanup
+      # Step 8: Cleanup
       - name: Cleanup
         run: rm -f staging-bcc-key.pem
