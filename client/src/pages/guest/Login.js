@@ -53,8 +53,7 @@ function Login() {
                 });
             }
         } catch (err) {
-            console.log(err);
-            const serverErrors = err?.response?.data?.errors || [];
+                         const serverErrors = err?.response?.data?.errors || [];
             const newErrors = { username: '', password: '' };
             
             serverErrors.forEach(error => {

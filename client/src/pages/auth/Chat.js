@@ -66,8 +66,7 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
-      console.log(user);
-      joinChat();
+             joinChat();
     }
     // we don't want this to run every render, just on mount so we ignore the eslint warning
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -75,8 +74,7 @@ function Chat() {
 
   // whenever the local background changes, we start or stop segmenting accordingly
   useEffect(() => {
-    console.log("background changed to", localBackground);
-    localBackgroundRef.current = localBackground;
+         localBackgroundRef.current = localBackground;
     if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       startSegmenting(localVideoRef.current, localCanvasRef.current, localBackground);
     } else {
@@ -92,8 +90,7 @@ function Chat() {
 
   // whenever the remoteBackground changes, attempt to (re)start remote segmentation
   useEffect(() => {
-    console.log("Remote background changed to", remoteBackground);
-    // Only start segmenting if we actually have a loaded remote video
+         // Only start segmenting if we actually have a loaded remote video
     if (
       remoteBackground !== 'none' &&
       isRemoteStreamReady && 
@@ -120,14 +117,12 @@ function Chat() {
 
     // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localPeerID) => {
-      console.log('local user id', localPeerID);
-      socketRef.current.emit('join-chat', localPeerID, user.id);
+             socketRef.current.emit('join-chat', localPeerID, user.id);
     });
 
     localUserRef.current.on('connection', (conn) => {
       // this is when we are the reciever of the data connection from the remote user
-      console.log("Data connection recieved");
-      handleDataConnection(conn);
+             handleDataConnection(conn);
     });
 
     localUserRef.current.on('error', (error) => {
@@ -141,8 +136,7 @@ function Chat() {
     });
 
     socketRef.current.on('leave-chat', () => {
-      console.log('user left');
-      leaveChat();
+             leaveChat();
     });
 
     socketRef.current.on('waiting-to-skip', () => {
@@ -151,9 +145,7 @@ function Chat() {
 
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
-      console.log("call initiated");
-      console.log("local background ref", localBackgroundRef.current);
-
+              
       // we also open a data connection so we can tell the remote user what background we're currently using
       const dataConn = localUserRef.current.connect(remotePeerID);
       handleDataConnection(dataConn);
@@ -165,8 +157,7 @@ function Chat() {
 
     // answer call
     localUserRef.current.on('call', (call) => {
-      console.log("call recieved");
-      call.answer(localVideoRef.current.srcObject);
+             call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
   }
@@ -200,8 +191,7 @@ function Chat() {
     });
 
     call.on('close', function () {
-      console.log("closing call");
-      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
+             // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
@@ -224,9 +214,7 @@ function Chat() {
   function handleDataConnection(conn) {
     dataConnectionRef.current = conn;
     conn.on('open', () => {
-      console.log('Data connection opened with peer:', conn.peer);
-      console.log("your background is ", localBackgroundRef.current);
-      conn.send(localBackgroundRef.current);
+                    conn.send(localBackgroundRef.current);
     });
     conn.on('data', (background) => {
       setRemoteBackground(background);

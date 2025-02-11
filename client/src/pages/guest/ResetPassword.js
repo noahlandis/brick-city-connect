@@ -29,8 +29,7 @@ function ResetPassword() {
 
         setIsLoading(true);
         try {
-            console.log("passed username", username);
-            const response = await resetPassword(username, password, confirmPassword);
+                         const response = await resetPassword(username, password, confirmPassword);
             if (response.status === 200) {
                 showModal({
                     title: 'Password Reset Successful',
