@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # Trigger when pushing to main
+
+jobs:
+  deploy:
+    name: Deploy Backend and Frontend to Production
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up SSH Key
+      - name: Set up SSH Key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_PRIVATE_KEY }}  # Use the production SSH key
+        run: |
+          echo "$SSH_PRIVATE_KEY" > prod-bcc-key.pem
+          chmod 600 prod-bcc-key.pem
+
+      # Step 3: Add Host Key to Known Hosts
+      - name: Add Host Key to Known Hosts
+        env:
+          SERVER_HOST: "brickcityconnect.com"  # Use production domain/IP
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+
+      # Step 4: Build React Frontend
+      - name: Build React Frontend
+        working-directory: ./client
+        env:
+          REACT_APP_SERVER_URL: "https://brickcityconnect.com"  # Change to production
+          REACT_APP_BUGSNAG_API_KEY: ${{ secrets.REACT_APP_BUGSNAG_API_KEY }}
+          REACT_APP_ENV: "production"
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
+          REACT_APP_CONFIGCAT_SDK_KEY: ${{ secrets.PROD_CONFIGCAT_SDK_KEY }}
+          REACT_APP_GA_TRACKING_ID: ${{ secrets.REACT_APP_GA_TRACKING_ID }}
+        run: |
+          npm install
+          npm run build
+
+      # Step 5: Deploy React Frontend to Production
+      - name: Deploy React Frontend
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "brickcityconnect.com"
+          DEPLOY_PATH: "/home/ec2-user/rit-omegle/client/build"
+        run: |
+          rsync -avz -e "ssh -i prod-bcc-key.pem" ./client/build/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+      # Step 6: Deploy Node.js Backend to Production
+      - name: Deploy Node.js Backend
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "brickcityconnect.com"
+          DEPLOY_PATH: "/home/ec2-user/rit-omegle/server"
+        run: |
+          rsync -avz -e "ssh -i prod-bcc-key.pem" ./server/ $SERVER_USER@$SERVER_HOST:$DEPLOY_PATH
+
+      # Step 7: Install Backend Dependencies and Restart Server
+      - name: Install Backend Dependencies and Restart
+        env:
+          SERVER_USER: "ec2-user"
+          SERVER_HOST: "brickcityconnect.com"
+        run: |
+          ssh -i prod-bcc-key.pem $SERVER_USER@$SERVER_HOST << 'EOF'
+          cd /home/ec2-user/rit-omegle/server
+          npm install
+          pm2 restart src/server.js
+          EOF
+
+      # Step 8: Cleanup
+      - name: Cleanup
+        run: rm -f prod-bcc-key.pem
