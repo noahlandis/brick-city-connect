@@ -1,9 +1,11 @@
-import { api } from './config';
+import { authenticatedApi } from './config';
 
 export async function getBackgrounds(userID) {
-    return await api.get(`/users/${userID}/backgrounds`);
+    const apiClient = authenticatedApi(localStorage.getItem('token'));
+    return await apiClient.get(`/users/${userID}/backgrounds`);
 }
 
 export async function getUser(userID) {
-    return await api.get(`/users/${userID}`);
+    const apiClient = authenticatedApi(localStorage.getItem('token'));
+    return await apiClient.get(`/users/${userID}`);
 }

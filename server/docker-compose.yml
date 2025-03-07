@@ -21,7 +21,7 @@ services:
     image: postgres:15
     container_name: database
     ports:
-      - "5433:5432" # Map to 5432 on host
+      - "5434:5432" # Map to 5432 on host
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
