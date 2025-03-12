@@ -5,7 +5,7 @@ function Footer({ inline = false }) {
     return (
         <Box sx={{ width: '100%' }}>
             <Divider sx={{ marginY: 2 }} />
-            
+
             <Box sx={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -23,16 +23,17 @@ function Footer({ inline = false }) {
                 <Link to="/privacy" style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}>
                     Privacy Policy
                 </Link>
-                <a 
-                    href="mailto:brickcityconnect@gmail.com" 
+                <a
+                    href="mailto:brickcityconnect@gmail.com"
                     style={{ color: '#666', fontSize: '0.75rem', textDecoration: 'none' }}
                 >
                     Contact Us
                 </a>
+
                 {inline && (
                     <>
-                        <Typography 
-                            variant="caption" 
+                        <Typography
+                            variant="caption"
                             sx={{
                                 color: '#666',
                                 fontSize: '0.7rem'
@@ -42,11 +43,18 @@ function Footer({ inline = false }) {
                         </Typography>
                     </>
                 )}
+
+                <a
+                    href="https://discord.gg/brickcityconnect"
+                    style={{ color: '#f76902', fontSize: '0.75rem', textDecoration: 'none' }}
+                >
+                    Discord
+                </a>
             </Box>
 
             {!inline && (
-                <Typography 
-                    variant="caption" 
+                <Typography
+                    variant="caption"
                     sx={{
                         color: '#666',
                         textAlign: 'center',
