@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import Bugsnag from '@bugsnag/js';
 import { useAuth } from '../../contexts/AuthContext';
 import { ERROR_CODES } from '../../utils/constants';
-import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar} from '@mui/material';
+import { Box, Typography, CircularProgress, useTheme, useMediaQuery, Button, Snackbar } from '@mui/material';
 import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { startSegmenting, stopSegmenting } from '../../utils/virtualBackground';
 import Backgrounds from '../../components/Backgrounds';
+
 
 function Chat() {
   const navigate = useNavigate();
@@ -66,15 +67,15 @@ function Chat() {
 
   useEffect(() => {
     if (isStreamReady) {
-             joinChat();
+      joinChat();
     }
     // we don't want this to run every render, just on mount so we ignore the eslint warning
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStreamReady]);
 
   // whenever the local background changes, we start or stop segmenting accordingly
   useEffect(() => {
-         localBackgroundRef.current = localBackground;
+    localBackgroundRef.current = localBackground;
     if (localBackground !== 'none' && localVideoRef.current && localCanvasRef.current && isStreamReady) {
       startSegmenting(localVideoRef.current, localCanvasRef.current, localBackground);
     } else {
@@ -90,11 +91,11 @@ function Chat() {
 
   // whenever the remoteBackground changes, attempt to (re)start remote segmentation
   useEffect(() => {
-         // Only start segmenting if we actually have a loaded remote video
+    // Only start segmenting if we actually have a loaded remote video
     if (
       remoteBackground !== 'none' &&
-      isRemoteStreamReady && 
-      remoteVideoRef.current && 
+      isRemoteStreamReady &&
+      remoteVideoRef.current &&
       remoteCanvasRef.current
     ) {
       startSegmenting(remoteVideoRef.current, remoteCanvasRef.current, remoteBackground, false);
@@ -113,16 +114,41 @@ function Chat() {
     });
 
     // Initialize peer
-    localUserRef.current = new Peer();
+    localUserRef.current = new Peer({
+      config: {
+        iceServers: [
+          {
+            urls: "turn:global.relay.metered.ca:80",
+            username: process.env.REACT_APP_TURN_SERVER_USERNAME,
+            credential: process.env.REACT_APP_TURN_SERVER_CREDENTIAL,
+          },
+          {
+            urls: "turn:global.relay.metered.ca:80?transport=tcp",
+            username: process.env.REACT_APP_TURN_SERVER_USERNAME,
+            credential: process.env.REACT_APP_TURN_SERVER_CREDENTIAL,
+          },
+          {
+            urls: "turn:global.relay.metered.ca:443",
+            username: process.env.REACT_APP_TURN_SERVER_USERNAME,
+            credential: process.env.REACT_APP_TURN_SERVER_CREDENTIAL,
+          },
+          {
+            urls: "turns:global.relay.metered.ca:443?transport=tcp",
+            username: process.env.REACT_APP_TURN_SERVER_USERNAME,
+            credential: process.env.REACT_APP_TURN_SERVER_CREDENTIAL,
+          },
+        ],
+      },
+    });
 
     // Once the peer is open, we join the chat
     localUserRef.current.on('open', (localPeerID) => {
-             socketRef.current.emit('join-chat', localPeerID, user.id);
+      socketRef.current.emit('join-chat', localPeerID, user.id);
     });
 
     localUserRef.current.on('connection', (conn) => {
       // this is when we are the reciever of the data connection from the remote user
-             handleDataConnection(conn);
+      handleDataConnection(conn);
     });
 
     localUserRef.current.on('error', (error) => {
@@ -136,7 +162,7 @@ function Chat() {
     });
 
     socketRef.current.on('leave-chat', () => {
-             leaveChat();
+      leaveChat();
     });
 
     socketRef.current.on('waiting-to-skip', () => {
@@ -145,7 +171,7 @@ function Chat() {
 
     // initiate call
     socketRef.current.on('match-found', (remotePeerID) => {
-              
+
       // we also open a data connection so we can tell the remote user what background we're currently using
       const dataConn = localUserRef.current.connect(remotePeerID);
       handleDataConnection(dataConn);
@@ -157,7 +183,7 @@ function Chat() {
 
     // answer call
     localUserRef.current.on('call', (call) => {
-             call.answer(localVideoRef.current.srcObject);
+      call.answer(localVideoRef.current.srcObject);
       handleRemoteCall(call);
     });
   }
@@ -171,7 +197,7 @@ function Chat() {
       remoteVideoRef.current.addEventListener('loadedmetadata', () => {
         remoteVideoRef.current.play();
         if (
-          remoteVideoRef.current.videoWidth > 0 && 
+          remoteVideoRef.current.videoWidth > 0 &&
           remoteVideoRef.current.videoHeight > 0
         ) {
           setIsRemoteStreamReady(true);
@@ -191,7 +217,7 @@ function Chat() {
     });
 
     call.on('close', function () {
-             // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
+      // check if this is needed or we can just call remoteVideoRef.current.srcObject = null
       if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
         remoteVideoRef.current.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideoRef.current.srcObject = null;
@@ -214,7 +240,7 @@ function Chat() {
   function handleDataConnection(conn) {
     dataConnectionRef.current = conn;
     conn.on('open', () => {
-                    conn.send(localBackgroundRef.current);
+      conn.send(localBackgroundRef.current);
     });
     conn.on('data', (background) => {
       setRemoteBackground(background);
@@ -274,7 +300,7 @@ function Chat() {
   };
 
   return (
-    <Box sx={{ 
+    <Box sx={{
       width: '97%',
       height: '100%',
       display: 'flex',
@@ -401,12 +427,12 @@ function Chat() {
         </Box>
       </Box>
       {/* Background Selector */}
-    
-        <Backgrounds 
-          onSelect={handleBackgroundSelect} 
-          selectedBackground={localBackground} 
-          backgrounds={user.backgrounds ?? []}
-        />
+
+      <Backgrounds
+        onSelect={handleBackgroundSelect}
+        selectedBackground={localBackground}
+        backgrounds={user.backgrounds ?? []}
+      />
       {/* Buttons Container */}
       <Box sx={{
         display: 'flex',
