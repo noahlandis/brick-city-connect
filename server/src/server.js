@@ -6,10 +6,11 @@ const { initializeDatabase } = require('./config/database');
 const { initializeSignalingServer } = require('./signaling-server');
 const Bugsnag = require('./config/bugsnag');
 const path = require('path');
-
+const { initializeDiscordBot } = require('./services/discord-service');
 // Wrap initialization in IIFE
 (async () => {
   await initializeDatabase();
+  await initializeDiscordBot();
 })();
 
 const middleware = Bugsnag.getPlugin('express');
@@ -18,7 +19,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 
 // Import routes
 const magicLinkRoutes = require('./routes/magic-link-routes');
