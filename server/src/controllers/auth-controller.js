@@ -4,6 +4,8 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { generateToken } = require('../services/jwt-service');
 const { getUserWithBackgrounds, giveUserSignUpBackground } = require('../services/user-service');
+const DiscordOAuth2 = require('discord-oauth2');
+const discordOauth = new DiscordOAuth2();
 
 const authController = {
     register: async (req, res) => {
@@ -24,7 +26,7 @@ const authController = {
 
     login: async (req, res) => {
         const { username, password } = req.body;
-        const user = await User.findOne({ where: { username: username }});
+        const user = await User.findOne({ where: { username: username } });
         if (!user || !user.password || !(await user.validatePassword(password))) {
             return res.status(401).json({
                 errors: [
@@ -67,7 +69,7 @@ const authController = {
             if (user.googleId && user.googleId !== googleId) {
                 return res.status(401).json({ errors: [{ msg: 'You must sign in with a RIT email', path: 'email' }] });
             }
-  
+
             // in this case, the user manually signed up so we just update the googleId
             user.googleId = googleId;
             await user.save();
@@ -85,6 +87,37 @@ const authController = {
         const token = generateToken(user);
         const userWithBackgrounds = await getUserWithBackgrounds(user);
         return res.status(status).json({ message: 'Google callback successful', token, user: userWithBackgrounds });
+    },
+
+    discordCallback: async (req, res) => {
+        console.log("Callback received");
+        const { code } = req.query;
+        if (!code) {
+            return res.status(400).json({ message: 'No code provided' });
+        }
+        console.log("Requesting token data");
+        const tokenData = await discordOauth.tokenRequest({
+            clientId: process.env.DISCORD_CLIENT_ID,
+            clientSecret: process.env.DISCORD_CLIENT_SECRET,
+            code: code,
+            redirectUri: process.env.SERVER_URL + process.env.DISCORD_REDIRECT_ENDPOINT,
+            grantType: 'authorization_code'
+        });
+        console.log("Just got token data");
+        const accessToken = tokenData.access_token;
+        console.log("Here is the access token");
+        console.log(accessToken);
+        const userData = await discordOauth.getUser(accessToken);
+        console.log("Here is the user data");
+        console.log(userData);
+
+        discordOauth.addMember({
+            guildId: process.env.DISCORD_SERVER_ID,
+            userId: userData.id,
+            botToken: process.env.DISCORD_BOT_TOKEN,
+            accessToken: accessToken
+        });
+        return res.status(200).json({ message: 'Discord callback successful' });
     }
 }
 

@@ -45,7 +45,7 @@ function Footer({ inline = false }) {
                 )}
 
                 <a
-                    href="https://discord.gg/brickcityconnect"
+                    href={process.env.REACT_APP_DISCORD_REDIRECT_URI}
                     style={{ color: '#f76902', fontSize: '0.75rem', textDecoration: 'none' }}
                 >
                     Discord

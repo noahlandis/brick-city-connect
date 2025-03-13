@@ -58,5 +58,7 @@ router.put('/reset-password', [
 
 router.post('/google-callback', authController.googleCallback);
 
+router.get('/discord-callback', authController.discordCallback);
+
 
 module.exports = router;
