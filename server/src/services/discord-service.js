@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { User } = require('../models');
 const { giveUserDiscordBackground } = require('./reward-discord-background');
 
@@ -7,6 +7,7 @@ async function initializeDiscordBot() {
         intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildMessages,
         ],
     });
 
@@ -22,7 +23,13 @@ async function initializeDiscordBot() {
         });
 
         if (!user) {
-            // in this case, this event is triggered by a user who joined the discord server without using our oauth flow, so we can't give them the  background
+            // use an embed to send a message to the user that they have been given the Library background
+            const embed = new EmbedBuilder()
+                .setTitle('Link your Brick City Connect account')
+                .setDescription('It looks like you haven\'t linked your Brick City Connect account yet. Click here to unlock an exclusive background!')
+                .setURL(process.env.DISCORD_OAUTH_LINK)
+                .setImage('https://brickcityconnect.com/tiger.png');
+            await member.send({ embeds: [embed] });
             return;
         }
 
