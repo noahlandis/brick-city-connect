@@ -24,7 +24,6 @@ function GuestForm({
             alignItems: 'center',
             width: '100%',
             maxWidth: '400px',
-            minWidth: '400px',
             margin: '0 auto',
             position: 'relative',
         }}>
