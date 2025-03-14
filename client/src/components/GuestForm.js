@@ -93,7 +93,11 @@ function GuestForm({
                 </div>
             )}
 
-            <div style={{ width: '52%', marginTop: '1rem' }}>
+            <div style={{
+                width: { xs: '100%', sm: '52%' },
+                marginTop: '1rem',
+                padding: { xs: 0, sm: 'inherit' }
+            }}>
                 <DiscordButton text={discordAuthText} />
             </div>
 
