@@ -125,7 +125,7 @@ const authController = {
             await user.save();
         }
 
-        discordOauth.addMember({
+        await discordOauth.addMember({
             guildId: process.env.DISCORD_SERVER_ID,
             userId: discordId,
             botToken: process.env.DISCORD_BOT_TOKEN,
