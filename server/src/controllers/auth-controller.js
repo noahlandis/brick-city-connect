@@ -91,33 +91,50 @@ const authController = {
 
     discordCallback: async (req, res) => {
         console.log("Callback received");
-        const { code } = req.query;
+        const { code } = req.body;
+        console.log("Code: " + code);
         if (!code) {
             return res.status(400).json({ message: 'No code provided' });
         }
-        console.log("Requesting token data");
+        const redirectUri = process.env.FRONTEND_URL + process.env.DISCORD_REDIRECT_ENDPOINT;
+        console.log("Redirect URI: " + redirectUri);
         const tokenData = await discordOauth.tokenRequest({
             clientId: process.env.DISCORD_CLIENT_ID,
             clientSecret: process.env.DISCORD_CLIENT_SECRET,
             code: code,
-            redirectUri: process.env.SERVER_URL + process.env.DISCORD_REDIRECT_ENDPOINT,
+            redirectUri: process.env.FRONTEND_URL + process.env.DISCORD_REDIRECT_ENDPOINT,
             grantType: 'authorization_code'
         });
-        console.log("Just got token data");
+        console.log("Token data: " + tokenData);
         const accessToken = tokenData.access_token;
-        console.log("Here is the access token");
-        console.log(accessToken);
+
         const userData = await discordOauth.getUser(accessToken);
-        console.log("Here is the user data");
-        console.log(userData);
+
+        const discordId = userData.id;
+        const email = userData.email;
+        const username = email.split('@')[0];
+        let user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            user = await User.create({
+                username: username,
+                discordId: discordId
+            });
+        }
+        else {
+            user.discordId = discordId;
+            await user.save();
+        }
 
         discordOauth.addMember({
             guildId: process.env.DISCORD_SERVER_ID,
-            userId: userData.id,
+            userId: discordId,
             botToken: process.env.DISCORD_BOT_TOKEN,
             accessToken: accessToken
         });
-        return res.status(200).json({ message: 'Discord callback successful' });
+
+        const token = generateToken(user);
+        const userWithBackgrounds = await getUserWithBackgrounds(user);
+        return res.status(200).json({ message: 'Discord callback successful', token, user: userWithBackgrounds });
     }
 }
 
