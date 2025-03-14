@@ -93,40 +93,42 @@ function GuestForm({
                 </div>
             )}
 
-            <div style={{
-                width: { xs: '100%', sm: '52%' },
-                marginTop: '1rem',
-                padding: { xs: 0, sm: 'inherit' },
-                position: 'relative'
-            }}>
-                <Typography
-                    sx={{
-                        position: 'absolute',
-                        left: '-100px',
-                        top: '55px',
-                        color: '#F76902',
-                        fontFamily: '"Helvetica Neue"',
-                        fontSize: '0.750rem',
-                        fontWeight: 'bold',
-                        width: '140px',
-                        textAlign: 'center'
-                    }}
-                >
-                    Unlock an exclusive virtual background
-                </Typography>
-                <img
-                    src="/arrow.png"
-                    alt="Arrow pointing to Discord button"
-                    style={{
-                        position: 'absolute',
-                        left: '-50px',
-                        top: '10px',
-                        width: '40px',
-                        transform: 'rotate(220deg)'
-                    }}
-                />
-                <DiscordButton text={discordAuthText} />
-            </div>
+            {discordAuthText && (
+                <div style={{
+                    width: { xs: '100%', sm: '52%' },
+                    marginTop: '1rem',
+                    padding: { xs: 0, sm: 'inherit' },
+                    position: 'relative'
+                }}>
+                    <Typography
+                        sx={{
+                            position: 'absolute',
+                            left: '-100px',
+                            top: '55px',
+                            color: '#F76902',
+                            fontFamily: '"Helvetica Neue"',
+                            fontSize: '0.750rem',
+                            fontWeight: 'bold',
+                            width: '140px',
+                            textAlign: 'center'
+                        }}
+                    >
+                        Unlock an exclusive virtual background
+                    </Typography>
+                    <img
+                        src="/arrow.png"
+                        alt="Arrow pointing to Discord button"
+                        style={{
+                            position: 'absolute',
+                            left: '-50px',
+                            top: '10px',
+                            width: '40px',
+                            transform: 'rotate(220deg)'
+                        }}
+                    />
+                    <DiscordButton text={discordAuthText} />
+                </div>
+            )}
 
             <Typography variant="body2"
                 sx={{
