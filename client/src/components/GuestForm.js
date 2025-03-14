@@ -24,6 +24,7 @@ function GuestForm({
             alignItems: 'center',
             width: '100%',
             maxWidth: '400px',
+            minWidth: '400px',
             margin: '0 auto',
             position: 'relative',
         }}>
@@ -96,8 +97,35 @@ function GuestForm({
             <div style={{
                 width: { xs: '100%', sm: '52%' },
                 marginTop: '1rem',
-                padding: { xs: 0, sm: 'inherit' }
+                padding: { xs: 0, sm: 'inherit' },
+                position: 'relative'
             }}>
+                <Typography
+                    sx={{
+                        position: 'absolute',
+                        left: '-100px',
+                        top: '55px',
+                        color: '#F76902',
+                        fontFamily: '"Helvetica Neue"',
+                        fontSize: '0.750rem',
+                        fontWeight: 'bold',
+                        width: '140px',
+                        textAlign: 'center'
+                    }}
+                >
+                    Unlock an exclusive virtual background
+                </Typography>
+                <img
+                    src="/arrow.png"
+                    alt="Arrow pointing to Discord button"
+                    style={{
+                        position: 'absolute',
+                        left: '-50px',
+                        top: '10px',
+                        width: '40px',
+                        transform: 'rotate(220deg)'
+                    }}
+                />
                 <DiscordButton text={discordAuthText} />
             </div>
 
@@ -105,7 +133,7 @@ function GuestForm({
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: { xs: '2rem', sm: '1.3rem' },
+                    marginTop: { xs: '3rem', sm: '4rem' },
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>
