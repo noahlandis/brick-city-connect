@@ -17,7 +17,7 @@ export default function DiscordButton() {
                 fontWeight: 600,
                 borderRadius: '8px',
                 textTransform: 'none',
-                padding: '0.4rem 1rem',
+                padding: '0.6rem 1rem',
                 fontSize: '0.730rem',
                 '&:hover': {
                     backgroundColor: '#4752C4'
