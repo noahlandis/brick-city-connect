@@ -1,7 +1,7 @@
 import { Button } from '@mui/material';
 import { FaDiscord } from 'react-icons/fa';
 
-export default function DiscordButton() {
+export default function DiscordButton({ text }) {
     return (
         <Button
             variant="contained"
@@ -14,17 +14,18 @@ export default function DiscordButton() {
                 backgroundColor: '#5865F2',
                 color: 'white',
                 fontFamily: '"Helvetica Neue"',
-                fontWeight: 600,
-                borderRadius: '8px',
+                fontWeight: 550,
+                borderRadius: '4px',
                 textTransform: 'none',
                 padding: '0.6rem 1rem',
-                fontSize: '0.730rem',
+                fontSize: '0.800rem',
                 '&:hover': {
                     backgroundColor: '#4752C4'
-                }
+                },
+                whiteSpace: 'nowrap'
             }}
         >
-            Continue with Discord
+            {text}
         </Button>
     );
 }

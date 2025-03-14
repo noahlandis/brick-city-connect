@@ -53,21 +53,21 @@ function Login() {
                 });
             }
         } catch (err) {
-                         const serverErrors = err?.response?.data?.errors || [];
+            const serverErrors = err?.response?.data?.errors || [];
             const newErrors = { username: '', password: '' };
-            
+
             serverErrors.forEach(error => {
                 // Map server errors to specific fields
                 if (error.path === 'username') newErrors.username = error.msg;
                 if (error.path === 'password') newErrors.password = error.msg;
             });
-            
+
             setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
     }
-    
+
     const fields = [
         {
             label: "Username",
@@ -92,9 +92,9 @@ function Login() {
                 setErrors({ ...errors, password: '' });
             },
             additionalElement: (
-                <Link 
-                    to="/forgot-password" 
-                    style={{ 
+                <Link
+                    to="/forgot-password"
+                    style={{
                         alignSelf: 'flex-end',
                         textDecoration: 'none',
                         marginTop: '8px',
@@ -114,13 +114,14 @@ function Login() {
         <GuestForm
             title="Sign In"
             fields={fields}
-            onSubmit={handleLogin}  
+            onSubmit={handleLogin}
             submitButtonText="Sign In"
             footerText="Don't have an account?"
             footerLinkText="Sign Up"
             footerLinkTo="/register"
             googleAuthText="signin_with"
             isLoading={isLoading}
+            discordAuthText="Sign in with Discord"
         />
     );
 }

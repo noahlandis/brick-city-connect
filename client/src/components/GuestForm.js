@@ -14,7 +14,8 @@ function GuestForm({
     footerLinkText,
     footerLinkTo,
     googleAuthText,
-    isLoading
+    isLoading,
+    discordAuthText
 }) {
     return (
         <div style={{
@@ -92,8 +93,8 @@ function GuestForm({
                 </div>
             )}
 
-            <div style={{ width: '53%', marginTop: '1rem' }}>
-                <DiscordButton />
+            <div style={{ width: '52%', marginTop: '1rem' }}>
+                <DiscordButton text={discordAuthText} />
             </div>
 
             <Typography variant="body2"
