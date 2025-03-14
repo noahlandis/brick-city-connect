@@ -2,18 +2,19 @@ import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 import Footer from './Footer';
+import { FaDiscord } from 'react-icons/fa';
 
-function GuestForm({ 
-    title, 
+function GuestForm({
+    title,
     errorMessage,
-    fields, 
-    onSubmit, 
-    submitButtonText, 
-    footerText, 
-    footerLinkText, 
+    fields,
+    onSubmit,
+    submitButtonText,
+    footerText,
+    footerLinkText,
     footerLinkTo,
     googleAuthText,
-    isLoading   
+    isLoading
 }) {
     return (
         <div style={{
@@ -40,7 +41,7 @@ function GuestForm({
             >{title}</Typography>
 
             {errorMessage && (
-                <Typography 
+                <Typography
                     color="error"
                     sx={{
                         textAlign: 'center',
@@ -67,7 +68,7 @@ function GuestForm({
                 </div>
             ))}
 
-            <Button 
+            <Button
                 variant="contained"
                 onClick={onSubmit}
                 loading={isLoading}
@@ -90,6 +91,29 @@ function GuestForm({
                     <GoogleOAuth text={googleAuthText} />
                 </div>
             )}
+
+            <Button
+                variant="contained"
+                onClick={() => {/* Add your Discord OAuth logic here */ }}
+                startIcon={
+                    <FaDiscord />
+                }
+                sx={{
+                    width: '100%',
+                    backgroundColor: '#5865F2',
+                    color: 'white',
+                    fontFamily: '"Helvetica Neue"',
+                    fontWeight: 500,
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    padding: '0.5rem 0',
+                    '&:hover': {
+                        backgroundColor: '#4752C4'
+                    }
+                }}
+            >
+                Continue with Discord
+            </Button>
 
             <Typography variant="body2"
                 sx={{
