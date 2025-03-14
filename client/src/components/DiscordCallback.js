@@ -9,9 +9,14 @@ function DiscordCallback() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const code = searchParams.get('code');
+    const error = searchParams.get('error');
     const hasCalledback = useRef(false);
 
     useEffect(() => {
+        if (error) {
+            navigate('/login');
+            return;
+        }
         async function fetchData() {
             if (code && !hasCalledback.current) {
                 hasCalledback.current = true;
