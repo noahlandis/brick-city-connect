@@ -14,11 +14,11 @@ export default function DiscordButton() {
                 backgroundColor: '#5865F2',
                 color: 'white',
                 fontFamily: '"Helvetica Neue"',
-                fontWeight: 500,
+                fontWeight: 600,
                 borderRadius: '8px',
                 textTransform: 'none',
                 padding: '0.4rem 1rem',
-                fontSize: '0.750rem',
+                fontSize: '0.730rem',
                 '&:hover': {
                     backgroundColor: '#4752C4'
                 }
