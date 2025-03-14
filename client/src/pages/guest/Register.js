@@ -131,6 +131,7 @@ function Register() {
             footerLinkTo="/login"
             googleAuthText="signup_with"
             isLoading={isLoading}
+            discordAuthText="Sign up with Discord"
         />
 
     );
