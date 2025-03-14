@@ -92,7 +92,9 @@ function GuestForm({
                 </div>
             )}
 
-            <DiscordButton />
+            <div style={{ width: '53%', marginTop: '1rem' }}>
+                <DiscordButton />
+            </div>
 
             <Typography variant="body2"
                 sx={{
