@@ -23,7 +23,7 @@ function Home() {
             // Clear the parameters first
             searchParams.delete('error');
             setSearchParams(searchParams);
-            
+
             // Then show the modal
             showModal({
                 title: "Camera and Microphone Access Required",
@@ -39,22 +39,23 @@ function Home() {
     useEffect(() => {
         const isChatDisabled = searchParams.has('chat-disabled');
         const returnTime = searchParams.get('next-chat-time');
-        
+
         if (isChatDisabled) {
             // Clear the parameters first
             searchParams.delete('chat-disabled');
             searchParams.delete('next-chat-time');
             setSearchParams(searchParams);
-            
-            const message = returnTime 
+
+            const message = returnTime
                 ? `Chat is currently unavailable. Come back ${returnTime}. Hope to see you then!`
                 : "Chat is currently unavailable. Please check back later!";
-                
+
             showModal({
                 title: "Come back later!",
                 message: message,
                 actionText: "Got it",
                 useButton: true,
+                showDiscordLink: true,
                 onAction: hideModal
             });
         }
@@ -62,7 +63,7 @@ function Home() {
 
     useEffect(() => {
         fetchUser();
-      }, [fetchUser]);
+    }, [fetchUser]);
 
     return (
         <Box
@@ -75,14 +76,14 @@ function Home() {
             }}
         >
             {/* Top Section */}
-            <Box sx={{ 
+            <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
                 width: '100%',
             }}>
                 {/* Username */}
-                <Box sx={{ 
+                <Box sx={{
                     fontSize: isMobile ? '1.25rem' : '1.75rem',
                     fontWeight: '600',
                     textAlign: 'center',
@@ -92,7 +93,7 @@ function Home() {
                 </Box>
 
                 {/* Level Progress Section */}
-                <Box sx={{ 
+                <Box sx={{
                     width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
@@ -103,21 +104,21 @@ function Home() {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                     }}>
-                        <Box sx={{ 
+                        <Box sx={{
                             fontSize: isMobile ? '0.875rem' : '1rem',
                             fontWeight: '500',
                             color: '#2c3e50',
                         }}>
                             Level {user.level}
                         </Box>
-                        <Box sx={{ 
+                        <Box sx={{
                             fontSize: '0.875rem',
                             color: '#666',
                         }}>
                             {user.xp} / 1000 XP
                         </Box>
                     </Box>
-                    
+
                     {/* XP Progress Bar */}
                     <Box
                         sx={{
@@ -145,7 +146,7 @@ function Home() {
 
             {/* Backgrounds Section */}
             <Box sx={{ flex: 1 }}>
-                <Box sx={{ 
+                <Box sx={{
                     fontSize: isMobile ? '1.1rem' : '1.25rem',
                     fontWeight: '600',
                     color: '#2c3e50',
@@ -201,21 +202,21 @@ function Home() {
                                     }}
                                 />
                                 <Box
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: '-3px',
-                                    width: '100%',
-                                    padding: '8px',
-                                    background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
-                                    color: 'white',
-                                    fontSize: '0.875rem',
-                                    textAlign: 'center',
-                                    zIndex: 2,
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                {background.name}
-                            </Box>
+                                    sx={{
+                                        position: 'absolute',
+                                        bottom: '-3px',
+                                        width: '100%',
+                                        padding: '8px',
+                                        background: 'linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0))',
+                                        color: 'white',
+                                        fontSize: '0.875rem',
+                                        textAlign: 'center',
+                                        zIndex: 2,
+                                        fontWeight: 'bold',
+                                    }}
+                                >
+                                    {background.name}
+                                </Box>
                             </Box>
                         ))}
                     </Box>
@@ -229,7 +230,7 @@ function Home() {
                 width: '100%',
                 mt: 2
             }}>
-                <Button 
+                <Button
                     variant="contained"
                     startIcon={<VideocamIcon sx={{ width: isMobile ? '2rem' : '2.1rem', height: isMobile ? '2rem' : '2.1rem' }} />}
                     onClick={() => navigate('/chat')}
