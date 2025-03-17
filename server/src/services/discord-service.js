@@ -1,6 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { User } = require('../models');
-const { giveUserDiscordBackground } = require('./reward-discord-background');
 
 async function initializeDiscordBot() {
     const client = new Client({
@@ -14,14 +13,14 @@ async function initializeDiscordBot() {
     client.on('guildMemberAdd', async (member) => {
         console.log("User joined! Here is their discord ID: " + member.id);
 
-        // since a user joined, we find the user in our database and give them the Library background
-        // 
+        // since a user joined, we see if they already linked their account
         const user = await User.findOne({
             where: {
                 discordId: member.id
             }
         });
 
+        // if they haven't linked their account, we send them a message to link 
         if (!user) {
             // use an embed to send a message to the user that they have been given the Library background
             const embed = new EmbedBuilder()
@@ -32,8 +31,6 @@ async function initializeDiscordBot() {
             await member.send({ embeds: [embed] });
             return;
         }
-
-        await giveUserDiscordBackground(user);
     });
 
     await client.login(process.env.DISCORD_BOT_TOKEN);

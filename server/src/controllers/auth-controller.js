@@ -6,6 +6,7 @@ const { generateToken } = require('../services/jwt-service');
 const { getUserWithBackgrounds, giveUserSignUpBackground } = require('../services/user-service');
 const DiscordOAuth2 = require('discord-oauth2');
 const discordOauth = new DiscordOAuth2();
+const { giveUserDiscordBackground } = require('../services/reward-discord-background');
 
 const authController = {
     register: async (req, res) => {
@@ -131,6 +132,8 @@ const authController = {
             botToken: process.env.DISCORD_BOT_TOKEN,
             accessToken: accessToken
         });
+
+        await giveUserDiscordBackground(user);
 
         const token = generateToken(user);
         const userWithBackgrounds = await getUserWithBackgrounds(user);
