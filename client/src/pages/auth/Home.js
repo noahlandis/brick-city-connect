@@ -27,7 +27,7 @@ function Home() {
             // Then show the modal
             showModal({
                 title: "Camera and Microphone Access Required",
-                message: "To use the chat feature, please allow access to your camera and microphone. Make sure your device is not muted. You can update these permissions in your browser settings.",
+                message: "To use the chat feature, please update your browser settings to allow access to your camera and microphone. After updating, please refresh the page.",
                 actionText: "OK",
                 useButton: true,
                 onAction: hideModal
