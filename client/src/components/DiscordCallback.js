@@ -4,6 +4,7 @@ import { discordCallback } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, CircularProgress, Typography } from '@mui/material';
+import ReactGA from 'react-ga4';
 
 function DiscordCallback() {
     const { clientLogin } = useAuth();
@@ -28,6 +29,21 @@ function DiscordCallback() {
                     if (response.status === 200 || response.status === 201) {
                         clientLogin(response.data);
                         navigate('/');
+                        if (response.status === 200) {
+                            ReactGA.event({
+                                category: 'Auth',
+                                action: 'user_logged_in',
+                                label: `username: ${response.data.user.username}, type: discord`
+                            });
+                        }
+                        else {
+                            ReactGA.event({
+                                category: 'Auth',
+                                action: 'user_registered',
+                                label: `username: ${response.data.user.username}, type: discord`
+                            });
+                        }
+
                     }
                 } catch (error) {
                     console.error('Discord callback error:', error);
