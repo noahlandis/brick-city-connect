@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { discordCallback } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
@@ -11,9 +11,11 @@ function DiscordCallback() {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
     const hasCalledback = useRef(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         if (error) {
+            setIsLoading(false);
             navigate('/login');
             return;
         }
@@ -30,12 +32,13 @@ function DiscordCallback() {
                     console.error('Discord callback error:', error);
                     navigate('/login');
                 }
+                setIsLoading(false);
             }
         }
         fetchData();
     }, [code, clientLogin, navigate]);
 
-    return null;
+    return isLoading ? <div>Loading...</div> : null;
 }
 
 export default DiscordCallback;
