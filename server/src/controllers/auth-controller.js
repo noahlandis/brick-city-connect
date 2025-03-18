@@ -7,6 +7,7 @@ const { getUserWithBackgrounds, giveUserSignUpBackground } = require('../service
 const DiscordOAuth2 = require('discord-oauth2');
 const discordOauth = new DiscordOAuth2();
 const { giveUserDiscordBackground } = require('../services/reward-discord-background');
+const { isUserInRITStudentHub } = require('../services/discord-service');
 
 const authController = {
     register: async (req, res) => {
@@ -110,10 +111,14 @@ const authController = {
         const accessToken = tokenData.access_token;
 
         const userData = await discordOauth.getUser(accessToken);
-
         const discordId = userData.id;
         const email = userData.email;
         const username = email.split('@')[0];
+
+        if (!email.endsWith('@rit.edu') && !email.endsWith('@g.rit.edu') && !(await isUserInRITStudentHub(accessToken))) {
+            return res.status(401).json({ message: 'You must sign in with a RIT email to sign in' });
+        }
+
         let user = await User.findOne({ where: { username: username } });
         if (!user) {
             user = await User.create({

@@ -40,4 +40,21 @@ async function initializeDiscordBot() {
     await client.login(process.env.DISCORD_BOT_TOKEN);
 }
 
-module.exports = { initializeDiscordBot };
+const RIT_STUDENT_HUB_GUILD_ID = '882703706783645789';
+
+/**
+ * Checks if a user is in the RIT Student Hub guild
+ * @param {string} accessToken - The access token for the user
+ * @returns {boolean} True if the user is in the RIT Student Hub guild, false otherwise
+ */
+async function isUserInRITStudentHub(accessToken) {
+    const response = await fetch("https://discord.com/api/v10/users/@me/guilds", {
+        headers: {
+            "Authorization": `Bearer ${accessToken}`
+        }
+    });
+    const guilds = await response.json();
+    return guilds.some(guild => guild.id === RIT_STUDENT_HUB_GUILD_ID);
+}
+
+module.exports = { initializeDiscordBot, isUserInRITStudentHub };
