@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { discordCallback } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
 function DiscordCallback() {
     const { clientLogin } = useAuth();
@@ -38,7 +39,23 @@ function DiscordCallback() {
         fetchData();
     }, [code, clientLogin, navigate]);
 
-    return isLoading ? <div>Loading...</div> : null;
+    return isLoading ? (
+        <Box sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            gap: 2,
+        }}>
+            <CircularProgress sx={{ color: '#F76902' }} />
+        </Box>
+    ) : null;
 }
 
 export default DiscordCallback;
