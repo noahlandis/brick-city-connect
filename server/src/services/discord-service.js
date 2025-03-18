@@ -28,7 +28,11 @@ async function initializeDiscordBot() {
                 .setDescription('It looks like you haven\'t linked your Brick City Connect account yet. Click here to unlock an exclusive background!')
                 .setURL(process.env.DISCORD_OAUTH_LINK)
                 .setImage('https://brickcityconnect.com/tiger.png');
-            await member.send({ embeds: [embed] });
+            try {
+                await member.send({ embeds: [embed] });
+            } catch (error) {
+                console.log('Error sending message to user:', error);
+            }
             return;
         }
     });
