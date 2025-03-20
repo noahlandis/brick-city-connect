@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import ReactGA from 'react-ga4';
-
+import { ERROR_CODES } from '../utils/constants';
 function DiscordCallback() {
     const { clientLogin } = useAuth();
     const navigate = useNavigate();
@@ -47,7 +47,12 @@ function DiscordCallback() {
                     }
                 } catch (error) {
                     console.error('Discord callback error:', error);
-                    navigate('/login');
+                    if (error.response.status === 401) {
+                        navigate(`/login?error=${ERROR_CODES.DISCORD_CALLBACK_ERROR}`);
+                    }
+                    else {
+                        navigate(`/login`);
+                    }
                 }
                 setIsLoading(false);
             }
