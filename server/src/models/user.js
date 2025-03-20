@@ -32,12 +32,17 @@ const User = sequelize.define('user', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1
+  },
+  discordId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    unique: true
   }
 }, {
   validate: {
-    eitherPasswordOrGoogleId() {
-      if (!this.password && !this.googleId) {
-        throw new Error('Either password or googleId must be provided');
+    eitherPasswordOrGoogleIdOrDiscordId() {
+      if (!this.password && !this.googleId && !this.discordId) {
+        throw new Error('Either password or googleId or discordId must be provided');
       }
     }
   },
@@ -55,7 +60,7 @@ const User = sequelize.define('user', {
   }
 });
 
-User.prototype.validatePassword = async function(password) {
+User.prototype.validatePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 

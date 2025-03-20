@@ -14,6 +14,7 @@ export function ModalProvider({ children }) {
         showSignInButton: false,
         signInLink: '',
         useButton: false,
+        showDiscordLink: false,
     });
 
     const showModal = (config) => {
@@ -27,7 +28,7 @@ export function ModalProvider({ children }) {
             signInLink: '',
             useButton: false,
             ...config,
-            open: true
+            open: true,
         });
     };
 
@@ -51,6 +52,7 @@ export function ModalProvider({ children }) {
                 showSignInButton={modalState.showSignInButton}
                 signInLink={modalState.signInLink}
                 useButton={modalState.useButton}
+                showDiscordLink={modalState.showDiscordLink}
             />
         </ModalContext.Provider>
     );

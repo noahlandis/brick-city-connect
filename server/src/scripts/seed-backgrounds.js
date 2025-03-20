@@ -13,9 +13,10 @@ const { Background } = require('../models/index');
 
       // exclusive backgrounds
       { url: 'crossroads.png', name: 'Crossroads', requiredLevel: 0, isExclusive: true },
+      { url: 'library.png', name: 'Library', requiredLevel: 0, isExclusive: true },
+
 
       // future backgrounds
-      // { url: 'library.png', name: 'Library', requiredLevel: 9 },
       // { url: 'fountain.png', name: 'Fountain', requiredLevel: 10 },
       // { url: 'tiger_statue.png', name: 'Tiger Statue', requiredLevel: 11 },
 
