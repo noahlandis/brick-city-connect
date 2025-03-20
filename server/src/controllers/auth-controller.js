@@ -119,16 +119,19 @@ const authController = {
             return res.status(401).json({ message: 'You must sign in with a RIT email to sign in' });
         }
 
+        let status;
         let user = await User.findOne({ where: { username: username } });
         if (!user) {
             user = await User.create({
                 username: username,
                 discordId: discordId
             });
+            status = 201;
         }
         else {
             user.discordId = discordId;
             await user.save();
+            status = 200;
         }
 
         await discordOauth.addMember({
@@ -142,7 +145,7 @@ const authController = {
 
         const token = generateToken(user);
         const userWithBackgrounds = await getUserWithBackgrounds(user);
-        return res.status(200).json({ message: 'Discord callback successful', token, user: userWithBackgrounds });
+        return res.status(status).json({ message: 'Discord callback successful', token, user: userWithBackgrounds });
     }
 }
 
