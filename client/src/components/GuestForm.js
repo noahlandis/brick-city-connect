@@ -15,7 +15,8 @@ function GuestForm({
     footerLinkTo,
     googleAuthText,
     isLoading,
-    discordAuthText
+    discordAuthText,
+    discordCallbackError
 }) {
     return (
         <div style={{
