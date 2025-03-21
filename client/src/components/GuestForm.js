@@ -16,7 +16,6 @@ function GuestForm({
     googleAuthText,
     isLoading,
     discordAuthText,
-    discordCallbackError
 }) {
     return (
         <div style={{

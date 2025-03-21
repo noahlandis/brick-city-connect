@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { discordCallback } from '../api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import ReactGA from 'react-ga4';
 import { ERROR_CODES } from '../utils/constants';
 function DiscordCallback() {
@@ -58,7 +58,7 @@ function DiscordCallback() {
             }
         }
         fetchData();
-    }, [code, clientLogin, navigate]);
+    }, [code, clientLogin, navigate, error]);
 
     return isLoading ? (
         <Box sx={{
