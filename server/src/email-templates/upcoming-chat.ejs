@@ -1,0 +1,35 @@
+<%- include('partials/header'); -%>
+
+    <tr>
+        <td style="padding: 0 20px;">
+            <h2 style="font-size: 24px; margin-bottom: 10px;">Chat Starts Soon!</h2>
+            <p style="font-size: 16px; line-height: 1.5; color: #333;">
+                The next chat is about to begin. Click the button below to join.
+            </p>
+        </td>
+    </tr>
+
+    <tr>
+        <td style="padding: 20px;">
+            <a href="<%= url %>" style="
+                background-color: #F76902; 
+                color: #ffffff; 
+                padding: 12px 24px; 
+                border-radius: 4px; 
+                font-size: 16px; 
+                display: inline-block;
+                margin: 10px 0;
+                text-decoration: none;
+            ">
+                <strong>Get Ready</strong>
+            </a>
+            <p style="font-size: 14px; color: #666; line-height: 1.4; margin-top: 20px;">
+                If the button above doesn't work, paste this link into your browser: <br />
+                <a href="<%= url %>"
+                    style="color: #666; text-decoration: underline; word-break: break-all; display: block; max-width: 300px;">
+                    <%= url %>
+                </a>
+            </p>
+        </td>
+    </tr>
+    <%- include('partials/footer'); -%>

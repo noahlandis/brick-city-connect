@@ -1,6 +1,6 @@
 import { Modal as MuiModal, Box, Typography, Button } from '@mui/material';
 
-function Modal({ open, onClose, title, message, actionText, onAction, showSignInButton, signInLink, useButton }) {
+function Modal({ open, onClose, title, message, actionText, onAction, showSignInButton, signInLink, useButton, showDiscordLink }) {
     return (
         <MuiModal
             open={open}
@@ -79,6 +79,19 @@ function Modal({ open, onClose, title, message, actionText, onAction, showSignIn
                     >
                         Sign In
                     </Button>
+                )}
+                {showDiscordLink && (
+                    <Typography sx={{ mt: 2, color: 'text.secondary', fontSize: '0.875rem' }}>
+                        Want to get updates for upcoming chat sessions and unlock an exclusive background? Join our{' '}
+                        <a
+                            href={process.env.REACT_APP_DISCORD_REDIRECT_URI}
+                            style={{ color: '#F76902', textDecoration: 'underline', fontWeight: 'bold' }}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Discord
+                        </a>
+                    </Typography>
                 )}
             </Box>
         </MuiModal>
