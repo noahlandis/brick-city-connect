@@ -2,18 +2,20 @@ import { Typography, TextField, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GoogleOAuth from './GoogleOAuth';
 import Footer from './Footer';
+import DiscordButton from './DiscordButton';
 
-function GuestForm({ 
-    title, 
+function GuestForm({
+    title,
     errorMessage,
-    fields, 
-    onSubmit, 
-    submitButtonText, 
-    footerText, 
-    footerLinkText, 
+    fields,
+    onSubmit,
+    submitButtonText,
+    footerText,
+    footerLinkText,
     footerLinkTo,
     googleAuthText,
-    isLoading   
+    isLoading,
+    discordAuthText,
 }) {
     return (
         <div style={{
@@ -40,7 +42,7 @@ function GuestForm({
             >{title}</Typography>
 
             {errorMessage && (
-                <Typography 
+                <Typography
                     color="error"
                     sx={{
                         textAlign: 'center',
@@ -67,7 +69,7 @@ function GuestForm({
                 </div>
             ))}
 
-            <Button 
+            <Button
                 variant="contained"
                 onClick={onSubmit}
                 loading={isLoading}
@@ -91,11 +93,48 @@ function GuestForm({
                 </div>
             )}
 
+            {discordAuthText && (
+                <div style={{
+                    width: { xs: '100%', sm: '52%' },
+                    marginTop: '1rem',
+                    padding: { xs: 0, sm: 'inherit' },
+                    position: 'relative'
+                }}>
+                    <Typography
+                        sx={{
+                            position: 'absolute',
+                            left: '-100px',
+                            top: '55px',
+                            color: '#F76902',
+                            fontFamily: '"Helvetica Neue"',
+                            fontSize: '0.750rem',
+                            fontWeight: 'bold',
+                            width: '140px',
+                            textAlign: 'center'
+                        }}
+                    >
+                        Unlock an exclusive virtual background
+                    </Typography>
+                    <img
+                        src="/arrow.png"
+                        alt="Arrow pointing to Discord button"
+                        style={{
+                            position: 'absolute',
+                            left: '-50px',
+                            top: '10px',
+                            width: '40px',
+                            transform: 'rotate(220deg)'
+                        }}
+                    />
+                    <DiscordButton text={discordAuthText} />
+                </div>
+            )}
+
             <Typography variant="body2"
                 sx={{
                     color: 'black',
                     textAlign: 'center',
-                    marginTop: { xs: '2rem', sm: '1.3rem' },
+                    marginTop: { xs: '4rem', sm: '5rem' },
                     fontSize: '0.875rem'
                 }}
             >{footerText} <Link to={footerLinkTo} style={{ color: '#F76902', fontWeight: 'bold', textDecoration: 'underline' }}>{footerLinkText}</Link></Typography>

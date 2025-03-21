@@ -67,24 +67,24 @@ function Register() {
                     signInLink: `/login?username=${username}`
                 });
             } else {
-            const serverErrors = err?.response?.data?.errors || [];
-            const newErrors = { username: '', password: '', confirmPassword: '' };
-            
-            serverErrors.forEach(error => {
-                // Map server errors to specific fields
-                if (error.path === 'username') newErrors.username = error.msg;
-                if (error.path === 'password') newErrors.password = error.msg;
-                if (error.path === 'confirmPassword') newErrors.confirmPassword = error.msg;
-                if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
-            });
-            
+                const serverErrors = err?.response?.data?.errors || [];
+                const newErrors = { username: '', password: '', confirmPassword: '' };
+
+                serverErrors.forEach(error => {
+                    // Map server errors to specific fields
+                    if (error.path === 'username') newErrors.username = error.msg;
+                    if (error.path === 'password') newErrors.password = error.msg;
+                    if (error.path === 'confirmPassword') newErrors.confirmPassword = error.msg;
+                    if (error.msg === 'Passwords do not match') newErrors.confirmPassword = error.msg;
+                });
+
                 setErrors(newErrors);
             }
         } finally {
             setIsLoading(false);
         }
     }
-    
+
     const fields = [
         {
             label: "Username",
@@ -119,7 +119,7 @@ function Register() {
             }
         }
     ];
-    
+
     return (
         <GuestForm
             title="Sign Up"
@@ -131,6 +131,7 @@ function Register() {
             footerLinkTo="/login"
             googleAuthText="signup_with"
             isLoading={isLoading}
+            discordAuthText="Sign up with Discord"
         />
 
     );

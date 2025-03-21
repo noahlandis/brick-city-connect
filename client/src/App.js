@@ -16,12 +16,12 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import GuestGuard from './guards/GuestGuard';
 import { AuthProvider } from './contexts/AuthContext';
 import AuthLayout from './layouts/AuthLayout';
-import {ConfigCatProvider, createConsoleLogger, LogLevel} from 'configcat-react';
+import { ConfigCatProvider, createConsoleLogger, LogLevel } from 'configcat-react';
 import ChatGuard from './guards/ChatGuard';
 import Terms from './pages/legal/Terms';
 import PrivacyPolicy from './pages/legal/PrivacyPolicy';
 import { usePageTracking } from './utils/usePageTracking';
-
+import DiscordCallback from './components/DiscordCallback';
 const RootLayout = () => {
   usePageTracking();
   return <Outlet />
@@ -36,77 +36,81 @@ const router = createBrowserRouter([
         element: <AuthGuard><AuthLayout /></AuthGuard>,
         children: [
           {
+            index: true,
+            element: <Home />
+          }
+        ]
+      },
+      {
+        path: "/discord-callback",
+        element: <DiscordCallback />
+      },
+      {
+        path: "/chat",
+        element: <AuthGuard><AuthLayout /></AuthGuard>,
+        children: [
+          {
+            index: true,
+            element: <ChatGuard><Chat /></ChatGuard>
+          }
+        ]
+      },
+      {
+        path: "login",
+        element: <GuestGuard><GuestLayout /></GuestGuard>,
+        children: [
+          {
+            index: true,
+            element: <Login />
+          }
+        ]
+      },
+      {
+        path: "register",
+        element: <GuestGuard><GuestLayout /></GuestGuard>,
+        children: [
+          {
+            index: true,
+            element: <EmailForm />
+          },
+          {
+            path: "callback",
+            element: <Register />,
+            loader: registerGuard
+          }
+        ]
+      },
+      {
+        path: "forgot-password",
+        element: <GuestGuard><GuestLayout /></GuestGuard>,
+        children: [
+          {
+            index: true,
+            element: <ForgotPassword />
+          },
+          {
+            path: "callback",
+            element: <ResetPassword />,
+            loader: forgotPasswordGuard
+          }
+        ]
+      },
+      {
+        path: "terms",
+        element: <AuthLayout />,
+        children: [{
           index: true,
-          element: <Home />
-        }
-      ]
-    },
-    {
-      path: "/chat",
-      element: <AuthGuard><AuthLayout /></AuthGuard>,
-      children: [
-        {
+          element: <Terms />
+        }]
+      },
+      {
+        path: "privacy",
+        element: <AuthLayout />,
+        children: [{
           index: true,
-          element: <ChatGuard><Chat /></ChatGuard>
-        }
-      ]
-    },
-    {
-      path: "login",
-      element: <GuestGuard><GuestLayout /></GuestGuard>,
-      children: [
-        {
-          index: true,
-          element: <Login />
-        }
-      ]
-    },
-    {
-      path: "register",
-      element: <GuestGuard><GuestLayout /></GuestGuard>,
-      children: [
-        {
-          index: true,
-          element: <EmailForm />
-        },
-        {
-          path: "callback",
-          element: <Register />,
-          loader: registerGuard
-        }
-      ]
-    },
-    {
-      path: "forgot-password",
-      element: <GuestGuard><GuestLayout /></GuestGuard>,
-      children: [
-        {
-          index: true,
-          element: <ForgotPassword />
-        },
-        {
-          path: "callback",
-          element: <ResetPassword />,
-          loader: forgotPasswordGuard
-        }
-      ]
-    },
-    {
-      path: "terms",
-      element: <AuthLayout />,
-      children: [{
-        index: true,
-        element: <Terms />
-      }]
-    },
-    {
-      path: "privacy",
-      element: <AuthLayout />,
-      children: [{
-        index: true,
-        element: <PrivacyPolicy />
-      }]
-    }
+          element: <PrivacyPolicy />
+        }]
+      }
     ]
   }
 ]);
@@ -116,13 +120,13 @@ function App() {
     <ConfigCatProvider sdkKey={process.env.REACT_APP_CONFIGCAT_SDK_KEY} options={{
       logger: createConsoleLogger(LogLevel.Info)
     }}>
-    <AuthProvider>
-      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-        <ModalProvider>
-          <RouterProvider router={router} />
-        </ModalProvider>
-      </GoogleOAuthProvider>
-    </AuthProvider>
+      <AuthProvider>
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+          <ModalProvider>
+            <RouterProvider router={router} />
+          </ModalProvider>
+        </GoogleOAuthProvider>
+      </AuthProvider>
     </ConfigCatProvider>
   );
 }

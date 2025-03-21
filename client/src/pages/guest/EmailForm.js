@@ -32,7 +32,7 @@ function EmailForm() {
 
         setErrors({ username: '' });
         setIsLoading(true);
-        
+
         try {
             const response = await sendRegisterMagicLink(username);
             if (response.status === 200) {
@@ -91,15 +91,16 @@ function EmailForm() {
     return (
         <GuestForm
             title="Sign Up"
-                errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
-                fields={fields}
-                onSubmit={handleSendVerification}
-                submitButtonText="Continue"
+            errorMessage={invalidToken ? "The token provided is invalid or has expired. Please try again." : null}
+            fields={fields}
+            onSubmit={handleSendVerification}
+            submitButtonText="Continue"
             footerText="Already have an account?"
             footerLinkText="Sign In"
             footerLinkTo="/login"
             googleAuthText="signup_with"
             isLoading={isLoading}
+            discordAuthText="Sign up with Discord"
         />
     );
 }

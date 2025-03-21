@@ -7,9 +7,12 @@ import GuestForm from '../../components/GuestForm';
 import validateFields from '../../utils/validateFields';
 import { useAuth } from '../../contexts/AuthContext';
 import ReactGA from 'react-ga4';
+import { ERROR_CODES } from '../../utils/constants';
+
 function Login() {
     const { clientLogin } = useAuth();
     const [searchParams] = useSearchParams();
+    const discordCallbackError = searchParams.get('error') === ERROR_CODES.DISCORD_CALLBACK_ERROR;
     const [errors, setErrors] = useState({
         username: '',
         password: '',
@@ -53,21 +56,21 @@ function Login() {
                 });
             }
         } catch (err) {
-                         const serverErrors = err?.response?.data?.errors || [];
+            const serverErrors = err?.response?.data?.errors || [];
             const newErrors = { username: '', password: '' };
-            
+
             serverErrors.forEach(error => {
                 // Map server errors to specific fields
                 if (error.path === 'username') newErrors.username = error.msg;
                 if (error.path === 'password') newErrors.password = error.msg;
             });
-            
+
             setErrors(newErrors);
         } finally {
             setIsLoading(false);
         }
     }
-    
+
     const fields = [
         {
             label: "Username",
@@ -92,9 +95,9 @@ function Login() {
                 setErrors({ ...errors, password: '' });
             },
             additionalElement: (
-                <Link 
-                    to="/forgot-password" 
-                    style={{ 
+                <Link
+                    to="/forgot-password"
+                    style={{
                         alignSelf: 'flex-end',
                         textDecoration: 'none',
                         marginTop: '8px',
@@ -114,13 +117,15 @@ function Login() {
         <GuestForm
             title="Sign In"
             fields={fields}
-            onSubmit={handleLogin}  
+            onSubmit={handleLogin}
             submitButtonText="Sign In"
             footerText="Don't have an account?"
             footerLinkText="Sign Up"
             footerLinkTo="/register"
             googleAuthText="signin_with"
             isLoading={isLoading}
+            discordAuthText="Sign in with Discord"
+            errorMessage={discordCallbackError ? "To login with Discord, you must be a member of the RIT Student Hub Discord server. Please join the server and try again." : null}
         />
     );
 }

@@ -4,6 +4,10 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { generateToken } = require('../services/jwt-service');
 const { getUserWithBackgrounds, giveUserSignUpBackground } = require('../services/user-service');
+const DiscordOAuth2 = require('discord-oauth2');
+const discordOauth = new DiscordOAuth2();
+const { giveUserDiscordBackground } = require('../services/reward-discord-background');
+const { isUserInRITStudentHub } = require('../services/discord-service');
 
 const authController = {
     register: async (req, res) => {
@@ -24,7 +28,7 @@ const authController = {
 
     login: async (req, res) => {
         const { username, password } = req.body;
-        const user = await User.findOne({ where: { username: username }});
+        const user = await User.findOne({ where: { username: username } });
         if (!user || !user.password || !(await user.validatePassword(password))) {
             return res.status(401).json({
                 errors: [
@@ -67,7 +71,7 @@ const authController = {
             if (user.googleId && user.googleId !== googleId) {
                 return res.status(401).json({ errors: [{ msg: 'You must sign in with a RIT email', path: 'email' }] });
             }
-  
+
             // in this case, the user manually signed up so we just update the googleId
             user.googleId = googleId;
             await user.save();
@@ -85,6 +89,58 @@ const authController = {
         const token = generateToken(user);
         const userWithBackgrounds = await getUserWithBackgrounds(user);
         return res.status(status).json({ message: 'Google callback successful', token, user: userWithBackgrounds });
+    },
+
+    discordCallback: async (req, res) => {
+        const { code } = req.body;
+        if (!code) {
+            return res.status(400).json({ message: 'No code provided' });
+        }
+        const tokenData = await discordOauth.tokenRequest({
+            clientId: process.env.DISCORD_CLIENT_ID,
+            clientSecret: process.env.DISCORD_CLIENT_SECRET,
+            code: code,
+            redirectUri: process.env.FRONTEND_URL + process.env.DISCORD_REDIRECT_ENDPOINT,
+            grantType: 'authorization_code'
+        });
+        const accessToken = tokenData.access_token;
+
+        const userData = await discordOauth.getUser(accessToken);
+        const discordId = userData.id;
+        const email = userData.email;
+        const username = email.split('@')[0];
+
+        if (!email.endsWith('@rit.edu') && !email.endsWith('@g.rit.edu') && !(await isUserInRITStudentHub(accessToken))) {
+            return res.status(401).json({ message: 'You must sign in with a RIT email to sign in' });
+        }
+
+        let status;
+        let user = await User.findOne({ where: { username: username } });
+        if (!user) {
+            user = await User.create({
+                username: username,
+                discordId: discordId
+            });
+            status = 201;
+        }
+        else {
+            user.discordId = discordId;
+            await user.save();
+            status = 200;
+        }
+
+        await discordOauth.addMember({
+            guildId: process.env.DISCORD_SERVER_ID,
+            userId: discordId,
+            botToken: process.env.DISCORD_BOT_TOKEN,
+            accessToken: accessToken
+        });
+
+        await giveUserDiscordBackground(user);
+
+        const token = generateToken(user);
+        const userWithBackgrounds = await getUserWithBackgrounds(user);
+        return res.status(status).json({ message: 'Discord callback successful', token, user: userWithBackgrounds });
     }
 }
 
