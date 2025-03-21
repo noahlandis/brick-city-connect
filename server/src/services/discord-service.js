@@ -11,7 +11,6 @@ async function initializeDiscordBot() {
     });
 
     client.on('guildMemberAdd', async (member) => {
-        console.log("User joined! Here is their discord ID: " + member.id);
 
         // since a user joined, we see if they already linked their account
         const user = await User.findOne({

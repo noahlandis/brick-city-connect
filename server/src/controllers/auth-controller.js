@@ -92,14 +92,10 @@ const authController = {
     },
 
     discordCallback: async (req, res) => {
-        console.log("Callback received");
         const { code } = req.body;
-        console.log("Code: " + code);
         if (!code) {
             return res.status(400).json({ message: 'No code provided' });
         }
-        const redirectUri = process.env.FRONTEND_URL + process.env.DISCORD_REDIRECT_ENDPOINT;
-        console.log("Redirect URI: " + redirectUri);
         const tokenData = await discordOauth.tokenRequest({
             clientId: process.env.DISCORD_CLIENT_ID,
             clientSecret: process.env.DISCORD_CLIENT_SECRET,
@@ -107,7 +103,6 @@ const authController = {
             redirectUri: process.env.FRONTEND_URL + process.env.DISCORD_REDIRECT_ENDPOINT,
             grantType: 'authorization_code'
         });
-        console.log("Token data: " + tokenData);
         const accessToken = tokenData.access_token;
 
         const userData = await discordOauth.getUser(accessToken);
