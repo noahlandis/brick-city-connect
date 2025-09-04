@@ -8,12 +8,12 @@ export function AuthProvider({ children }) {
     // Check if we have a token in localStorage
     const token = localStorage.getItem('token');
     if (token) {
-      // You might want to validate the token here
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         return payload;
       } catch (e) {
         localStorage.removeItem('token');
+        clientLogout();
         return null;
       }
     }
@@ -21,13 +21,21 @@ export function AuthProvider({ children }) {
   });
 
   const fetchUser = useCallback(async () => {
-    const fetchedUser = await getUser(user.id);
-    setUser(fetchedUser.data);
+    try {
+      const fetchedUser = await getUser(user.id);
+      setUser(fetchedUser.data);
+    } catch (error) {
+      clientLogout();
+    }
   }, [user?.id]);
 
   const clientLogin = (data) => {
-    localStorage.setItem('token', data.token);
-    setUser(data.user);
+    try {
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+    } catch (error) {
+      clientLogout();
+    }
   };
 
   const clientLogout = () => {

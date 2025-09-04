@@ -4,12 +4,12 @@ const { rewardUser } = require('./services/level-service');
 
 let io;
 
-let waitingUser = null; 
-let userWaitingToSkip = null; 
+let waitingUser = null;
+let userWaitingToSkip = null;
 
 // this ensures that a user can't be in multiple chats at once 
 // (if they try to open a new tab, we remove them from the old tab)
-let connectedUsers = {}; 
+let connectedUsers = {};
 
 /**
  * Attempts to match a user with the waiting user. 
@@ -64,18 +64,18 @@ function attemptToMatchUser(socket) {
  * @param  {...any} sockets - The sockets we are trying to rematch
  */
 function closeConnectionAndRematch(...sockets) {
-    // we close the connections both to remove stail peerJS connections and to shut down the old remote stream
-    sockets.forEach(s => s.emit('close-connection'));
-  
-    // attempt to match partners
-    sockets.forEach(s => {
-      if (s.partnerSocket) {
-        attemptToMatchUser(s.partnerSocket);
-      }
-    });
-  
-    // attempt to match the sockets themselves
-    sockets.forEach(s => attemptToMatchUser(s));
+  // we close the connections both to remove stail peerJS connections and to shut down the old remote stream
+  sockets.forEach(s => s.emit('close-connection'));
+
+  // attempt to match partners
+  sockets.forEach(s => {
+    if (s.partnerSocket) {
+      attemptToMatchUser(s.partnerSocket);
+    }
+  });
+
+  // attempt to match the sockets themselves
+  sockets.forEach(s => attemptToMatchUser(s));
 }
 
 /**
@@ -89,11 +89,11 @@ function closeConnectionAndRematch(...sockets) {
 function handleUserLeaveAndJoin(socket) {
   attemptToMatchUser(socket);
   if (userWaitingToSkip) {
-      // given A-B connection, if A clicks 'next' and gets set as the userWaitingToSkip, then B leaves, A is already the waitingUser so we don't try and match A again.
-      if (userWaitingToSkip != waitingUser) {
-        closeConnectionAndRematch(userWaitingToSkip)
-      }
-      userWaitingToSkip = null;
+    // given A-B connection, if A clicks 'next' and gets set as the userWaitingToSkip, then B leaves, A is already the waitingUser so we don't try and match A again.
+    if (userWaitingToSkip != waitingUser) {
+      closeConnectionAndRematch(userWaitingToSkip)
+    }
+    userWaitingToSkip = null;
   }
 }
 
@@ -113,89 +113,86 @@ function handleExistingUserConnection(socket) {
 }
 
 
-/**
- * The main function that sets up Socket.io on your HTTP server.
- */
 function initializeSignalingServer(httpServer) {
-    io = new Server(httpServer, {
-      cors: {
-        origin: '*', // Adjust if needed for security
-      },
-      transports: ['websocket'],
-      upgrade: false,
+  io = new Server(httpServer, {
+    cors: {
+      origin: '*',
+    },
+    transports: ['websocket'],
+    upgrade: false,
+  });
+
+  io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+    socket.on('join-chat', (peerID, userID) => {
+      // we always store the peerID as this identifies the peer to call to start the video stream
+      socket.peerID = peerID;
+      socket.userID = userID;
+      socket.startTime = Date.now();
+      handleExistingUserConnection(socket);
+      console.log("user joined chat. The id is", userID);
+      handleUserLeaveAndJoin(socket);
     });
-    
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  socket.on('join-chat', (peerID, userID) => {
-    // we always store the peerID as this identifies the peer to call to start the video stream
-    socket.peerID = peerID;
-    socket.userID = userID;
-    socket.startTime = Date.now();
-    handleExistingUserConnection(socket);
-    console.log("user joined chat. The id is", userID);
-    handleUserLeaveAndJoin(socket);
-  });
 
-  socket.on('disconnect', () => {
-    
-    console.log('User disconnected:', socket.id);
-    rewardUser(socket.userID, Date.now() - socket.startTime);
-    delete connectedUsers[socket.userID];
-    if (socket === userWaitingToSkip) {
-      userWaitingToSkip = null;
-    }
-    if (socket === waitingUser) { // if the user is the one waiting, we reset since the waiting user is the one who disconnected
-      waitingUser = null;
-    } 
-    else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
-      socket.partnerSocket.emit('close-connection');
-      handleUserLeaveAndJoin(socket.partnerSocket);
-    }
-    else {
-      Bugsnag.notify(new Error("The leaving user is without a partner, yet isn't the waiting user."), event => {
-        event.addMetadata('user', {
-          id: socket.id,
-          peerID: socket.peerID,
-          userID: socket.userID,
-        });
-      });
-    }
-  });
+    socket.on('disconnect', () => {
 
-
-  socket.on('next', () => {
-    // if the user is already the waiting user or the user waiting to skip, we dont want to do anything
-    if (socket === waitingUser || userWaitingToSkip == socket) {
-      console.log("can't skip user, no users to match with");
-      socket.emit('waiting-to-skip');
-      return;
-    }
-
-    if (!waitingUser) {     
-      if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) { // if we already have a user who expressed intent to skip (who is in another call than the user who pressed next), we exchange partners with that user
-        console.log("we should try and match ", userWaitingToSkip.id, "and ", socket.id);
-        closeConnectionAndRematch(socket, userWaitingToSkip);
+      console.log('User disconnected:', socket.id);
+      rewardUser(socket.userID, Date.now() - socket.startTime);
+      delete connectedUsers[socket.userID];
+      if (socket === userWaitingToSkip) {
         userWaitingToSkip = null;
-      } else { // since we only have one user who expressed intent to skip, we'll mark them as wanting to skip. This way, they can find a new partner when either a user in a different call wants to skip, or make them wait if a new user joins
-        console.log("adding ", socket.id, "is now the userWaitingToSkip");
-        userWaitingToSkip = socket;
-        socket.emit('waiting-to-skip');
       }
-    } else {
-      // since there is no waiting user, we just make the user who pressed next the waiting user
-      closeConnectionAndRematch(socket);
-    }
-  });
-
-
+      if (socket === waitingUser) { // if the user is the one waiting, we reset since the waiting user is the one who disconnected
+        waitingUser = null;
+      }
+      else if (socket.partnerSocket) { // the user is not the waiting user, so we try to find a match for the user left in the call
+        socket.partnerSocket.emit('close-connection');
+        handleUserLeaveAndJoin(socket.partnerSocket);
+      }
+      else {
+        Bugsnag.notify(new Error("The leaving user is without a partner, yet isn't the waiting user."), event => {
+          event.addMetadata('user', {
+            id: socket.id,
+            peerID: socket.peerID,
+            userID: socket.userID,
+          });
+        });
+      }
     });
+
+
+    socket.on('next', () => {
+      // if the user is already the waiting user or the user waiting to skip, we dont want to do anything
+      if (socket === waitingUser || userWaitingToSkip == socket) {
+        console.log("can't skip user, no users to match with");
+        socket.emit('waiting-to-skip');
+        return;
+      }
+
+      if (!waitingUser) {
+        if (userWaitingToSkip && userWaitingToSkip.partnerSocket != socket) { // if we already have a user who expressed intent to skip (who is in another call than the user who pressed next), we exchange partners with that user
+          console.log("we should try and match ", userWaitingToSkip.id, "and ", socket.id);
+          closeConnectionAndRematch(socket, userWaitingToSkip);
+          userWaitingToSkip = null;
+        } else { // since we only have one user who expressed intent to skip, we'll mark them as wanting to skip. This way, they can find a new partner when either a user in a different call wants to skip, or make them wait if a new user joins
+          console.log("adding ", socket.id, "is now the userWaitingToSkip");
+          userWaitingToSkip = socket;
+          socket.emit('waiting-to-skip');
+        }
+      } else {
+        // since there is no waiting user, we just make the user who pressed next the waiting user
+        closeConnectionAndRematch(socket);
+      }
+    });
+
+
+  });
 }
 module.exports = {
-  setWaitingUser: (user) => { waitingUser = user;},
+  setWaitingUser: (user) => { waitingUser = user; },
   setUserWaitingToSkip: (user) => { userWaitingToSkip = user; },
   getWaitingUser: () => waitingUser,
-  getUserWaitingToSkip: () => userWaitingToSkip, 
+  getUserWaitingToSkip: () => userWaitingToSkip,
   attemptToMatchUser,
   closeConnectionAndRematch,
   handleUserLeaveAndJoin,
